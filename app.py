@@ -1,6 +1,6 @@
 #!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template, request, flash, Response, abort
+from flask import Flask, render_template, request, flash, Response, abort, session, redirect
 from wtforms import Form, StringField, SubmitField, validators, ValidationError
 import numpy as np
 import os
@@ -36,6 +36,7 @@ characters = [
     "カオリ",
     "カオリ(サマー)",
     "カスミ",
+    "カヤ",
     "キャル",
     "キャル(☆6以降)",
     "キャル(サマー)",
@@ -146,7 +147,7 @@ TIMER_TENSEC = 1
 TIMER_SEC = 0
 
 UB_THRESH = 0.6
-TIMER_THRESH = 0.7
+TIMER_THRESH = 0.75
 
 FOUND = 1
 NOT_FOUND = 0
@@ -160,17 +161,26 @@ def search(youtube_id):
     # ID部分の取り出し
     work_id = re.findall('.*watch(.{14})', youtube_id)
     if not work_id:
-        return None, None
+        work_id = re.findall('.youtu.be/(.{11})', youtube_id)
+        if not work_id:
+            return None, None, None, None
+        work_id[0] = '?v=' + work_id[0]
     # Youtubeから動画を保存し保存先パスを返す
     youtubeUrl = 'https://www.youtube.com/watch' + work_id[0]
     yt = YouTube(youtubeUrl)
-    if int(yt.length) > 480:
-        return None, None
+    movieThumbnail = yt.thumbnail_url
+    movieLength = yt.length
+    if int(movieLength) > 480:
+        return None, None, None, None
+
     stream = yt.streams.get_by_itag("22")
+    if stream is None:
+        return None, None, None, None
+
     movieTitle = stream.title
     movieName = tm.time()
     moviePath = stream.download(streamDir, str(movieName))
-    return moviePath, movieTitle
+    return moviePath, movieTitle, movieLength, movieThumbnail
 
 
 def analyze_movie(movie_path):
@@ -180,6 +190,12 @@ def analyze_movie(movie_path):
 
     frame_count = int(video.get(7))  # フレーム数を取得
     frame_rate = int(video.get(5))  # フレームレート(1フレームの時間単位はミリ秒)の取得
+
+    frame_width = int(video.get(3))  # フレームの幅
+    frame_height = int(video.get(4))  # フレームの高さ
+
+    if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
+        return None
 
     n = 0.5  # n秒ごと*
     ubInterval = 0
@@ -222,8 +238,8 @@ def analyze_movie(movie_path):
     video.release()
     os.remove(movie_path)
     time_after = tm.time() - startTime
-    ubData.append("")
-    ubData.append("\n動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
+    ubData.append("　")
+    ubData.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
     ubData.append("処理時間 : {:.3f}".format(time_after) + "  sec")
     return ubData
 
@@ -288,8 +304,8 @@ app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'zJe09C5c3tMf5FnNL09C5e6SAzZuY'
 
 
-class IrisForm(Form):
-    SepalLength = StringField("Youtube Id",
+class UrlForm(Form):
+    Url = StringField("Youtube Id",
                               [validators.InputRequired("この項目は入力必須です"),
                                validators.length(min=11, max=100, message="正しいURLを入力して下さい。")])
 
@@ -299,24 +315,52 @@ class IrisForm(Form):
 
 @app.route('/', methods=['GET', 'POST'])
 def predicts():
-    form = IrisForm(request.form)
+    form = UrlForm(request.form)
     if request.method == 'POST':
         if not form.validate():
-            flash("入力する必要があります。")
             return render_template('index.html', form=form)
         else:
-            SepalLength = (request.form["SepalLength"])
+            Url = (request.form["Url"])
 
-            moviePath, movieTitle = search(SepalLength)
-            if moviePath is None:
-                flash("この動画の解析は対応してません。")
-                return render_template('index.html', form=form)
-            timeline = analyze_movie(moviePath)
+            path, title, length, thumbnail = search(Url)
+            if path is None:
+                error = "この動画の解析は対応してません。"
+                return render_template('index.html', form=form, error=error)
+            session['path'] = path
+            session['title'] = title
+            length = int(int(length) / 5)
+            return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
-            return render_template('result.html', irisName=movieTitle, timeLine=timeline)
     elif request.method == 'GET':
+        path = session.get('path')
+        session.pop('path', None)
+
+        if path is not None:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except PermissionError:
+                    print("PermissionError occur")
 
         return render_template('index.html', form=form)
+
+
+@app.route('/result', methods=['GET', 'POST'])
+def analyze():
+    path = session.get('path')
+    title = session.get('title')
+    session.pop('path', None)
+    session.pop('title', None)
+
+    if request.method == 'GET' and path is not None:
+        timeline = analyze_movie(path)
+        if timeline is not None:
+            session.pop('checking', None)
+            return render_template('result.html', title=title, timeLine=timeline)
+        else:
+            return redirect("/")
+    else:
+        return redirect("/")
 
 
 if __name__ == "__main__":
