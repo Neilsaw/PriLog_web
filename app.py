@@ -152,6 +152,12 @@ TIMER_THRESH = 0.75
 FOUND = 1
 NOT_FOUND = 0
 
+NO_ERROR = 0
+ERROR_BAD_URL = 1
+ERROR_TOO_LONG = 2
+ERROR_NOT_SUPPORTED = 3
+ERROR_CANT_GET_MOVIE = 4
+
 streamDir = "tmp/"
 if not os.path.exists(streamDir):
     os.mkdir(streamDir)
@@ -163,24 +169,28 @@ def search(youtube_id):
     if not work_id:
         work_id = re.findall('.youtu.be/(.{11})', youtube_id)
         if not work_id:
-            return None, None, None, None
+            return None, None, None, None, ERROR_BAD_URL
         work_id[0] = '?v=' + work_id[0]
     # Youtubeから動画を保存し保存先パスを返す
     youtubeUrl = 'https://www.youtube.com/watch' + work_id[0]
-    yt = YouTube(youtubeUrl)
+    try:
+        yt = YouTube(youtubeUrl)
+    except:
+        return None, None, None, None, ERROR_CANT_GET_MOVIE
+
     movieThumbnail = yt.thumbnail_url
     movieLength = yt.length
     if int(movieLength) > 480:
-        return None, None, None, None
+        return None, None, None, None, ERROR_TOO_LONG
 
     stream = yt.streams.get_by_itag("22")
     if stream is None:
-        return None, None, None, None
+        return None, None, None, None, ERROR_NOT_SUPPORTED
 
     movieTitle = stream.title
     movieName = tm.time()
     moviePath = stream.download(streamDir, str(movieName))
-    return moviePath, movieTitle, movieLength, movieThumbnail
+    return moviePath, movieTitle, movieLength, movieThumbnail, NO_ERROR
 
 
 def analyze_movie(movie_path):
@@ -322,9 +332,18 @@ def predicts():
         else:
             Url = (request.form["Url"])
 
-            path, title, length, thumbnail = search(Url)
-            if path is None:
-                error = "この動画の解析は対応してません。"
+            path, title, length, thumbnail, result = search(Url)
+            if result is ERROR_BAD_URL:
+                error = "正しいURLを入力して下さい。"
+                return render_template('index.html', form=form, error=error)
+            elif result is ERROR_TOO_LONG:
+                error = "動画時間が長すぎます。(現状8分まで)"
+                return render_template('index.html', form=form, error=error)
+            elif result is ERROR_NOT_SUPPORTED:
+                error = "動画の解析に対応していません。(720p 1280x720　のみ対応)"
+                return render_template('index.html', form=form, error=error)
+            elif result is ERROR_CANT_GET_MOVIE:
+                error = "動画の取得に失敗しました。もう一度入力をお願いします。"
                 return render_template('index.html', form=form, error=error)
             session['path'] = path
             session['title'] = title
