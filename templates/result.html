@@ -1,0 +1,29 @@
+<head>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>PriLog</title>
+  <link rel="stylesheet" type="text/css" href="/static/reset.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base159.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base159_mobile.css">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+</head>
+
+<body>
+  <div id="wrapper_ub">
+    {% if title %}
+      <div id="ubbg">
+        <div id="ubtext">
+          {% for idx in timeLine %}
+            <p>{{ idx }}</p>
+          {% endfor %}
+          <button class="button_back" onclick="location.href='/'">戻る</button>
+        </div>
+      </div>
+    {% else %}
+      <button class="button_back" onclick="location.href='/'">戻る</button>
+    {% endif %}
+  </div>
+</body>
