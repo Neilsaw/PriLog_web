@@ -6,9 +6,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base159.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base159_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base163.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base163_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.8/clipboard.min.js"></script>
+  <script>
+  $(function(){
+    var clipboard = new Clipboard('.button_clipboard');
+
+    clipboard.on('success', function(e) {
+      e.clearSelection();
+      alert("クリップボードにコピーしました");
+    });
+
+  });
+
+  </script>
 </head>
 
 <body>
@@ -16,10 +30,17 @@
     {% if title %}
       <div id="ubbg">
         <div id="ubtext">
-          {% for idx in timeLine %}
-            <p>{{ idx }}</p>
-          {% endfor %}
+          <div id="copytarget">
+            <font id="title">{{title}}</font><br>
+            {% for idx in timeLine %}
+              {{ idx }}<br>
+            {% endfor %}
+          </div><br>
+            {% for idx in timeData %}
+              <p>{{ idx }}</p>
+            {% endfor %}
           <button class="button_back" onclick="location.href='/'">戻る</button>
+          <button class="button_clipboard" data-clipboard-target="#copytarget">クリップボードにコピー</button>
         </div>
       </div>
     {% else %}
