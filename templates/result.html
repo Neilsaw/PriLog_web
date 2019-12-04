@@ -6,8 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base163.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base163_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base178.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base178_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.8/clipboard.min.js"></script>
@@ -37,8 +37,10 @@
             {% endfor %}
           </div><br>
             {% for idx in timeData %}
-              <p>{{ idx }}</p>
+              {{ idx }}<br>
             {% endfor %}
+        </div>
+        <div id="ubbutton">
           <button class="button_back" onclick="location.href='/'">戻る</button>
           <button class="button_clipboard" data-clipboard-target="#copytarget">クリップボードにコピー</button>
         </div>
