@@ -5,24 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base178.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base178_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base187.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base187_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
   <script language="javascript" type="text/javascript">
   var num = 0;
   var intervalID;
-
-  $(function() {
-    var time = {{length}};
-    var interval = time * 10;
-    $('#progress1').attr("value",num);
-
-    $(".button_go").click(function() {
-      intervalID = setInterval("updateProgress()", interval);
-    });
-  });
 
   // プログレスバーを更新する
   function updateProgress() {
@@ -35,6 +25,18 @@
       clearInterval(intervalID);
     }
   }
+
+  $(function() {
+    var time = {{length}};
+    var interval = time * 10;
+    $('#progress1').attr("value",num);
+
+    $(".button_go").click(function() {
+      intervalID = setInterval("updateProgress()", interval);
+      window.location.href = '/result';
+    });
+  });
+
   </script>
 </head>
 
@@ -46,7 +48,7 @@
       <progress id="progress1" max="100" value=""></progress><br>
       <font id="text_time">予測処理時間 : {{length}} 秒</font>
       <button class="button_back" onclick="location.href='/'">戻る</button>
-      <button class="button_go" onclick="location.href='/result'; this.disabled = true;">分析</button>
+      <button class="button_go" onclick="this.disabled = true;">分析</button>
     </div>
   </div>
 </body>
