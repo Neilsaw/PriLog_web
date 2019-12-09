@@ -341,7 +341,7 @@ def predicts():
                 error = "動画時間が長すぎるため、解析に対応しておりません"
                 return render_template('index.html', form=form, error=error)
             elif result is ERROR_NOT_SUPPORTED:
-                error = "非対応の動画です。現在は「720p 1280x720」の一部の動画に対応しております"
+                error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
                 return render_template('index.html', form=form, error=error)
             elif result is ERROR_CANT_GET_MOVIE:
                 error = "動画の取得に失敗しました。もう一度入力をお願いします"
