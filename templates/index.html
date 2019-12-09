@@ -13,25 +13,36 @@
   <meta property="og:site_name" content="PriLog" />
   <meta property="og:locale" content="ja_JP" />
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base191.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base191_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base193.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base193_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
 </head>
 
+<style>
+  .errortext {
+    position relative;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #b22222;
+    background-color: #fbd8d8;
+    width: auto;
+    line-height: 16px;
+  }
+</style>
+
 <body>
   <div id="wrapper">
     <div id="formbg">
-      {% for message in form.Url.errors %}
-        <p>{{ message }}</p>
-      {% endfor %}
-      {% if error %}
-        <p>{{ error }}</p>
-      {% endif %}
-
-      <font id="text">URLをここに貼り付けてください。</font>
+      <font id="text">URLをここに貼り付けてください</font>
       <form method="post">
-        <input name="Url" id="youtubeurl" type="text" /><br>
+        <input required name="Url" id="youtubeurl" type="text"/><br>
+        {% for message in form.Url.errors %}
+          <div class="errortext">{{ message }}</div>
+        {% endfor %}
+        {% if error %}
+          <div class="errortext">{{ error }}</div>
+        {% endif %}
         <button class="button_go" type="submit" >分析</button>
       </form>
     </div>
