@@ -317,7 +317,8 @@ app.config['SECRET_KEY'] = 'zJe09C5c3tMf5FnNL09C5e6SAzZuY'
 class UrlForm(Form):
     Url = StringField("Youtube Id",
                               [validators.InputRequired("この項目は入力必須です"),
-                               validators.length(min=11, max=100, message="正しいURLを入力して下さい。")])
+                               validators.length(min=11, max=100,
+                                                 message="URLはhttps://www.youtube.com/watch?v=...の形式でお願いします")])
 
     # html側で表示するsubmitボタンの表示
     submit = SubmitField("解析")
@@ -334,16 +335,16 @@ def predicts():
 
             path, title, length, thumbnail, result = search(Url)
             if result is ERROR_BAD_URL:
-                error = "正しいURLを入力して下さい。"
+                error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
                 return render_template('index.html', form=form, error=error)
             elif result is ERROR_TOO_LONG:
-                error = "動画時間が長すぎます。(現状8分まで)"
+                error = "動画時間が長すぎるため、解析に対応しておりません"
                 return render_template('index.html', form=form, error=error)
             elif result is ERROR_NOT_SUPPORTED:
-                error = "動画の解析に対応していません。(720p 1280x720　のみ対応)"
+                error = "現在は「720p 1280x720」の一部の動画に対応しております。"
                 return render_template('index.html', form=form, error=error)
             elif result is ERROR_CANT_GET_MOVIE:
-                error = "動画の取得に失敗しました。もう一度入力をお願いします。"
+                error = "動画の取得に失敗しました。もう一度入力をお願いします"
                 return render_template('index.html', form=form, error=error)
             session['path'] = path
             session['title'] = title
