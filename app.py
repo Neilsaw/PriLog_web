@@ -215,6 +215,7 @@ def analyze_movie(movie_path):
     timeSec1 = "0"
 
     ubData = []
+    timeData = []
     characters_find = []
 
     cap_interval = int(frame_rate * n)
@@ -248,10 +249,9 @@ def analyze_movie(movie_path):
     video.release()
     os.remove(movie_path)
     time_after = tm.time() - startTime
-    ubData.append("　")
-    ubData.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
-    ubData.append("処理時間 : {:.3f}".format(time_after) + "  sec")
-    return ubData
+    timeData.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
+    timeData.append("処理時間 : {:.3f}".format(time_after) + "  sec")
+    return ubData, timeData
 
 
 def edit_frame(frame):
@@ -373,10 +373,10 @@ def analyze():
     session.pop('title', None)
 
     if request.method == 'GET' and path is not None:
-        timeline = analyze_movie(path)
+        timeline, timedata = analyze_movie(path)
         if timeline is not None:
             session.pop('checking', None)
-            return render_template('result.html', title=title, timeLine=timeline)
+            return render_template('result.html', title=title, timeLine=timeline, timeData=timedata)
         else:
             return redirect("/")
     else:
