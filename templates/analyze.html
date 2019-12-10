@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base193.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base193_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base194.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base194_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -48,8 +48,10 @@
       <img src="{{thumbnail}}" /><br>
       <progress id="progress1" max="100" value=""></progress><br>
       <font id="text_time">予測処理時間 : {{length}} 秒</font>
-      <button class="button_back" onclick="location.href='/'">戻る</button>
-      <button class="button_go" onclick="this.disabled = true;">分析</button>
+      <div id="moviebutton">
+        <button class="button_back" onclick="location.href='/'">戻る</button>
+        <button class="button_go" onclick="this.disabled = true;">分析</button>
+      </div>
     </div>
   </div>
 </body>
