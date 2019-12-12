@@ -20,19 +20,45 @@
 </head>
 
 <style>
-  .errortext {
-    position relative;
-    margin-top: 12px;
-    font-size: 14px;
-    color: #b22222;
-    background-color: #fbd8d8;
-    width: auto;
-    line-height: 16px;
+  #header{
+    height: 50px;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    background-color: #ffffff;
+    list-style: none;
+    font-size: 0;
+  }
+
+  #header li{
+    width: 140px;
+    height: 50px;
+    line-height: 50px;
+    margin-left: 10%;
+    float: left;
+    font-size: 16px;
+  }
+
+  #header li img{
+    height: 50px;
+  }
+
+  #header li a{
+    margin-left: 0%;
+    text-align: center;
+    text-decoration: none;
   }
 </style>
 
+
 <body>
   <div id="wrapper">
+    <ul id="header">
+      <li><img src="/static/title.PNG"></li>
+      <li><a href="#">HOME</a></li>
+      <li><a href="#">HOW TO USE</a></li>
+      <li><a href="#">DOWNLOAD</a></li>
+    </ul>
     <div id="formbg">
       <font id="text">URLをここに貼り付けてください</font>
       <form method="post">
