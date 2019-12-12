@@ -209,7 +209,7 @@ def analyze_movie(movie_path):
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
         return None
 
-    n = 0.4  # n秒ごと*
+    n = 0.34  # n秒ごと*
     ubInterval = 0
 
     timeMin = "1"
@@ -221,7 +221,7 @@ def analyze_movie(movie_path):
     characters_find = []
 
     cap_interval = int(frame_rate * n)
-    skip_frame = 4 * cap_interval
+    skip_frame = 5 * cap_interval
 
     if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
         for i in range(frame_count):  # 動画の秒数を取得し、回す
@@ -350,7 +350,7 @@ def predicts():
                 return render_template('index.html', form=form, error=error)
             session['path'] = path
             session['title'] = title
-            length = int(int(length) / 5)
+            length = int(int(length) / 4)
             return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
     elif request.method == 'GET':
