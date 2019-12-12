@@ -209,7 +209,7 @@ def analyze_movie(movie_path):
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
         return None
 
-    n = 0.5  # n秒ごと*
+    n = 0.4  # n秒ごと*
     ubInterval = 0
 
     timeMin = "1"
