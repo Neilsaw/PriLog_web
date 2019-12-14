@@ -30,35 +30,54 @@
     font-size: 0;
   }
 
-  #header li{
-    width: 140px;
+  #header .menu{
+    width: 145px;
     height: 50px;
     line-height: 50px;
+    display: inline-block;
+  }
+
+  .title{
     margin-left: 10%;
-    float: left;
+  }
+
+  .title img{
+    height: 50px;
+  }
+
+  .menu{
     font-size: 16px;
+    text-align: center;
   }
 
   #header li img{
     height: 50px;
   }
 
-  #header li a{
+  .menu a{
     margin-left: 0%;
-    text-align: center;
+    padding: 20px;
     text-decoration: none;
+  }
+
+  #menubutton{
+    position: absolute;
+    right: 8px;
+    top: 0;
   }
 </style>
 
 
 <body>
   <div id="wrapper">
-    <ul id="header">
-      <li><img src="/static/title.PNG"></li>
-      <li><a href="#">HOME</a></li>
-      <li><a href="#">HOW TO USE</a></li>
-      <li><a href="#">DOWNLOAD</a></li>
-    </ul>
+    <div id="header">
+      <div class="title"><img src="/static/title.PNG"></div>
+      <div id="menubutton">
+        <div class="menu"><a href="#">HOME</a></div>
+        <div class="menu"><a href="#">HOW TO USE</a></div>
+        <div class="menu"><a href="#">DOWNLOAD</a></div>
+      </div>
+    </div>
     <div id="formbg">
       <font id="text">URLをここに貼り付けてください</font>
       <form method="post">
