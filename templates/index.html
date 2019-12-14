@@ -38,7 +38,7 @@
   }
 
   .title{
-    margin-left: 10%;
+    margin-left: 5%;
   }
 
   .title img{
@@ -50,20 +50,132 @@
     text-align: center;
   }
 
-  #header li img{
-    height: 50px;
-  }
-
   .menu a{
+    position: relative;
     margin-left: 0%;
     padding: 20px;
     text-decoration: none;
+    color: black;
+  }
+
+  .menu a::after {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: #333;
+    transform: scale(0, 1);
+    transform-origin: center top;
+    transition: transform .3s;
+  }
+
+  .menu a:hover::after {
+    transform: scale(1, 1);
   }
 
   #menubutton{
     position: absolute;
-    right: 8px;
+    right: 5%;
     top: 0;
+  }
+
+  .modalArea {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .modalBg {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30,30,30,0.9);
+  }
+
+  .modalWrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%,-50%);
+    width: 70%;
+    max-width: 500px;
+    padding: 27px 30px;
+    background-color: #fff;
+  }
+
+  .closeModal {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    cursor: pointer;
+  }
+
+  #openModal {
+    position: relative;
+    margin-left: 0%;
+    padding: 14px;
+    text-decoration: none;
+    color: black;
+    font-size: 17px;
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+
+  #openModal::after {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: #333;
+    transform: scale(0, 1);
+    transform-origin: center top;
+    transition: transform .3s;
+  }
+
+  #openModal:hover::after {
+    transform: scale(1, 1);
+  }
+
+  #testbutton {
+    width: 70px;
+    height: 35px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-bottom: solid 2px #627295;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #a9a9a9;
+    color: #696969;
+  }
+
+  #testbutton:active {
+    -webkit-transform: translateY(2px);
+    transform: translateY(2px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+  }
+  #videoContainer {
+    position: relative;
+    width: 100%;
+    max-width: 500;
+    height: 0;
+    padding-top: 56.25%;
+  }
+  #videoPlayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 </style>
 
@@ -71,11 +183,11 @@
 <body>
   <div id="wrapper">
     <div id="header">
-      <div class="title"><img src="/static/title.PNG"></div>
+      <a class="title" href="/">
+        <img src="/static/title.PNG">
+      </a>
       <div id="menubutton">
-        <div class="menu"><a href="#">HOME</a></div>
-        <div class="menu"><a href="#">HOW TO USE</a></div>
-        <div class="menu"><a href="#">DOWNLOAD</a></div>
+        <div class="menu"><button id="openModal">HOW TO USE</button></div>
       </div>
     </div>
     <div id="formbg">
@@ -94,4 +206,49 @@
       </form>
     </div>
   </div>
+
+  <section id="modalArea" class="modalArea">
+    <div id="modalBg" class="modalBg"></div>
+    <div class="modalWrapper">
+      <div class="modalContents">
+        <h1>できること</h1><br>
+        <p>プリコネのYouTube動画からタイムラインを自動生成します</p>
+        <br><h2>手順</h2><br>
+        <p>1.YouTubeからプリコネの動画を検索し、URLをコピーします</p>
+        <p>2.URLを白枠内に張り付け「分析」ボタンを押します</p>
+        <p>3.分析可能な動画であれば動画情報が表示されます</p>
+        <p>4.再度「分析」を押します</p>
+        <p>5.分析後、タイムラインが表示されます</p>
+        <br><h2>サンプル動画</h2><br>
+        <p>https://www.youtube.com/watch?v=mvLSw5vCpGU</p>
+        <button id="testbutton">テスト</button>
+        <div id="videoContainer">
+          <iframe id="videoPlayer" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div id="closeModal" class="closeModal">
+        ×
+      </div>
+    </div>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>
+    $(function () {
+      $('#openModal').click(function(){
+          $('#modalArea').fadeIn();
+          $("#videoPlayer").attr("src", "https://www.youtube.com/embed/mvLSw5vCpGU");
+      });
+      $('#closeModal , #modalBg').click(function(){
+        $('#modalArea').fadeOut();
+        $("#videoPlayer").attr("src", "");
+      });
+      $('#testbutton').click(function(){
+        $('#modalArea').fadeOut();
+        if($("#youtubeurl").length) {
+          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
+        }
+      });
+    });
+  </script>
 </body>
