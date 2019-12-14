@@ -6,8 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base194.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base194_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base198.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base198_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -21,6 +21,15 @@
       alert("クリップボードにコピーしました");
     });
 
+    $('#openModal').click(function(){
+        $('#modalArea').fadeIn();
+        $("#videoPlayer").attr("src", "https://www.youtube.com/embed/mvLSw5vCpGU");
+    });
+
+    $('#closeModal , #modalBg').click(function(){
+      $('#modalArea').fadeOut();
+      $("#videoPlayer").attr("src", "");
+    });
   });
 
   </script>
@@ -28,6 +37,14 @@
 
 <body>
   <div id="wrapper_ub">
+    <div id="header">
+      <a class="titleLogo" href="/">
+        <img src="/static/title.PNG">
+      </a>
+      <div id="menubutton">
+        <div class="menu"><button id="openModal">HOW TO USE</button></div>
+      </div>
+    </div>
     {% if title %}
       <div id="ubbg">
         <div id="ubtext">
@@ -50,4 +67,28 @@
       <button class="button_back" onclick="location.href='/'">戻る</button>
     {% endif %}
   </div>
+
+  <section id="modalArea" class="modalArea">
+    <div id="modalBg" class="modalBg"></div>
+    <div class="modalWrapper">
+      <div class="modalContents">
+        <h1>できること</h1><br>
+        <p>プリコネのYouTube動画からタイムラインを自動生成します</p>
+        <br><h2>手順</h2><br>
+        <p>1.YouTubeからプリコネの動画を検索し、URLをコピーします</p>
+        <p>2.URLを白枠内に張り付け「分析」ボタンを押します</p>
+        <p>3.分析可能な動画であれば動画情報が表示されます</p>
+        <p>4.再度「分析」を押します</p>
+        <p>5.分析後、タイムラインが表示されます</p>
+        <br><h2>サンプル動画</h2><br>
+        <p>https://www.youtube.com/watch?v=mvLSw5vCpGU</p><br>
+        <div id="videoContainer">
+          <iframe id="videoPlayer" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div id="closeModal" class="closeModal">
+        ×
+      </div>
+    </div>
+  </section>
 </body>

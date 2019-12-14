@@ -13,177 +13,37 @@
   <meta property="og:site_name" content="PriLog" />
   <meta property="og:locale" content="ja_JP" />
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base194.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base194_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base198.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base198_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>
+    $(function () {
+      $('#openModal').click(function(){
+          $('#modalArea').fadeIn();
+          $("#videoPlayer").attr("src", "https://www.youtube.com/embed/mvLSw5vCpGU");
+      });
+
+      $('#closeModal , #modalBg').click(function(){
+        $('#modalArea').fadeOut();
+        $("#videoPlayer").attr("src", "");
+      });
+
+      $('#testbutton').click(function(){
+        $('#modalArea').fadeOut();
+        if($("#youtubeurl").length) {
+          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
+        }
+      });
+    });
+  </script>
 </head>
-
-<style>
-  #header{
-    height: 50px;
-    width: 100%;
-    position: absolute;
-    top: 0px;
-    background-color: #ffffff;
-    list-style: none;
-    font-size: 0;
-  }
-
-  #header .menu{
-    width: 145px;
-    height: 50px;
-    line-height: 50px;
-    display: inline-block;
-  }
-
-  .title{
-    margin-left: 5%;
-  }
-
-  .title img{
-    height: 50px;
-  }
-
-  .menu{
-    font-size: 16px;
-    text-align: center;
-  }
-
-  .menu a{
-    position: relative;
-    margin-left: 0%;
-    padding: 20px;
-    text-decoration: none;
-    color: black;
-  }
-
-  .menu a::after {
-    position: absolute;
-    bottom: 8px;
-    left: 0;
-    content: '';
-    width: 100%;
-    height: 2px;
-    background: #333;
-    transform: scale(0, 1);
-    transform-origin: center top;
-    transition: transform .3s;
-  }
-
-  .menu a:hover::after {
-    transform: scale(1, 1);
-  }
-
-  #menubutton{
-    position: absolute;
-    right: 5%;
-    top: 0;
-  }
-
-  .modalArea {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .modalBg {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(30,30,30,0.9);
-  }
-
-  .modalWrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform:translate(-50%,-50%);
-    width: 70%;
-    max-width: 500px;
-    padding: 27px 30px;
-    background-color: #fff;
-  }
-
-  .closeModal {
-    position: absolute;
-    top: 0.5rem;
-    right: 1rem;
-    cursor: pointer;
-  }
-
-  #openModal {
-    position: relative;
-    margin-left: 0%;
-    padding: 14px;
-    text-decoration: none;
-    color: black;
-    font-size: 17px;
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-
-  #openModal::after {
-    position: absolute;
-    bottom: 8px;
-    left: 0;
-    content: '';
-    width: 100%;
-    height: 2px;
-    background: #333;
-    transform: scale(0, 1);
-    transform-origin: center top;
-    transition: transform .3s;
-  }
-
-  #openModal:hover::after {
-    transform: scale(1, 1);
-  }
-
-  #testbutton {
-    width: 70px;
-    height: 35px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    border: none;
-    border-bottom: solid 2px #627295;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #a9a9a9;
-    color: #696969;
-  }
-
-  #testbutton:active {
-    -webkit-transform: translateY(2px);
-    transform: translateY(2px);/*下に動く*/
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
-    border-bottom: none;
-  }
-  #videoContainer {
-    position: relative;
-    width: 100%;
-    max-width: 500;
-    height: 0;
-    padding-top: 56.25%;
-  }
-  #videoPlayer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
-
 
 <body>
   <div id="wrapper">
     <div id="header">
-      <a class="title" href="/">
+      <a class="titleLogo" href="/">
         <img src="/static/title.PNG">
       </a>
       <div id="menubutton">
@@ -232,23 +92,4 @@
     </div>
   </section>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script>
-    $(function () {
-      $('#openModal').click(function(){
-          $('#modalArea').fadeIn();
-          $("#videoPlayer").attr("src", "https://www.youtube.com/embed/mvLSw5vCpGU");
-      });
-      $('#closeModal , #modalBg').click(function(){
-        $('#modalArea').fadeOut();
-        $("#videoPlayer").attr("src", "");
-      });
-      $('#testbutton').click(function(){
-        $('#modalArea').fadeOut();
-        if($("#youtubeurl").length) {
-          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
-        }
-      });
-    });
-  </script>
 </body>
