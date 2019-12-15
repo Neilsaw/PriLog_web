@@ -230,12 +230,12 @@ def analyze_movie(movie_path):
                 break
 
             if i % cap_interval is 0:
-                ret, work_frame = video.read()
-                if ret is False:
-                    break
-                work_frame = edit_frame(work_frame)
-
                 if ((i - ubInterval) > skip_frame) or (ubInterval == 0):
+                    ret, work_frame = video.read()
+
+                    if ret is False:
+                        break
+                    work_frame = edit_frame(work_frame)
 
                     if timeMin is "1":
                         timeMin = analyze_timer_frame(work_frame, MIN_ROI, 2, timeMin)
