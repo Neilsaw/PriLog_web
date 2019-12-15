@@ -10,19 +10,7 @@
   <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base218_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.8/clipboard.min.js"></script>
-  <script>
-  $(function(){
-    var clipboard = new Clipboard('.button_clipboard');
-
-    clipboard.on('success', function(e) {
-      e.clearSelection();
-      alert("クリップボードにコピーしました");
-    });
-  });
-
-  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -54,4 +42,15 @@
       <button class="button_back" onclick="location.href='/'">戻る</button>
     {% endif %}
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.8/clipboard.min.js"></script>
+  <script>
+  $(function(){
+    var clipboard = new Clipboard('.button_clipboard');
+
+    clipboard.on('success', function(e) {
+      e.clearSelection();
+      alert("クリップボードにコピーしました");
+    });
+  });
+  </script>
 </body>

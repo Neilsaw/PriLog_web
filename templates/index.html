@@ -17,27 +17,7 @@
   <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base218_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script>
-    $(function () {
-      $('#openModal').click(function(){
-        $('#modalArea').fadeIn();
-        $("#videoPlayer").attr("src", "https://www.youtube-nocookie.com/embed/mvLSw5vCpGU");
-      });
-
-      $('#closeModal , #modalBg').click(function(){
-        $('#modalArea').fadeOut();
-        $("#videoPlayer").attr("src", "");
-      });
-
-      $('#testbutton').click(function(){
-        $('#modalArea').fadeOut();
-        if($("#youtubeurl").length) {
-          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
-        }
-      });
-    });
-  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -91,5 +71,24 @@
       </div>
     </div>
   </section>
+  <script>
+    $(function () {
+      $('#openModal').click(function(){
+        $('#modalArea').fadeIn();
+        $("#videoPlayer").attr("src", "https://www.youtube-nocookie.com/embed/mvLSw5vCpGU");
+      });
 
+      $('#closeModal , #modalBg').click(function(){
+        $('#modalArea').fadeOut();
+        $("#videoPlayer").attr("src", "");
+      });
+
+      $('#testbutton').click(function(){
+        $('#modalArea').fadeOut();
+        if($("#youtubeurl").length) {
+          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
+        }
+      });
+    });
+  </script>
 </body>
