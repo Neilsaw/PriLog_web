@@ -85,6 +85,7 @@
 
       $('#testbutton').click(function(){
         $('#modalArea').fadeOut();
+        $("#videoPlayer").attr("src", "");
         if($("#youtubeurl").length) {
           $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
         }
