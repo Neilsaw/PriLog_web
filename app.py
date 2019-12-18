@@ -368,20 +368,35 @@ def predicts():
         return render_template('index.html', form=form)
 
 
-@app.route('/result', methods=['GET', 'POST'])
+@app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
     path = session.get('path')
-    title = session.get('title')
     session.pop('path', None)
-    session.pop('title', None)
 
     if request.method == 'GET' and path is not None:
         timeline, timedata = analyze_movie(path)
         if timeline is not None:
+            session['timeline'] = timeline
+            session['timedata'] = timedata
             session.pop('checking', None)
-            return render_template('result.html', title=title, timeLine=timeline, timeData=timedata)
+            return render_template('analyze.html')
         else:
             return redirect("/")
+    else:
+        return redirect("/")
+
+
+@app.route('/result', methods=['GET', 'POST'])
+def result():
+    title = session.get('title')
+    timeline = session.get('timeline')
+    timedata = session.get('timedata')
+    session.pop('title', None)
+    session.pop('timeline', None)
+    session.pop('timedata', None)
+
+    if request.method == 'GET' and timeline is not None:
+        return render_template('result.html', title=title, timeLine=timeline, timeData=timedata)
     else:
         return redirect("/")
 
