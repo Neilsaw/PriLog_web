@@ -41,6 +41,7 @@
 
     $(".button_go").click(function() {
       intervalID = setInterval(function(){
+        // プログレスバーの進捗値を更新し、プログレスバーに反映させる
         num += 1;
         if (num <= 100) {
           $('#progress1').attr("value",num);
