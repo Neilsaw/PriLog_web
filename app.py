@@ -161,9 +161,9 @@ ERROR_TOO_LONG = 2
 ERROR_NOT_SUPPORTED = 3
 ERROR_CANT_GET_MOVIE = 4
 
-streamDir = "tmp/"
-if not os.path.exists(streamDir):
-    os.mkdir(streamDir)
+stream_dir = "tmp/"
+if not os.path.exists(stream_dir):
+    os.mkdir(stream_dir)
 
 
 def search(youtube_id):
@@ -175,30 +175,30 @@ def search(youtube_id):
             return None, None, None, None, ERROR_BAD_URL
         work_id[0] = '?v=' + work_id[0]
     # Youtubeから動画を保存し保存先パスを返す
-    youtubeUrl = 'https://www.youtube.com/watch' + work_id[0]
+    youtube_url = 'https://www.youtube.com/watch' + work_id[0]
     try:
-        yt = YouTube(youtubeUrl)
+        yt = YouTube(youtube_url)
     except:
         return None, None, None, None, ERROR_CANT_GET_MOVIE
 
-    movieThumbnail = yt.thumbnail_url
-    movieLength = yt.length
-    if int(movieLength) > 480:
+    movie_thumbnail = yt.thumbnail_url
+    movie_length = yt.length
+    if int(movie_length) > 480:
         return None, None, None, None, ERROR_TOO_LONG
 
     stream = yt.streams.get_by_itag("22")
     if stream is None:
         return None, None, None, None, ERROR_NOT_SUPPORTED
 
-    movieTitle = stream.title
-    movieName = tm.time()
-    moviePath = stream.download(streamDir, str(movieName))
-    return moviePath, movieTitle, movieLength, movieThumbnail, NO_ERROR
+    movie_title = stream.title
+    movie_name = tm.time()
+    movie_path = stream.download(stream_dir, str(movie_name))
+    return movie_path, movie_title, movie_length, movie_thumbnail, NO_ERROR
 
 
 def analyze_movie(movie_path):
     # 動画解析し結果をリストで返す
-    startTime = tm.time()
+    start_time = tm.time()
     video = cv2.VideoCapture(movie_path)
 
     frame_count = int(video.get(7))  # フレーム数を取得
@@ -211,14 +211,14 @@ def analyze_movie(movie_path):
         return None
 
     n = 0.34  # n秒ごと*
-    ubInterval = 0
+    ub_interval = 0
 
-    timeMin = "1"
-    timeSec10 = "3"
-    timeSec1 = "0"
+    time_min = "1"
+    time_sec10 = "3"
+    time_sec1 = "0"
 
-    ubData = []
-    timeData = []
+    ub_data = []
+    time_data = []
     characters_find = []
 
     cap_interval = int(frame_rate * n)
@@ -231,38 +231,37 @@ def analyze_movie(movie_path):
                 break
 
             if i % cap_interval is 0:
-                if ((i - ubInterval) > skip_frame) or (ubInterval == 0):
+                if ((i - ub_interval) > skip_frame) or (ub_interval == 0):
                     ret, work_frame = video.read()
 
                     if ret is False:
                         break
                     work_frame = edit_frame(work_frame)
 
-                    if timeMin is "1":
-                        timeMin = analyze_timer_frame(work_frame, MIN_ROI, 2, timeMin)
+                    if time_min is "1":
+                        time_min = analyze_timer_frame(work_frame, MIN_ROI, 2, time_min)
 
-                    timeSec10 = analyze_timer_frame(work_frame, TENSEC_ROI, 6, timeSec10)
-                    timeSec1 = analyze_timer_frame(work_frame, ONESEC_ROI, 10, timeSec1)
+                    time_sec10 = analyze_timer_frame(work_frame, TENSEC_ROI, 6, time_sec10)
+                    time_sec1 = analyze_timer_frame(work_frame, ONESEC_ROI, 10, time_sec1)
 
-                    result = analyze_ub_frame(work_frame, timeMin, timeSec10, timeSec1, ubData, characters_find)
+                    ub_result = analyze_ub_frame(work_frame, time_min, time_sec10, time_sec1, ub_data, characters_find)
 
-                    if result is FOUND:
-                        ubInterval = i
+                    if ub_result is FOUND:
+                        ub_interval = i
 
     video.release()
     os.remove(movie_path)
-    time_after = tm.time() - startTime
-    timeData.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
-    timeData.append("処理時間 : {:.3f}".format(time_after) + "  sec")
-    return ubData, timeData
+    time_result = tm.time() - start_time
+    time_data.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
+    time_data.append("処理時間 : {:.3f}".format(time_result) + "  sec")
+    return ub_data, time_data
 
 
 def edit_frame(frame):
     work_frame = frame
 
-#    work_frame = cv2.resize(work_frame, dsize=(FRAME_COLS, FRAME_ROWS))
     work_frame = cv2.cvtColor(work_frame, cv2.COLOR_RGB2GRAY)
-    ret, work_frame = cv2.threshold(work_frame, 200, 255, cv2.THRESH_BINARY)
+    work_frame = cv2.threshold(work_frame, 200, 255, cv2.THRESH_BINARY)[1]
     work_frame = cv2.bitwise_not(work_frame)
 
     return work_frame
@@ -336,17 +335,17 @@ def predicts():
         else:
             Url = (request.form["Url"])
 
-            path, title, length, thumbnail, result = search(Url)
-            if result is ERROR_BAD_URL:
+            path, title, length, thumbnail, url_result = search(Url)
+            if url_result is ERROR_BAD_URL:
                 error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
                 return render_template('index.html', form=form, error=error)
-            elif result is ERROR_TOO_LONG:
+            elif url_result is ERROR_TOO_LONG:
                 error = "動画時間が長すぎるため、解析に対応しておりません"
                 return render_template('index.html', form=form, error=error)
-            elif result is ERROR_NOT_SUPPORTED:
+            elif url_result is ERROR_NOT_SUPPORTED:
                 error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
                 return render_template('index.html', form=form, error=error)
-            elif result is ERROR_CANT_GET_MOVIE:
+            elif url_result is ERROR_CANT_GET_MOVIE:
                 error = "動画の取得に失敗しました。もう一度入力をお願いします"
                 return render_template('index.html', form=form, error=error)
             session['path'] = path
@@ -374,10 +373,10 @@ def analyze():
     session.pop('path', None)
 
     if request.method == 'GET' and path is not None:
-        timeline, timedata = analyze_movie(path)
-        if timeline is not None:
-            session['timeline'] = timeline
-            session['timedata'] = timedata
+        time_line, time_data = analyze_movie(path)
+        if time_line is not None:
+            session['time_line'] = time_line
+            session['time_data'] = time_data
             session.pop('checking', None)
             return render_template('analyze.html')
         else:
@@ -389,14 +388,14 @@ def analyze():
 @app.route('/result', methods=['GET', 'POST'])
 def result():
     title = session.get('title')
-    timeline = session.get('timeline')
-    timedata = session.get('timedata')
+    time_line = session.get('time_line')
+    time_data = session.get('time_data')
     session.pop('title', None)
-    session.pop('timeline', None)
-    session.pop('timedata', None)
+    session.pop('time_line', None)
+    session.pop('time_data', None)
 
-    if request.method == 'GET' and timeline is not None:
-        return render_template('result.html', title=title, timeLine=timeline, timeData=timedata)
+    if request.method == 'GET' and time_line is not None:
+        return render_template('result.html', title=title, timeLine=time_line, timeData=time_data)
     else:
         return redirect("/")
 
