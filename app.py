@@ -351,7 +351,7 @@ def predicts():
                 return render_template('index.html', form=form, error=error)
             session['path'] = path
             session['title'] = title
-            length = int(int(length) / 4)
+            length = int(int(length) / 4) + 3
             return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
     elif request.method == 'GET':
