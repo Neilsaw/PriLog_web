@@ -1,21 +1,20 @@
 #!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template, request, flash, Response, abort, session, redirect
-from wtforms import Form, StringField, SubmitField, validators, ValidationError
+from flask import Flask, render_template, request, session, redirect
 import numpy as np
 import os
 import re
 from pytube import YouTube
-import sys
 import time as tm
-sys.path.append('/home/prilog/lib')
 import cv2
 
-
+# キャラクター名テンプレート
 characters_data = np.load("model/UB_name.npy")
 
+# 時間テンプレート
 sec_data = np.load("model/timer_sec.npy")
 
+# キャラクター名一覧
 characters = [
     "アオイ",
     "アオイ(編入生)",
@@ -124,6 +123,7 @@ characters = [
     "レム",
 ]
 
+# 時間一覧
 timer = [
     "0",
     "1",
@@ -142,11 +142,11 @@ FRAME_ROWS = 720
 
 UB_ROI = (440, 100, 860, 130)
 MIN_ROI = (1072, 24, 1090, 42)
-TENSEC_ROI = (1090, 24, 1108, 42)
-ONESEC_ROI = (1104, 24, 1122, 42)
+TEN_SEC_ROI = (1090, 24, 1108, 42)
+ONE_SEC_ROI = (1104, 24, 1122, 42)
 
 TIMER_MIN = 2
-TIMER_TENSEC = 1
+TIMER_TEN_SEC = 1
 TIMER_SEC = 0
 
 UB_THRESH = 0.6
@@ -241,8 +241,8 @@ def analyze_movie(movie_path):
                     if time_min is "1":
                         time_min = analyze_timer_frame(work_frame, MIN_ROI, 2, time_min)
 
-                    time_sec10 = analyze_timer_frame(work_frame, TENSEC_ROI, 6, time_sec10)
-                    time_sec1 = analyze_timer_frame(work_frame, ONESEC_ROI, 10, time_sec1)
+                    time_sec10 = analyze_timer_frame(work_frame, TEN_SEC_ROI, 6, time_sec10)
+                    time_sec1 = analyze_timer_frame(work_frame, ONE_SEC_ROI, 10, time_sec1)
 
                     ub_result = analyze_ub_frame(work_frame, time_min, time_sec10, time_sec1, ub_data, characters_find)
 
@@ -316,42 +316,28 @@ app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'zJe09C5c3tMf5FnNL09C5e6SAzZuY'
 
 
-class UrlForm(Form):
-    Url = StringField("Youtube Id",
-                              [validators.InputRequired("この項目は入力必須です"),
-                               validators.length(min=11, max=100,
-                                                 message="URLはhttps://www.youtube.com/watch?v=...の形式でお願いします")])
-
-    # html側で表示するsubmitボタンの表示
-    submit = SubmitField("解析")
-
-
 @app.route('/', methods=['GET', 'POST'])
 def predicts():
-    form = UrlForm(request.form)
     if request.method == 'POST':
-        if not form.validate():
-            return render_template('index.html', form=form)
-        else:
-            Url = (request.form["Url"])
+        Url = (request.form["Url"])
 
-            path, title, length, thumbnail, url_result = search(Url)
-            if url_result is ERROR_BAD_URL:
-                error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
-                return render_template('index.html', form=form, error=error)
-            elif url_result is ERROR_TOO_LONG:
-                error = "動画時間が長すぎるため、解析に対応しておりません"
-                return render_template('index.html', form=form, error=error)
-            elif url_result is ERROR_NOT_SUPPORTED:
-                error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
-                return render_template('index.html', form=form, error=error)
-            elif url_result is ERROR_CANT_GET_MOVIE:
-                error = "動画の取得に失敗しました。もう一度入力をお願いします"
-                return render_template('index.html', form=form, error=error)
-            session['path'] = path
-            session['title'] = title
-            length = int(int(length) / 4) + 3
-            return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
+        path, title, length, thumbnail, url_result = search(Url)
+        if url_result is ERROR_BAD_URL:
+            error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
+            return render_template('index.html', error=error)
+        elif url_result is ERROR_TOO_LONG:
+            error = "動画時間が長すぎるため、解析に対応しておりません"
+            return render_template('index.html', error=error)
+        elif url_result is ERROR_NOT_SUPPORTED:
+            error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+            return render_template('index.html', error=error)
+        elif url_result is ERROR_CANT_GET_MOVIE:
+            error = "動画の取得に失敗しました。もう一度入力をお願いします"
+            return render_template('index.html', error=error)
+        session['path'] = path
+        session['title'] = title
+        length = int(int(length) / 4) + 3
+        return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
     elif request.method == 'GET':
         path = session.get('path')
@@ -364,7 +350,7 @@ def predicts():
                 except PermissionError:
                     print("PermissionError occur")
 
-        return render_template('index.html', form=form)
+        return render_template('index.html')
 
 
 @app.route('/analyze', methods=['GET', 'POST'])
