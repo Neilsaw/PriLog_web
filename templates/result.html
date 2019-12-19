@@ -6,23 +6,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base225.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base225_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base227.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base227_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
 </head>
 
 <body>
-  <div id="wrapper_ub">
+  <div id="wrapperUb">
     <div id="header">
       <a class="titleLogo" href="/">
         <img src="/static/title.PNG">
       </a>
     </div>
     {% if title %}
-      <div id="ubbg">
-        <div id="ubtext">
-          <div id="copytarget">
+      <div id="ubBg">
+        <div id="ubText">
+          <div id="copyTarget">
             <font id="title">{{title}}</font><br>
             {% for idx in timeLine %}
               {{ idx }}<br>
@@ -32,20 +32,20 @@
               {{ idx }}<br>
             {% endfor %}
         </div>
-        <div id="ubbutton">
-          <button class="button_back" onclick="location.href='/'">戻る</button>
-          <button class="button_clipboard" data-clipboard-target="#copytarget">クリップボードにコピー</button>
+        <div id="ubButton">
+          <button class="buttonBack" onclick="location.href='/'">戻る</button>
+          <button class="buttonClipboard" data-clipboard-target="#copyTarget">クリップボードにコピー</button>
         </div>
       </div>
     {% else %}
-      <button class="button_back" onclick="location.href='/'">戻る</button>
+      <button class="buttonBack" onclick="location.href='/'">戻る</button>
     {% endif %}
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.8/clipboard.min.js"></script>
   <script>
   $(function(){
-    var clipboard = new Clipboard('.button_clipboard');
+    var clipboard = new Clipboard('.buttonClipboard');
 
     clipboard.on('success', function(e) {
       e.clearSelection();

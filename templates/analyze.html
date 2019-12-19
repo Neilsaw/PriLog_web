@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PriLog</title>
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base225.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base225_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base227.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base227_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link rel="canonical" href="https://prilog.jp/"/>
@@ -19,14 +19,14 @@
         <img src="/static/title.PNG">
       </a>
     </div>
-    <div id="formbg">
+    <div id="formBg">
       <font id="title">{{title}}</font><br>
       <img src="{{thumbnail}}" /><br>
       <progress id="progress1" max="100" value=""></progress><br>
-      <font id="text_time">予測処理時間 : {{length}} 秒</font>
-      <div id="moviebutton">
-        <button class="button_back" onclick="location.href='/'">戻る</button>
-        <button class="button_go" onclick="this.disabled = true;">分析</button>
+      <font id="textTime">予測処理時間 : {{length}} 秒</font>
+      <div id="movieButton">
+        <button class="buttonBack" onclick="location.href='/'">戻る</button>
+        <button class="buttonGo" onclick="this.disabled = true;">分析</button>
       </div>
     </div>
   </div>
@@ -39,7 +39,7 @@
     var interval = time * 10;
     $('#progress1').attr("value",num);
 
-    $(".button_go").click(function() {
+    $(".buttonGo").click(function() {
       intervalID = setInterval(function(){
         // プログレスバーの進捗値を更新し、プログレスバーに反映させる
         num += 1;

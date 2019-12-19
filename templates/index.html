@@ -13,8 +13,8 @@
   <meta property="og:site_name" content="PriLog" />
   <meta property="og:locale" content="ja_JP" />
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base225.css">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base225_mobile.css">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base227.css">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base227_mobile.css">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link rel="canonical" href="https://prilog.jp/"/>
@@ -28,21 +28,18 @@
         <img src="/static/title.PNG">
       </a>
     </div>
-    <div id="formbg">
+    <div id="formBg">
       <font id="text">URLをここに貼り付けてください</font>
       <form method="post">
-        <input required name="Url" id="youtubeurl" type="text"/><br>
-        <div id="urlbutton">
-          {% for message in form.Url.errors %}
-            <div class="errortext">{{ message }}</div>
-          {% endfor %}
+        <input required name="Url" id="youtubeUrl" type="text"/><br>
+        <div id="urlButton">
           {% if error %}
-            <div class="errortext">{{ error }}</div>
+            <div class="errorText">{{ error }}</div>
           {% endif %}
-          <button class="button_go" type="submit" >分析</button>
+          <button class="buttonGo" type="submit" >分析</button>
         </div>
       </form>
-      <div id="menubutton">
+      <div id="menuButton">
         <div class="menu"><button id="openModal">HOW TO USE</button></div>
       </div>
     </div>
@@ -62,8 +59,8 @@
         <p>5.タイムラインが表示されます</p>
         <br><h2>サンプル動画</h2>
         <p>https://www.youtube.com/watch?v=mvLSw5vCpGU</p>
-        <div class="centerobject">
-          <button id="testbutton">テスト</button>
+        <div class="centerObject">
+          <button id="testButton">テスト</button>
         </div>
         <div id="videoContainer">
           <iframe id="videoPlayer" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -86,11 +83,11 @@
         $("#videoPlayer").attr("src", "");
       });
 
-      $('#testbutton').click(function(){
+      $('#testButton').click(function(){
         $('#modalArea').fadeOut();
         $("#videoPlayer").attr("src", "");
-        if($("#youtubeurl").length) {
-          $("#youtubeurl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
+        if($("#youtubeUrl").length) {
+          $("#youtubeUrl").val("https://www.youtube.com/watch?v=mvLSw5vCpGU");
         }
       });
     });
