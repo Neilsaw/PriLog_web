@@ -4,6 +4,7 @@ from pytube import YouTube
 import cv2
 import re
 import sys
+import shutil
 import time as tm
 from collections import deque
 
@@ -19,6 +20,10 @@ FRAME_ROWS = 720
 
 UB_ROI = (520, 100, 780, 130)
 
+BACKSPACE_KEY = 8
+ENTER_KEY = 13
+ESC_KEY = 27
+
 
 stream_dir = "movie/"
 if not os.path.exists(stream_dir):
@@ -29,7 +34,19 @@ def main():
 
     url_result, movie_path = get_youtube_movie()
     check_youtube_movie(url_result)
-    analyze_movie(movie_path)
+    analyze_result, master_frame = analyze_movie(movie_path)
+
+    if analyze_result is not True:
+        print("対象フレームが見つかりませんでした。終了します")
+        return -1
+
+    character_name = get_character_name()
+
+    save_learning_data(character_name, master_frame)
+
+    print("画像の保存が完了しました。終了します")
+
+    return 0
 
 
 def get_youtube_movie():
@@ -45,7 +62,7 @@ def get_youtube_movie():
 
     """
 
-    print("Enter YouTube URL")
+    print("\nYouTube URL を入力して下さい")
     input_url = input(">> ")
 
     work_id = re.findall(".*watch(.{14})", input_url)
@@ -87,16 +104,16 @@ def check_youtube_movie(url_result):
     """
 
     if url_result is ERROR_BAD_URL:
-        print("URLはhttps://www.youtube.com/watch?v=...の形式でお願いします")
+        print("\nURLはhttps://www.youtube.com/watch?v=...の形式でお願いします")
         sys.exit()
     elif url_result is ERROR_TOO_LONG:
-        print("動画時間が長すぎるため、解析に対応しておりません")
+        print("\n動画時間が長すぎるため、解析に対応しておりません")
         sys.exit()
     elif url_result is ERROR_NOT_SUPPORTED:
-        print("非対応の動画です。「720p 1280x720」の一部の動画に対応しております")
+        print("\n非対応の動画です。「720p 1280x720」の一部の動画に対応しております")
         sys.exit()
     elif url_result is ERROR_CANT_GET_MOVIE:
-        print("動画の取得に失敗しました。もう一度入力をお願いします")
+        print("\n動画の取得に失敗しました。もう一度入力をお願いします")
         sys.exit()
 
     return
@@ -109,7 +126,7 @@ def analyze_movie(movie_path):
         movie_path (str): movie path form user input url
 
     Returns:
-        int: analyze result
+        Bool: analyze result
         Mat: user select image
 
     """
@@ -124,20 +141,22 @@ def analyze_movie(movie_path):
     frame_height = int(video.get(4))  # フレームの高さ
 
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
-        return None
+        video.release()
+        os.remove(movie_path)
+        return False, None
 
     while True:
-        print("Enter Analyze Start second")
+        print("\n解析開始時刻(秒)を入力して下さい")
         input_sec = input(">> ")
         skip_frame = int(int(input_sec) * frame_rate)
 
         if skip_frame > frame_count:
             over_time = (skip_frame - frame_count) / frame_rate
-            print("your input time is longer than movie length, please input time. "
-                  "over : " + str(over_time) + " seconds)")
+            print("動画時間を超えています  超過 : " + str(over_time) + " 秒)")
         else:
             break
-
+    print("\n操作方法")
+    print("BackSpace : 前のフレーム / Enter : 次のフレーム / Esc : 確定\n")
     for i in range(frame_count):  # 動画の秒数を取得し、回す
         ret = video.grab()
         if ret is False:
@@ -151,10 +170,16 @@ def analyze_movie(movie_path):
 
             work_frame = edit_frame(work_frame)
             frame_que.appendleft(work_frame)
+            check_result, master_frame = image_check(frame_que)
+
+            if check_result is True:
+                video.release()
+                os.remove(movie_path)
+                return True, master_frame
 
     video.release()
     os.remove(movie_path)
-    return None
+    return False, None
 
 
 def edit_frame(frame):
@@ -171,11 +196,126 @@ def edit_frame(frame):
     work_frame = frame
 
     work_frame = work_frame[UB_ROI[1]:UB_ROI[3], UB_ROI[0]:UB_ROI[2]]
-    work_frame = cv2.cvtColor(work_frame, cv2.COLOR_RGB2GRAY)
-    work_frame = cv2.threshold(work_frame, 200, 255, cv2.THRESH_BINARY)[1]
-    work_frame = cv2.bitwise_not(work_frame)
 
     return work_frame
+
+
+def image_check(frame_que):
+    """check movie for found ub master frame
+
+    check frame que from [0] to last (Max 10 frame)
+
+    user able to search frame with keyboard
+    BackSpace: show previous frame
+    Enter: show following frame, if this key push with latest frame, then read next frame
+    Esc: select master frame
+
+    Args:
+        frame_que (deque): ub name que
+
+    Returns:
+        BOOL: image found (True) or not found (False)
+        Mat: master_frame
+
+    """
+
+    frame_num = len(frame_que)
+    frame_max = frame_num - 1
+    que_index = 0
+
+    while True:
+        cv2.namedWindow('window')
+        cv2.imshow('window', frame_que[que_index])
+        key = cv2.waitKey(0) & 0xFF
+        if key == BACKSPACE_KEY:
+            if que_index < frame_max:
+                # check continue to previous frame
+                que_index += 1
+                cv2.destroyAllWindows()
+
+        elif key == ESC_KEY:
+            # check finish confirm
+            print("この画像で確定しますか？")
+            print("BackSpace : 戻る / Enter : 確定\n")
+            while True:
+                confirm_key = cv2.waitKey(0) & 0xFF
+                if confirm_key == BACKSPACE_KEY:
+                    # check continue
+                    cv2.destroyAllWindows()
+                    break
+                elif confirm_key == ENTER_KEY:
+                    # check finish with find master frame
+                    print("画像を確定しました\n")
+                    return True, frame_que[que_index]
+
+        elif key == ENTER_KEY:
+            if que_index <= 0:
+                # check finish with all frame has checked
+                cv2.destroyAllWindows()
+                break
+            else:
+                # check continue to following frame
+                que_index -= 1
+                cv2.destroyAllWindows()
+
+    return False, None
+
+
+def get_character_name():
+    """get character name
+
+    Args:
+
+    Returns:
+        str: character_name
+
+    """
+
+    while True:
+        print("キャラクター名を入力して下さい")
+        character_name = input(">> ")
+
+        print("\n"+character_name + "　　でよろしいでしょうか？")
+        print("BackSpace : 戻る / Enter : 確定\n")
+        while True:
+            key = cv2.waitKey(0) & 0xFF
+            if key == BACKSPACE_KEY:
+                break
+            elif key == ENTER_KEY:
+                cv2.destroyAllWindows()
+                print("名前を確定しました\n")
+                return character_name
+
+
+def save_learning_data(character_name, master_frame):
+    """save learning data as image
+
+    Args:
+        character_name (str): image name
+        master_frame (mat): master_frame
+
+    Returns:
+
+    """
+
+    learning_dir = "learning_data/"
+    if not os.path.exists(learning_dir):
+        os.mkdir(learning_dir)
+
+    image_dir = learning_dir + character_name + "/"
+    if not os.path.exists(image_dir):
+        os.mkdir(image_dir)
+
+    tmp_dir = learning_dir + "tmp/"
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+
+    tmp_image_dir = tmp_dir + "1" + ".png"
+    cv2.imwrite(tmp_image_dir, master_frame)
+
+    shutil.move(tmp_image_dir, image_dir)
+
+    return
 
 
 if __name__ == "__main__":

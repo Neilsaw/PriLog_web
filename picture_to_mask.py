@@ -4,7 +4,7 @@ from PIL import Image
 import os, glob
 
 # 画像が保存されているルートディレクトリのパス
-root_dir = "../../LearningData/UB_name_master"
+root_dir = "./learning_data"
 # キャラクター名
 characters = [
     "アオイ",
@@ -154,5 +154,5 @@ for idx, cat in enumerate(characters):
         allfiles.append((idx, f))
 
 X_train, y_train = make_sample(allfiles)
-# データを保存する（データの名前を「UB_ALL.npy」としている）
+# データを保存する（データの名前を「UB_name.npy」としている）
 np.save("model/UB_name.npy", X_train)
