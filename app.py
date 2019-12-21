@@ -193,6 +193,7 @@ def search(youtube_id):
     movie_title = stream.title
     movie_name = tm.time()
     movie_path = stream.download(stream_dir, str(movie_name))
+
     return movie_path, movie_title, movie_length, movie_thumbnail, NO_ERROR
 
 
@@ -209,7 +210,9 @@ def analyze_movie(movie_path):
 
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
         video.release()
-        return None
+        os.remove(movie_path)
+
+        return None, None
 
     n = 0.34  # n秒ごと*
     ub_interval = 0
@@ -255,6 +258,7 @@ def analyze_movie(movie_path):
     time_result = tm.time() - start_time
     time_data.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
     time_data.append("処理時間 : {:.3f}".format(time_result) + "  sec")
+
     return ub_data, time_data
 
 
@@ -281,6 +285,7 @@ def analyze_ub_frame(frame, time_min, time_10sec, time_sec, ub_data, characters_
                 ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[j])
                 if j not in characters_find:
                     characters_find.append(j)
+
                 return FOUND
     else:
         for j in range(5):
@@ -288,6 +293,7 @@ def analyze_ub_frame(frame, time_min, time_10sec, time_sec, ub_data, characters_
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > UB_THRESH:
                 ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[characters_find[j]])
+
                 return FOUND
 
     return NOT_FOUND
@@ -295,13 +301,6 @@ def analyze_ub_frame(frame, time_min, time_10sec, time_sec, ub_data, characters_
 
 def analyze_timer_frame(frame, roi, data_num, time_data):
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
-
-    """
-    cv2.namedWindow('window')
-    cv2.imshow('window', analyze_frame)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    """
 
     for j in range(data_num):
         result_temp = cv2.matchTemplate(analyze_frame, sec_data[j], cv2.TM_CCOEFF_NORMED)
@@ -338,20 +337,25 @@ def predicts():
         session['path'] = path
         session['title'] = title
         length = int(int(length) / 4) + 3
+
         return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
     elif request.method == 'GET':
         path = session.get('path')
         session.pop('path', None)
 
-        if path is not None:
+        error = None
+        if path is ERROR_NOT_SUPPORTED:
+            error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+
+        elif path is not None:
             if os.path.exists(path):
                 try:
                     os.remove(path)
                 except PermissionError:
                     print("PermissionError occur")
 
-        return render_template('index.html')
+        return render_template('index.html', error=error)
 
 
 @app.route('/analyze', methods=['GET', 'POST'])
@@ -367,7 +371,8 @@ def analyze():
             session.pop('checking', None)
             return render_template('analyze.html')
         else:
-            return redirect("/")
+            session['path'] = ERROR_NOT_SUPPORTED
+            return render_template('analyze.html')
     else:
         return redirect("/")
 
