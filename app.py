@@ -208,6 +208,7 @@ def analyze_movie(movie_path):
     frame_height = int(video.get(4))  # フレームの高さ
 
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
+        video.release()
         return None
 
     n = 0.34  # n秒ごと*
