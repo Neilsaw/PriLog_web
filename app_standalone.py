@@ -44,6 +44,7 @@ characters = [
     "キャル",
     "キャル",      # ☆6以降
     "キャル(サマー)",
+    "キャル(ニューイヤー)",
     "キョウカ",
     "キョウカ(ハロウィン)",
     "クウカ",
@@ -70,6 +71,7 @@ characters = [
     "スズナ(サマー)",
     "スズメ",
     "スズメ(サマー)",
+    "スズメ(ニューイヤー)",
     "タマキ",
     "タマキ(サマー)",
     "チカ",
@@ -111,6 +113,7 @@ characters = [
     "ユイ",
     "ユイ(ニューイヤー)",
     "ユカリ",
+    "ユカリ",      # ☆6以降
     "ユキ",
     "ヨリ",
     "ラム",
@@ -147,6 +150,9 @@ UB_ROI = (440, 100, 860, 130)
 MIN_ROI = (1072, 24, 1090, 42)
 TENSEC_ROI = (1090, 24, 1108, 42)
 ONESEC_ROI = (1104, 24, 1122, 42)
+MENU_ROI = (960, 0, 1280, 360)
+
+MENU_LOC = (203, 23)
 
 TIMER_MIN = 2
 TIMER_TENSEC = 1
@@ -154,6 +160,7 @@ TIMER_SEC = 0
 
 UB_THRESH = 0.6
 TIMER_THRESH = 0.75
+MENU_THRESH = 0.5
 
 FOUND = 1
 NOT_FOUND = 0
@@ -170,8 +177,8 @@ def edit_frame(frame):
     return work_frame_a
 
 
-def analyze_ub_frame(frame, time_min, time_10sec, time_sec, characters_find):
-    analyze_frame = frame[UB_ROI[1]:UB_ROI[3], UB_ROI[0]:UB_ROI[2]]
+def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, characters_find):
+    analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     characters_num = len(characters)
 
@@ -215,19 +222,18 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
     return time_data
 
 
-root = tkinter.Tk()
-root.withdraw()
+def analyze_menu_frame(frame, menu):
+    analyze_frame = frame[MENU_ROI[1]:MENU_ROI[3], MENU_ROI[0]:MENU_ROI[2]]
 
-fTyp = [("", "*.mp4;*.avi;*.mov;*.m4a;*.flv")]
+    result_temp = cv2.matchTemplate(analyze_frame, menu, cv2.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
+    if max_val > MENU_THRESH:
+        return True, max_loc
 
-iDir = os.path.abspath(os.path.dirname(__file__))
-file = tkinter.filedialog.askopenfilename(filetypes=fTyp, initialdir=iDir)
+    return False, None
 
-if file == "":
-    print("No video source found")
-    sys.exit(1)
 
-movie_path = file
+movie_path = '/Users/kh/Documents/GitHub/PriLog_web/tmp/1577891819073689.mp4'
 startTime = tm.time()
 video = cv2.VideoCapture(movie_path)
 
@@ -250,6 +256,15 @@ characters_find = []
 cap_interval = int(frame_rate * n)
 skip_frame = 4 * cap_interval
 
+menu = cv2.imread("model/menu.png")
+edit_menu = edit_frame(menu)
+menu_check = False
+
+min_roi = MIN_ROI
+tensec_roi = TENSEC_ROI
+onesec_roi = ONESEC_ROI
+ub_roi = UB_ROI
+
 if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
     for i in range(frame_count):  # 動画の秒数を取得し、回す
         ret = video.grab()
@@ -262,17 +277,28 @@ if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
                 break
             work_frame = edit_frame(work_frame)
 
-            if ((i - ubInterval) > skip_frame) or (ubInterval == 0):
+            if menu_check is False:
+                menu_check, menu_loc = analyze_menu_frame(work_frame, edit_menu)
+                if menu_check is True:
+                    loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
+                    roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
+                    min_roi = np.array(MIN_ROI) - np.array(roi_diff)
+                    tensec_roi = np.array(TENSEC_ROI) - np.array(roi_diff)
+                    onesec_roi = np.array(ONESEC_ROI) - np.array(roi_diff)
+                    ub_roi = np.array(UB_ROI) - np.array(roi_diff)
 
-                timeMin = analyze_timer_frame(work_frame, MIN_ROI, 2, timeMin)
+            else:
+                if ((i - ubInterval) > skip_frame) or (ubInterval == 0):
 
-                timeSec10 = analyze_timer_frame(work_frame, TENSEC_ROI, 6, timeSec10)
-                timeSec1 = analyze_timer_frame(work_frame, ONESEC_ROI, 10, timeSec1)
+                    timeMin = analyze_timer_frame(work_frame, min_roi, 2, timeMin)
 
-                result = analyze_ub_frame(work_frame, timeMin, timeSec10, timeSec1, characters_find)
+                    timeSec10 = analyze_timer_frame(work_frame, tensec_roi, 6, timeSec10)
+                    timeSec1 = analyze_timer_frame(work_frame, onesec_roi, 10, timeSec1)
 
-                if result is FOUND:
-                    ubInterval = i
+                    result = analyze_ub_frame(work_frame, ub_roi, timeMin, timeSec10, timeSec1, characters_find)
+
+                    if result is FOUND:
+                        ubInterval = i
 
 video.release()
 time_after = tm.time() - startTime
