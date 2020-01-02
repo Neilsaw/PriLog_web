@@ -14,6 +14,9 @@ characters_data = np.load("model/UB_name.npy")
 # 時間テンプレート
 sec_data = np.load("model/timer_sec.npy")
 
+# MENUテンプレート
+menu_data = np.load("model/menu.npy")
+
 # キャラクター名一覧
 characters = [
     "アオイ",
@@ -148,9 +151,9 @@ UB_ROI = (440, 100, 860, 130)
 MIN_ROI = (1072, 24, 1090, 42)
 TEN_SEC_ROI = (1090, 24, 1108, 42)
 ONE_SEC_ROI = (1104, 24, 1122, 42)
-MENU_ROI = (960, 0, 1280, 360)
+MENU_ROI = (1100, 0, 1280, 90)
 
-MENU_LOC = (203, 23)
+MENU_LOC = (63, 23)
 
 TIMER_MIN = 2
 TIMER_TEN_SEC = 1
@@ -229,8 +232,6 @@ def analyze_movie(movie_path):
     time_sec10 = "3"
     time_sec1 = "0"
 
-    menu = cv2.imread("model/menu.png")
-    edit_menu = edit_frame(menu)
     menu_check = False
 
     min_roi = MIN_ROI
@@ -260,7 +261,7 @@ def analyze_movie(movie_path):
                     work_frame = edit_frame(work_frame)
 
                     if menu_check is False:
-                        menu_check, menu_loc = analyze_menu_frame(work_frame, edit_menu)
+                        menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data)
                         if menu_check is True:
                             loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
                             roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])

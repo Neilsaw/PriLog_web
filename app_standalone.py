@@ -18,6 +18,8 @@ characters_data = np.load("model/UB_name.npy")
 
 sec_data = np.load("model/timer_sec.npy")
 
+menu_data = np.load("model/menu.npy")
+
 characters = [
     "アオイ",
     "アオイ(編入生)",
@@ -150,9 +152,9 @@ UB_ROI = (440, 100, 860, 130)
 MIN_ROI = (1072, 24, 1090, 42)
 TENSEC_ROI = (1090, 24, 1108, 42)
 ONESEC_ROI = (1104, 24, 1122, 42)
-MENU_ROI = (960, 0, 1280, 360)
+MENU_ROI = (1100, 0, 1280, 90)
 
-MENU_LOC = (203, 23)
+MENU_LOC = (63, 23)
 
 TIMER_MIN = 2
 TIMER_TENSEC = 1
@@ -225,6 +227,13 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
 def analyze_menu_frame(frame, menu):
     analyze_frame = frame[MENU_ROI[1]:MENU_ROI[3], MENU_ROI[0]:MENU_ROI[2]]
 
+    """
+    cv2.namedWindow('window')
+    cv2.imshow('window', analyze_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    """
+
     result_temp = cv2.matchTemplate(analyze_frame, menu, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
     if max_val > MENU_THRESH:
@@ -233,7 +242,7 @@ def analyze_menu_frame(frame, menu):
     return False, None
 
 
-movie_path = '/Users/kh/Documents/GitHub/PriLog_web/tmp/1577891819073689.mp4'
+movie_path = '/Users/kh/Documents/GitHub/PriLog_web/movie/test_ng.mp4'
 startTime = tm.time()
 video = cv2.VideoCapture(movie_path)
 
@@ -256,8 +265,6 @@ characters_find = []
 cap_interval = int(frame_rate * n)
 skip_frame = 4 * cap_interval
 
-menu = cv2.imread("model/menu.png")
-edit_menu = edit_frame(menu)
 menu_check = False
 
 min_roi = MIN_ROI
@@ -278,7 +285,7 @@ if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
             work_frame = edit_frame(work_frame)
 
             if menu_check is False:
-                menu_check, menu_loc = analyze_menu_frame(work_frame, edit_menu)
+                menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data)
                 if menu_check is True:
                     loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
                     roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
