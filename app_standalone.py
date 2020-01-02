@@ -242,7 +242,20 @@ def analyze_menu_frame(frame, menu):
     return False, None
 
 
-movie_path = '/Users/kh/Documents/GitHub/PriLog_web/movie/test_ng.mp4'
+root = tkinter.Tk()
+root.withdraw()
+
+fTyp = [("", "*")]
+
+iDir = os.path.abspath(os.path.dirname(__file__))
+file = tkinter.filedialog.askopenfilename(filetypes=fTyp, initialdir=iDir)
+
+if file == "":
+    print("No video source found")
+    sys.exit(1)
+
+movie_path = file
+
 startTime = tm.time()
 video = cv2.VideoCapture(movie_path)
 
