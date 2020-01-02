@@ -20,6 +20,8 @@ sec_data = np.load("model/timer_sec.npy")
 
 menu_data = np.load("model/menu.npy")
 
+damage_menu_data = np.load("model/damage_menu.npy")
+
 characters = [
     "アオイ",
     "アオイ(編入生)",
@@ -150,14 +152,15 @@ FRAME_ROWS = 720
 
 UB_ROI = (440, 100, 860, 130)
 MIN_ROI = (1072, 24, 1090, 42)
-TENSEC_ROI = (1090, 24, 1108, 42)
-ONESEC_ROI = (1104, 24, 1122, 42)
+TEN_SEC_ROI = (1090, 24, 1108, 42)
+ONE_SEC_ROI = (1104, 24, 1122, 42)
 MENU_ROI = (1100, 0, 1280, 90)
+DAMAGE_MENU_ROI = (1040, 38, 1229, 64)
 
 MENU_LOC = (63, 23)
 
 TIMER_MIN = 2
-TIMER_TENSEC = 1
+TIMER_TEN_SEC = 1
 TIMER_SEC = 0
 
 UB_THRESH = 0.6
@@ -224,15 +227,8 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
     return time_data
 
 
-def analyze_menu_frame(frame, menu):
-    analyze_frame = frame[MENU_ROI[1]:MENU_ROI[3], MENU_ROI[0]:MENU_ROI[2]]
-
-    """
-    cv2.namedWindow('window')
-    cv2.imshow('window', analyze_frame)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    """
+def analyze_menu_frame(frame, menu, roi):
+    analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     result_temp = cv2.matchTemplate(analyze_frame, menu, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
@@ -268,9 +264,9 @@ frame_height = int(video.get(4))  # フレームの高さ
 n = 0.5  # n秒ごと*
 ubInterval = 0
 
-timeMin = "1"
-timeSec10 = "3"
-timeSec1 = "0"
+time_min = "1"
+time_sec10 = "3"
+time_sec1 = "0"
 
 ubData = []
 characters_find = []
@@ -281,9 +277,10 @@ skip_frame = 4 * cap_interval
 menu_check = False
 
 min_roi = MIN_ROI
-tensec_roi = TENSEC_ROI
-onesec_roi = ONESEC_ROI
+tensec_roi = TEN_SEC_ROI
+onesec_roi = ONE_SEC_ROI
 ub_roi = UB_ROI
+damage_menu_roi = DAMAGE_MENU_ROI
 
 if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
     for i in range(frame_count):  # 動画の秒数を取得し、回す
@@ -298,27 +295,34 @@ if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
             work_frame = edit_frame(work_frame)
 
             if menu_check is False:
-                menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data)
+                menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data, MENU_ROI)
                 if menu_check is True:
                     loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
                     roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
                     min_roi = np.array(MIN_ROI) - np.array(roi_diff)
-                    tensec_roi = np.array(TENSEC_ROI) - np.array(roi_diff)
-                    onesec_roi = np.array(ONESEC_ROI) - np.array(roi_diff)
+                    tensec_roi = np.array(TEN_SEC_ROI) - np.array(roi_diff)
+                    onesec_roi = np.array(ONE_SEC_ROI) - np.array(roi_diff)
                     ub_roi = np.array(UB_ROI) - np.array(roi_diff)
+                    damage_menu_roi = np.array(DAMAGE_MENU_ROI) - np.array(roi_diff)
 
             else:
                 if ((i - ubInterval) > skip_frame) or (ubInterval == 0):
 
-                    timeMin = analyze_timer_frame(work_frame, min_roi, 2, timeMin)
+                    time_min = analyze_timer_frame(work_frame, min_roi, 2, time_min)
 
-                    timeSec10 = analyze_timer_frame(work_frame, tensec_roi, 6, timeSec10)
-                    timeSec1 = analyze_timer_frame(work_frame, onesec_roi, 10, timeSec1)
+                    time_sec10 = analyze_timer_frame(work_frame, tensec_roi, 6, time_sec10)
+                    time_sec1 = analyze_timer_frame(work_frame, onesec_roi, 10, time_sec1)
 
-                    result = analyze_ub_frame(work_frame, ub_roi, timeMin, timeSec10, timeSec1, characters_find)
+                    result = analyze_ub_frame(work_frame, ub_roi, time_min, time_sec10, time_sec1, characters_find)
 
                     if result is FOUND:
                         ubInterval = i
+
+                    if time_min is "0" and time_sec10 is "0":
+                        ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
+
+                        if ret is True:
+                            break;
 
 video.release()
 time_after = tm.time() - startTime
