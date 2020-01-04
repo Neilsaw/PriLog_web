@@ -293,7 +293,7 @@ def analyze_movie(movie_path):
                             ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
 
                             if ret is True:
-                                break;
+                                break
 
     video.release()
     os.remove(movie_path)
