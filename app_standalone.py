@@ -322,7 +322,7 @@ if (frame_count / frame_rate) < 600:  # 10分未満の動画しか見ない
                         ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
 
                         if ret is True:
-                            break;
+                            break
 
 video.release()
 time_after = tm.time() - startTime
