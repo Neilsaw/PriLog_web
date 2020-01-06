@@ -40,7 +40,7 @@ def make_sample(files):
 def add_sample(cat, fname):
     data = cv2.imread(fname)
     data_hsv = cv2.cvtColor(data, cv2.COLOR_BGR2HSV)
-    result = cv2.inRange(data_hsv, np.array([10, 140, 170]), np.array([50, 255, 255]))
+    result = cv2.inRange(data_hsv, np.array([10, 120, 160]), np.array([40, 255, 255]))
     cv2.imwrite('save_damage_data/ ' + str(cat) + '.png', result)
     X.append(result)
     Y.append(cat)

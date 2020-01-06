@@ -24,6 +24,9 @@
         <div id="ubText">
           <div id="copyTarget">
             <font id="title">{{title}}</font><br>
+            {% if totalDamage %}
+              {{totalDamage}}<br>
+            {% endif %}
             {% for idx in timeLine %}
               {{ idx }}<br>
             {% endfor %}
