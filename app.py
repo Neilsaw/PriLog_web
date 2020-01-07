@@ -321,6 +321,10 @@ def analyze_movie(movie_path):
                                 ret = analyze_damage_frame(end_frame, damage_data_roi, tmp_damage)
                                 if ret is True:
                                     total_damage = "総ダメージ " + ''.join(tmp_damage)
+                                else:
+                                    ret = analyze_damage_frame(end_frame, DAMAGE_DATA_ROI, tmp_damage)
+                                    if ret is True:
+                                        total_damage = "総ダメージ " + ''.join(tmp_damage)
 
                                 break
 
