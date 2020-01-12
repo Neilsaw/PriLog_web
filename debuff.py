@@ -3,9 +3,8 @@
 import math
 import characters as cd
 
-
 # UBデバフテーブル　18秒~1秒
-ub_debuff_table = [
+ub_table = [
     # アオイ
     [
         0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
@@ -554,7 +553,7 @@ ub_debuff_table = [
 ]
 
 # S1デバフテーブル　90秒~1秒
-s1_debuff_table = [
+s1_table = [
     # アオイ
     [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 90~81
@@ -1866,7 +1865,7 @@ s1_debuff_table = [
 ]
 
 # S2デバフテーブル　90秒~1秒
-s2_debuff_table = [
+s2_table = [
     # アオイ
     [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 90~81
@@ -3178,7 +3177,7 @@ s2_debuff_table = [
 ]
 
 # スキルごとのデバフ値　UB/UB_alter/S1/S1_alter/S2/S2_alter
-debuff_value_table = [
+value_table = [
     # アオイ
     [
         [0, cd.EMPTY],  # UB
@@ -4161,7 +4160,3 @@ debuff_value_table = [
         [0, cd.EMPTY],  # S2_alter
     ],
 ]
-
-for i in range(len(cd.characters_name)):
-    print(cd.characters_name[i])
-    print(cd.ub_type_table[i])

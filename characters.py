@@ -231,10 +231,10 @@ characters_name = [
 ]
 
 # 攻撃属性
-EMPTY = 0
-PHYSICAL = 1
-MAGICAL = 2
-PHYSICAL_AND_MAGICAL = 3
+PHYSICAL = 0
+MAGICAL = 1
+PHYSICAL_AND_MAGICAL = 2
+EMPTY = 3
 
 # テーブル格納位置
 UB = 0
