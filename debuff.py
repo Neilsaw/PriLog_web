@@ -1,233 +1,559 @@
 #!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
+import math
+import characters as cd
 
-# キャラクター名一覧(mask)
-characters_name_mask = [
-    "アオイ",
-    "アオイ(編入生)",
-    "アカリ",
-    "アキノ",
-    "アヤネ",
-    "アヤネ(クリスマス)",
-    "アユミ",
-    "アリサ",
-    "アン",
-    "アンナ",
-    "イオ",
-    "イオ(☆6以降)",
-    "イオ(サマー)",
-    "イリヤ",
-    "イリヤ(クリスマス)",
-    "エミリア",
-    "エリコ",
-    "エリコ(バレンタイン)",
-    "カオリ",
-    "カオリ(サマー)",
-    "カスミ",
-    "カヤ",
-    "キャル",
-    "キャル(☆6以降)",
-    "キャル(サマー)",
-    "キャル(ニューイヤー)",
-    "キョウカ",
-    "キョウカ(ハロウィン)",
-    "クウカ",
-    "クウカ(オーエド)",
-    "クリスティーナ",
-    "クリスティーナ(クリスマス)",
-    "クルミ",
-    "クルミ(クリスマス)",
-    "グレア",
-    "クロエ",
-    "コッコロ",
-    "コッコロ(☆6以降)",
-    "コッコロ(サマー)",
-    "サレン",
-    "サレン(サマー)",
-    "ジータ",
-    "シオリ",
-    "シズル",
-    "シズル(バレンタイン)",
-    "シノブ",
-    "シノブ(ハロウィン)",
-    "ジュン",
-    "スズナ",
-    "スズナ(サマー)",
-    "スズメ",
-    "スズメ(サマー)",
-    "スズメ(ニューイヤー)",
-    "タマキ",
-    "タマキ(サマー)",
-    "チカ",
-    "チカ(クリスマス)",
-    "ツムギ",
-    "トモ",
-    "ナナカ",
-    "ニノン",
-    "ニノン(オーエド)",
-    "ネネカ",
-    "ノゾミ",
-    "ノゾミ(クリスマス)",
-    "ハツネ",
-    "ヒヨリ",
-    "ヒヨリ(ニューイヤー)",
-    "ペコリーヌ",
-    "ペコリーヌ(☆6以降)",
-    "ペコリーヌ(サマー)",
-    "マコト",
-    "マコト(サマー)",
-    "マツリ",
-    "マヒル",
-    "マホ",
-    "マホ(サマー)",
-    "ミサキ",
-    "ミサキ(ハロウィン)",
-    "ミサト",
-    "ミソギ",
-    "ミソギ(ハロウィン)",
-    "ミツキ",
-    "ミフユ",
-    "ミフユ(サマー)",
-    "ミミ",
-    "ミミ(ハロウィン)",
-    "ミヤコ",
-    "ミヤコ(ハロウィン)",
-    "ムイミ",
-    "モニカ",
-    "ユイ",
-    "ユイ(ニューイヤー)",
-    "ユカリ",
-    "ユカリ(☆6以降)",
-    "ユキ",
-    "ヨリ",
-    "ラム",
-    "リノ",
-    "リノ(☆6以降)",
-    "リマ",
-    "リマ(☆6以降)",
-    "リン",
-    "ルゥ",
-    "ルカ",
-    "ルナ",
-    "レイ",
-    "レイ(ニューイヤー)",
-    "レム",
+
+# UBデバフテーブル　18秒~1秒
+ub_debuff_table = [
+    # アオイ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アオイ(編入生)　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # アカリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アキノ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アヤネ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アヤネ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アユミ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アリサ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アン
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # アンナ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # イオ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # イオ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # イオ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # イリヤ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # イリヤ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # エミリア
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # エリコ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # エリコ(バレンタイン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # カオリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # カオリ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # カスミ　魔防デバフ　16秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,  # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 0, 0,  # 10~1
+    ],
+    # カヤ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キャル
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キャル(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キャル(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キャル(ニューイヤー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キョウカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # キョウカ(ハロウィン)　魔防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # クウカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クウカ(オーエド)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クリスティーナ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クリスティーナ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クルミ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クルミ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # グレア
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # クロエ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # コッコロ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # コッコロ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # コッコロ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # サレン
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # サレン(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ジータ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # シオリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # シズル
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # シズル(バレンタイン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # シノブ　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # シノブ(ハロウィン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ジュン
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # スズナ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # スズナ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # スズメ　使わないので未対応
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # スズメ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # スズメ(ニューイヤー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # タマキ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # タマキ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # チカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # チカ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ツムギ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # トモ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ナナカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ニノン
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ニノン(オーエド)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ネネカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ノゾミ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ノゾミ(クリスマス)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ハツネ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ヒヨリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ヒヨリ(ニューイヤー)
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # ペコリーヌ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ペコリーヌ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ペコリーヌ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # マコト　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # マコト(サマー)　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # マツリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # マヒル
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # マホ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # マホ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミサキ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミサキ(ハロウィン)　魔防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # ミサト
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミソギ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミソギ(ハロウィン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミツキ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミフユ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミフユ(サマー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミミ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミミ(ハロウィン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミヤコ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ミヤコ(ハロウィン)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ムイミ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # モニカ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ユイ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ユイ(ニューイヤー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ユカリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ユカリ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ユキ　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # ヨリ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ラム
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # リノ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # リノ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # リマ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # リマ(☆6以降)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # リン
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ルゥ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # ルカ　物防デバフ　18秒
+    [
+        1, 1, 1, 1, 1, 1, 1, 1,  # 18~11
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
+    ],
+    # ルナ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # レイ
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # レイ(ニューイヤー)
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
+    # レム
+    [
+        0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
+    ],
 ]
 
-# キャラクター名一覧
-characters_name = [
-    "アオイ",
-    "アオイ(編入生)",
-    "アカリ",
-    "アキノ",
-    "アヤネ",
-    "アヤネ(クリスマス)",
-    "アユミ",
-    "アリサ",
-    "アン",
-    "アンナ",
-    "イオ",
-    "イオ",      # ☆6以降
-    "イオ(サマー)",
-    "イリヤ",
-    "イリヤ(クリスマス)",
-    "エミリア",
-    "エリコ",
-    "エリコ(バレンタイン)",
-    "カオリ",
-    "カオリ(サマー)",
-    "カスミ",
-    "カヤ",
-    "キャル",
-    "キャル",      # ☆6以降
-    "キャル(サマー)",
-    "キャル(ニューイヤー)",
-    "キョウカ",
-    "キョウカ(ハロウィン)",
-    "クウカ",
-    "クウカ(オーエド)",
-    "クリスティーナ",
-    "クリスティーナ(クリスマス)",
-    "クルミ",
-    "クルミ(クリスマス)",
-    "グレア",
-    "クロエ",
-    "コッコロ",
-    "コッコロ",      # ☆6以降
-    "コッコロ(サマー)",
-    "サレン",
-    "サレン(サマー)",
-    "ジータ",
-    "シオリ",
-    "シズル",
-    "シズル(バレンタイン)",
-    "シノブ",
-    "シノブ(ハロウィン)",
-    "ジュン",
-    "スズナ",
-    "スズナ(サマー)",
-    "スズメ",
-    "スズメ(サマー)",
-    "スズメ(ニューイヤー)",
-    "タマキ",
-    "タマキ(サマー)",
-    "チカ",
-    "チカ(クリスマス)",
-    "ツムギ",
-    "トモ",
-    "ナナカ",
-    "ニノン",
-    "ニノン(オーエド)",
-    "ネネカ",
-    "ノゾミ",
-    "ノゾミ(クリスマス)",
-    "ハツネ",
-    "ヒヨリ",
-    "ヒヨリ(ニューイヤー)",
-    "ペコリーヌ",
-    "ペコリーヌ",      # ☆6以降
-    "ペコリーヌ(サマー)",
-    "マコト",
-    "マコト(サマー)",
-    "マツリ",
-    "マヒル",
-    "マホ",
-    "マホ(サマー)",
-    "ミサキ",
-    "ミサキ(ハロウィン)",
-    "ミサト",
-    "ミソギ",
-    "ミソギ(ハロウィン)",
-    "ミツキ",
-    "ミフユ",
-    "ミフユ(サマー)",
-    "ミミ",
-    "ミミ(ハロウィン)",
-    "ミヤコ",
-    "ミヤコ(ハロウィン)",
-    "ムイミ",
-    "モニカ",
-    "ユイ",
-    "ユイ(ニューイヤー)",
-    "ユカリ",
-    "ユカリ",      # ☆6以降
-    "ユキ",
-    "ヨリ",
-    "ラム",
-    "リノ",
-    "リノ",      # ☆6以降
-    "リマ",
-    "リマ",      # ☆6以降
-    "リン",
-    "ルゥ",
-    "ルカ",
-    "ルナ",
-    "レイ",
-    "レイ(ニューイヤー)",
-    "レム",
-]
-
-# S1デバフテーブル
+# S1デバフテーブル　90秒~1秒
 s1_debuff_table = [
     # アオイ
     [
@@ -1539,7 +1865,7 @@ s1_debuff_table = [
     ],
 ]
 
-# S2デバフテーブル
+# S2デバフテーブル　90秒~1秒
 s2_debuff_table = [
     # アオイ
     [
@@ -2850,3 +3176,992 @@ s2_debuff_table = [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
     ],
 ]
+
+# スキルごとのデバフ値　UB/UB_alter/S1/S1_alter/S2/S2_alter
+debuff_value_table = [
+    # アオイ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アオイ(編入生)　UB/S2
+    [
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.7 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.7 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # アカリ　S1/S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2_alter
+    ],
+    # アキノ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アヤネ　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # アヤネ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アユミ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アリサ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アン
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # アンナ　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # イオ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # イオ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # イオ(サマー)　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.375 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2
+        [math.ceil(0.375 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2_alter
+    ],
+    # イリヤ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # イリヤ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # エミリア
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # エリコ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # エリコ(バレンタイン)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # カオリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # カオリ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # カスミ　UB
+    [
+        [math.ceil(2.4 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB
+        [math.ceil(2.4 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # カヤ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # キャル　S1/S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.1425 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.1425 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [math.ceil(0.4 * (cd.LEVEL + 1)), cd.PHYSICAL_AND_MAGICAL],  # S2
+        [math.ceil(0.4 * (cd.LEVEL + 1)), cd.PHYSICAL_AND_MAGICAL],  # S2_alter
+    ],
+    # キャル(☆6以降)　S1/S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.1425 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.1425 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [math.ceil(0.4 * (cd.LEVEL + 1)), cd.PHYSICAL_AND_MAGICAL],  # S2
+        [math.ceil(0.4 * (cd.LEVEL + 1)), cd.PHYSICAL_AND_MAGICAL],  # S2_alter
+    ],
+    # キャル(サマー)　S1/S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2_alter
+    ],
+    # キャル(ニューイヤー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # キョウカ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # キョウカ(ハロウィン)　UB
+    [
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # クウカ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # クウカ(オーエド)　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2_alter
+    ],
+    # クリスティーナ　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # クリスティーナ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # クルミ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # クルミ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # グレア
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # クロエ　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil((0.18 * (cd.LEVEL + 1)) + (66 * (0.01 + 0.0096 * (cd.LEVEL + 1)))), cd.PHYSICAL],  # S2
+        [math.ceil((0.18 * (cd.LEVEL + 1)) + (66 * (0.01 + 0.0096 * (cd.LEVEL + 1)))), cd.PHYSICAL],  # S2_alter
+    ],
+    # コッコロ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # コッコロ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # コッコロ(サマー)　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # サレン
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # サレン(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ジータ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # シオリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # シズル
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # シズル(バレンタイン)　S2/S2_alter alter:UB後18秒以内
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.15 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.25 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # シノブ　UB/S2
+    [
+        [math.ceil(0.4275 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(0.4275 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.15 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.15 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # シノブ(ハロウィン)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ジュン　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # スズナ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # スズナ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # スズメ　使わないので未対応
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # スズメ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # スズメ(ニューイヤー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # タマキ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # タマキ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # チカ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # チカ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ツムギ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # トモ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ナナカ　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ニノン
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ニノン(オーエド)　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ネネカ　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.MAGICAL],  # S2_alter
+    ],
+    # ノゾミ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ノゾミ(クリスマス)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ハツネ　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ヒヨリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ヒヨリ(ニューイヤー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ペコリーヌ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ペコリーヌ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ペコリーヌ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # マコト　UB/S2
+    [
+        [math.ceil(0.9 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(0.9 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # マコト(サマー)　UB/S1
+    [
+        [math.ceil(1.1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(1.1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [math.ceil(0.3 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(0.3 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # マツリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # マヒル
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # マホ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # マホ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミサキ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミサキ(ハロウィン)　UB
+    [
+        [math.ceil(0.45 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB
+        [math.ceil(0.45 * (cd.LEVEL + 1)), cd.MAGICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミサト
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミソギ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミソギ(ハロウィン)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミツキ　S2
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(1.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [math.ceil(1.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2_alter
+    ],
+    # ミフユ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミフユ(サマー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミミ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミミ(ハロウィン)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミヤコ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ミヤコ(ハロウィン)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ムイミ　S2/S2_alter alter:first_ub_time ~ (second_ub_time) + (82 - first_ub_time)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [math.ceil(0.375 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # モニカ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ユイ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ユイ(ニューイヤー)　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1
+        [math.ceil(0.8 * (cd.LEVEL + 1)), cd.MAGICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ユカリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ユカリ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ユキ　UB
+    [
+        [math.ceil(0.345 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(0.345 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ヨリ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ラム
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # リノ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # リノ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # リマ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # リマ(☆6以降)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # リン
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ルゥ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ルカ　UB
+    [
+        [math.ceil(1.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(1.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # ルナ
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # レイ　S1
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(0.6 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # レイ(ニューイヤー)
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+    # レム
+    [
+        [0, cd.EMPTY],  # UB
+        [0, cd.EMPTY],  # UB_alter
+        [0, cd.EMPTY],  # S1
+        [0, cd.EMPTY],  # S1_alter
+        [0, cd.EMPTY],  # S2
+        [0, cd.EMPTY],  # S2_alter
+    ],
+]
+
+for i in range(len(cd.characters_name)):
+    print(cd.characters_name[i])
+    print(cd.ub_type_table[i])
