@@ -20,26 +20,61 @@
       </a>
     </div>
     {% if title %}
-      <div id="ubBg">
-        <div id="ubText">
-          <div id="copyTarget">
-            <font id="title">{{title}}</font><br>
-            {% if totalDamage %}
-              {{totalDamage}}<br>
-            {% endif %}
-            {% for idx in timeLine %}
-              {{ idx }}<br>
-            {% endfor %}
-          </div><br>
+      <input id="tab1" type="radio" name="tab_btn" checked>
+      <input id="tab2" type="radio" name="tab_btn">
+
+      <div class="tab_area">
+          <label class="tab1_label" for="tab1">TL</label>
+          <label class="tab2_label" for="tab2">TL+デバフ</label>
+      </div>
+      <div class="panel_area">
+        <div id="panel1" class="tab_panel">
+          <div class="ubText">
+            <div id="copyTargetTl">
+              <font class="title">{{ title }}</font><br>
+              {% if totalDamage %}
+                {{ totalDamage }}
+              {% endif %}<br>
+              {% for idx in timeLine %}
+                {{ idx }}<br>
+              {% endfor %}
+            </div><br>
             {% for idx in timeData %}
               {{ idx }}<br>
             {% endfor %}
+          </div>
+          <div class="ubButton">
+            <button class="buttonBack" onclick="location.href='/'">戻る</button>
+            <button class="buttonClipboard" data-clipboard-target="#copyTargetTl">クリップボードにコピー</button>
+          </div>
         </div>
-        <div id="ubButton">
-          <button class="buttonBack" onclick="location.href='/'">戻る</button>
-          <button class="buttonClipboard" data-clipboard-target="#copyTarget">クリップボードにコピー</button>
+        <div id="panel2" class="tab_panel">
+          <div class="ubText">
+            <div id="copyTargetTlDebuff">
+              <font class="title">{{ title }}</font><br>
+              {% if totalDamage %}
+                {{ totalDamage }}
+              {% endif %}<br>
+              {% for key, value in debuffDict.items() %}
+                <div class="timeline">
+                  <div class="character">
+                    {{ key }}
+                  </div>
+                  <div class="debuff">
+                    {{ value }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div><br>
+            {% for idx in timeData %}
+              {{ idx }}<br>
+            {% endfor %}
+          </div>
+          <div class="ubButton">
+            <button class="buttonBack" onclick="location.href='/'">戻る</button>
+            <button class="buttonClipboard" data-clipboard-target="#copyTargetTlDebuff">クリップボードにコピー</button>
+          </div>
         </div>
-      </div>
     {% else %}
       <button class="buttonBack" onclick="location.href='/'">戻る</button>
     {% endif %}
