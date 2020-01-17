@@ -16,6 +16,7 @@
 
 #wrapperUb{
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -177,14 +178,15 @@
   line-height: 1.5;
 }
 
-#ubText{
+.ubText{
   position: relative;
   margin-top: 30px;
+  margin-right: 30px;
   margin-left: 30px;
   font-size: 12px;
 }
 
-#ubButton{
+.ubButton{
   position: relative;
   margin-left: 30px;
   margin-bottom: 30px;
@@ -198,7 +200,7 @@ progress[value] {
   width: 40%;
 }
 
-#title {
+.title {
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 16px;
@@ -360,6 +362,84 @@ body{
   -webkit-text-size-adjust: 100%;
 }
 
+input[type="radio"]{
+  display:none;
+}
+
+.tab_area{
+  font-size: 0;
+  margin-top: 60px;
+  width: 90%;
+}
+
+.tab_area label{
+  border-radius: 5px;
+  width: 20%;
+  margin: 0 5px;
+  display: inline-block;
+  padding: 12px 0;
+  color: #999;
+  background: #ddd;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: ease 0.2s opacity;
+}
+
+.tab_area label:hover{
+  opacity: 0.8;
+}
+
+.panel_area{
+  position: relative;
+  width: 90%;
+  height: auto;
+  border: none;
+  font-size: 16px;
+  background-color:  rgba(255,255,255,0.9);
+  text-align: left;
+  display: table;
+  border-radius: 10px;
+  overflow: auto;
+  line-height: 1.5;
+}
+
+.tab_panel{
+  display: none;
+}
+
+.timeline{
+  display: table;
+  width: 60%;
+}
+
+.character{
+  display: table-cell;
+}
+
+.debuff{
+  display: table-cell;
+  text-align: right;
+}
+
+#tab1:checked ~ .tab_area .tab1_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab1:checked ~ .panel_area #panel1{
+  display:block;
+}
+
+#tab2:checked ~ .tab_area .tab2_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab2:checked ~ .panel_area #panel2{
+  display:block;
+}
+
 }
 
 /* スマートフォン用CSS */
@@ -380,6 +460,7 @@ body{
 
 #wrapper_ub{
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -540,9 +621,10 @@ body{
   line-height: 1.5;
 }
 
-#ubText{
+.ubText{
   position: relative;
   margin-top: 30px;
+  margin-right: 30px;
   margin-left: 30px;
   font-size: 12px;
 }
@@ -555,7 +637,7 @@ body{
 
 }
 
-#ubButton{
+.ubButton{
   position: relative;
   margin-left: 30px;
   margin-bottom: 30px;
@@ -569,7 +651,7 @@ progress[value] {
   width: 80%;
 }
 
-#title {
+.title {
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 16px;
@@ -730,6 +812,84 @@ span{
 
 body{
   -webkit-text-size-adjust: 100%;
+}
+
+input[type="radio"]{
+  display:none;
+}
+
+.tab_area{
+  font-size: 0;
+  margin-top: 60px;
+  width: 90%;
+}
+
+.tab_area label{
+  border-radius: 5px;
+  width: 18%;
+  margin: 0 5px;
+  display: inline-block;
+  padding: 12px 0;
+  color: #999;
+  background: #ddd;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: ease 0.2s opacity;
+}
+
+.tab_area label:hover{
+  opacity: 0.8;
+}
+
+.panel_area{
+  position: relative;
+  width: 90%;
+  height: auto;
+  border: none;
+  font-size: 16px;
+  background-color:  rgba(255,255,255,0.9);
+  text-align: left;
+  display: table;
+  border-radius: 10px;
+  overflow: auto;
+  line-height: 1.5;
+}
+
+.tab_panel{
+  display: none;
+}
+
+.timeline{
+  display: table;
+  width: 90%;
+}
+
+.character{
+  display: table-cell;
+}
+
+.debuff{
+  display: table-cell;
+  text-align: right;
+}
+
+#tab1:checked ~ .tab_area .tab1_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab1:checked ~ .panel_area #panel1{
+  display:block;
+}
+
+#tab2:checked ~ .tab_area .tab2_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab2:checked ~ .panel_area #panel2{
+  display:block;
 }
 
 }
