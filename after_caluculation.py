@@ -15,46 +15,67 @@ BATTLE_LENGTH = 90
 VALUE = 0
 VALUE_TYPE = 1
 
-ub_data = [[76, 62], [64, 105], [61, 14], [58, 24], [52, 62], [51, 8], [47, 62], [43, 14], [41, 105], [32, 24], [27, 8], [27, 105], [24, 62], [14, 105], [1, 62], [1, 8], [1, 24]]
-characters = [62, 105, 14, 24, 8]
 
+def make_ub_value_list(ub_data, characters):
+    physical_debuff_list = [0] * BATTLE_LENGTH
+    magical_debuff_list = [0] * BATTLE_LENGTH
+    debuff_value = []
 
-#def make_ub_value_list(ub_data, characters):
-physical_debuff_list = [0] * BATTLE_LENGTH
-magical_debuff_list = [0] * BATTLE_LENGTH
+    for i in characters:
+        s1_value = (np.array(db.s1_table[i]) * db.value_table[i][cd.S1][VALUE])
+        s2_value = (np.array(db.s2_table[i]) * db.value_table[i][cd.S2][VALUE])
 
-for i in characters:
-    s1_value = (np.array(db.s1_table[i]) * db.value_table[i][cd.S1][VALUE])
-    s2_value = (np.array(db.s2_table[i]) * db.value_table[i][cd.S2][VALUE])
+        s1_type = db.value_table[i][cd.S1][VALUE_TYPE]
+        s2_type = db.value_table[i][cd.S2][VALUE_TYPE]
 
-    s1_type = db.value_table[i][cd.S1][VALUE_TYPE]
-    s2_type = db.value_table[i][cd.S2][VALUE_TYPE]
-    
-    if s1_type == cd.PHYSICAL:
-        physical_debuff_list += s1_value
-    elif s1_type == cd.MAGICAL:
-        magical_debuff_list += s1_value
-    elif s1_type == cd.PHYSICAL_AND_MAGICAL:
-        physical_debuff_list += s1_value
-        magical_debuff_list += s1_value
+        if s1_type == cd.PHYSICAL:
+            physical_debuff_list += s1_value
+        elif s1_type == cd.MAGICAL:
+            magical_debuff_list += s1_value
+        elif s1_type == cd.PHYSICAL_AND_MAGICAL:
+            physical_debuff_list += s1_value
+            magical_debuff_list += s1_value
 
-    if s2_type == cd.PHYSICAL:
-        physical_debuff_list += s2_value
-    elif s2_type == cd.MAGICAL:
-        magical_debuff_list += s2_value
-    elif s2_type == cd.PHYSICAL_AND_MAGICAL:
-        physical_debuff_list += s2_value
-        magical_debuff_list += s2_value
+        if s2_type == cd.PHYSICAL:
+            physical_debuff_list += s2_value
+        elif s2_type == cd.MAGICAL:
+            magical_debuff_list += s2_value
+        elif s2_type == cd.PHYSICAL_AND_MAGICAL:
+            physical_debuff_list += s2_value
+            magical_debuff_list += s2_value
 
+    ub_count = range(len(ub_data))
 
-debuff_list = [physical_debuff_list, magical_debuff_list]
+    for i in ub_count:
+        ub_time = ub_data[i][UB_TIMING_NUM]
+        ub_start_time = BATTLE_LENGTH - ub_data[i][UB_TIMING_NUM]
+        characters_num = ub_data[i][CHARACTER_NUM]
+        ub_base_value = db.value_table[characters_num][cd.UB][VALUE]
 
-debuff_value = []
-for i in range(len(ub_data)):
-    ub_value_type = cd.ub_type_table[ub_data[i][CHARACTER_NUM]]
-    ub_timing = BATTLE_LENGTH - ub_data[i][UB_TIMING_NUM]
+        if ub_start_time < (BATTLE_LENGTH - 18):
+            ub_value = (np.array(db.ub_table[characters_num]) * ub_base_value)
+            ub_value = np.append([0] * ub_start_time, ub_value)
+            ub_value = np.append(ub_value, [0] * (BATTLE_LENGTH - (ub_start_time + 18)))
+        else:
+            ub_value = (np.array(db.ub_table[characters_num]) * ub_base_value)
+            ub_value = ub_value[:ub_time]
+            ub_value = np.append([0] * ub_start_time, ub_value)
 
-    debuff_value.append(debuff_list[ub_value_type][ub_timing])
-    print(debuff_list[ub_value_type][ub_timing])
+        ub_value_type = cd.ub_type_table[characters_num]
 
-print(debuff_value)
+        if ub_value_type is cd.PHYSICAL:
+            debuff_value.append("↓" + str(physical_debuff_list[ub_start_time]))
+        elif ub_value_type is cd.MAGICAL:
+            debuff_value.append("↓" + str(magical_debuff_list[ub_start_time]))
+
+        ub_type = db.value_table[characters_num][cd.UB][VALUE_TYPE]
+
+        if ub_type == cd.PHYSICAL:
+            physical_debuff_list += ub_value
+        elif ub_type == cd.MAGICAL:
+            magical_debuff_list += ub_value
+        elif ub_type == cd.PHYSICAL_AND_MAGICAL:
+            physical_debuff_list += ub_value
+            magical_debuff_list += ub_value
+
+    return debuff_value
