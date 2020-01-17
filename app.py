@@ -1,6 +1,6 @@
 #!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, jsonify
 import numpy as np
 import os
 import re
@@ -8,6 +8,7 @@ from pytube import YouTube
 import time as tm
 import cv2
 import characters as cd
+import after_caluculation as ac
 
 # キャラクター名テンプレート
 characters_data = np.load("model/UB_name.npy")
@@ -81,6 +82,7 @@ ERROR_BAD_URL = 1
 ERROR_TOO_LONG = 2
 ERROR_NOT_SUPPORTED = 3
 ERROR_CANT_GET_MOVIE = 4
+ERROR_REQUIRED_PARAM = 5
 
 stream_dir = "tmp/"
 if not os.path.exists(stream_dir):
@@ -152,6 +154,7 @@ def analyze_movie(movie_path):
     damage_data_roi = DAMAGE_DATA_ROI
 
     ub_data = []
+    ub_data_value = []
     time_data = []
     characters_find = []
 
@@ -194,38 +197,41 @@ def analyze_movie(movie_path):
                         time_sec10 = analyze_timer_frame(work_frame, tensec_roi, 6, time_sec10)
                         time_sec1 = analyze_timer_frame(work_frame, onesec_roi, 10, time_sec1)
 
-                        ub_result = analyze_ub_frame(work_frame, ub_roi,
-                                                     time_min, time_sec10, time_sec1, ub_data, characters_find)
+                        ub_result = analyze_ub_frame(work_frame, ub_roi, time_min, time_sec10, time_sec1,
+                                                     ub_data, ub_data_value, characters_find)
 
                         if ub_result is FOUND:
                             ub_interval = i
 
-                        if time_min is "0" and time_sec10 is "0":
-                            ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
+                        ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
 
+                        if ret is True:
+                            ret, end_frame = video.read()
+
+                            if ret is False:
+                                break
+
+                            ret = analyze_damage_frame(end_frame, damage_data_roi, tmp_damage)
                             if ret is True:
-                                ret, end_frame = video.read()
-
-                                if ret is False:
-                                    break
-
-                                ret = analyze_damage_frame(end_frame, damage_data_roi, tmp_damage)
+                                total_damage = "総ダメージ " + ''.join(tmp_damage)
+                            else:
+                                ret = analyze_damage_frame(end_frame, DAMAGE_DATA_ROI, tmp_damage)
                                 if ret is True:
                                     total_damage = "総ダメージ " + ''.join(tmp_damage)
-                                else:
-                                    ret = analyze_damage_frame(end_frame, DAMAGE_DATA_ROI, tmp_damage)
-                                    if ret is True:
-                                        total_damage = "総ダメージ " + ''.join(tmp_damage)
 
-                                break
+                            break
 
     video.release()
     os.remove(movie_path)
+
+    # TLに対する後処理
+    debuff_value = ac.make_ub_value_list(ub_data_value, characters_find)
+
     time_result = tm.time() - start_time
     time_data.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
     time_data.append("処理時間 : {:.3f}".format(time_result) + "  sec")
 
-    return ub_data, time_data, total_damage
+    return ub_data, time_data, total_damage, debuff_value
 
 
 def edit_frame(frame):
@@ -238,7 +244,7 @@ def edit_frame(frame):
     return work_frame
 
 
-def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, characters_find):
+def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_data_value, characters_find):
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     characters_num = len(characters)
@@ -249,6 +255,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, charac
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > UB_THRESH:
                 ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[j])
+                ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), int(j)]])
                 if j not in characters_find:
                     characters_find.append(j)
 
@@ -259,6 +266,8 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, charac
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > UB_THRESH:
                 ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[characters_find[j]])
+                ub_data_value.extend([[(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)),
+                                       characters_find[j]]])
 
                 return FOUND
 
@@ -321,6 +330,7 @@ def analyze_damage_frame(frame, roi, damage):
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'zJe09C5c3tMf5FnNL09C5e6SAzZuY'
+app.config['JSON_AS_ASCII'] = False
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -371,11 +381,12 @@ def analyze():
     session.pop('path', None)
 
     if request.method == 'GET' and path is not None:
-        time_line, time_data, total_damage = analyze_movie(path)
+        time_line, time_data, total_damage, debuff_value = analyze_movie(path)
         if time_line is not None:
             session['time_line'] = time_line
             session['time_data'] = time_data
             session['total_damage'] = total_damage
+            session['debuff_value'] = debuff_value
             session.pop('checking', None)
             return render_template('analyze.html')
         else:
@@ -391,16 +402,75 @@ def result():
     time_line = session.get('time_line')
     time_data = session.get('time_data')
     total_damage = session.get('total_damage')
+    debuff_value = session.get('debuff_value')
     session.pop('title', None)
     session.pop('time_line', None)
     session.pop('time_data', None)
     session.pop('total_damage', None)
 
+    debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+
     if request.method == 'GET' and time_line is not None:
         return render_template('result.html', title=title, timeLine=time_line,
-                               timeData=time_data, totalDamage=total_damage)
+                               timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
     else:
         return redirect("/")
+
+
+@app.route('/rest/analyze', methods=['POST', 'GET'])
+def remoteAnalyze():
+    status = NO_ERROR
+    msg = "OK"
+    result = {}
+
+    ret = {}
+    ret["result"] = result
+    Url = ""
+    if request.method == 'POST':
+        if "Url" not in request.form:
+            status = ERROR_REQUIRED_PARAM
+            msg = "必須パラメータがありません"
+
+            ret["msg"] = msg
+            ret["status"] = status
+            return jsonify(ret)
+        else:
+            Url = request.form['Url']
+
+    elif request.method == 'GET':
+        if "Url" not in request.args:
+            status = ERROR_REQUIRED_PARAM
+            msg = "必須パラメータがありません"
+
+            ret["msg"] = msg
+            ret["status"] = status
+            return jsonify(ret)
+        else:
+            Url = request.args.get('Url')
+
+    # youtube動画検索/検証
+    path, title, length, thumbnail, url_result = search(Url)
+    status = url_result
+    if url_result is ERROR_BAD_URL:
+        msg = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
+    elif url_result is ERROR_TOO_LONG:
+        msg = "動画時間が長すぎるため、解析に対応しておりません"
+    elif url_result is ERROR_NOT_SUPPORTED:
+        msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+    elif url_result is ERROR_CANT_GET_MOVIE:
+        msg = "動画の取得に失敗しました。もう一度入力をお願いします"
+    else :
+        # TL解析
+        time_line, time_data, total_damage, debuff_value = analyze_movie(path)
+        result["total_damage"] = total_damage
+        result["timeline"] = time_line
+        result["timeline_txt"] = "\r\n".join(time_line)
+        result["process_time"] = time_data
+        result["debuff_value"] = debuff_value
+
+    ret["msg"] = msg
+    ret["status"] = status
+    return jsonify(ret)
 
 
 if __name__ == "__main__":
