@@ -1,8 +1,8 @@
 #!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
 
-# キャラクターレベル 2020/01/12現在
-LEVEL = 151
+# キャラクターレベル 2020/01/17現在
+LEVEL = 154
 
 # キャラクター名一覧(mask)
 characters_name_mask = [
