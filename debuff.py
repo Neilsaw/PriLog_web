@@ -4160,3 +4160,10 @@ value_table = [
         [0, cd.EMPTY],  # S2_alter
     ],
 ]
+
+# 変化があるキャラクターテーブル
+alter_table = [
+    cd.characters_name_mask.index("シズル(バレンタイン)"),
+    cd.characters_name_mask.index("ネネカ"),
+    cd.characters_name_mask.index("ムイミ"),
+]
