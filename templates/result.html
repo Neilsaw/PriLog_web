@@ -61,7 +61,7 @@
                     {{ key }}
                   </div>
                   <div class="debuff">
-                    {{ value }}
+                    ↓{{ value }}
                   </div>
                 </div>
               {% endfor %}
@@ -75,6 +75,7 @@
             <button class="buttonClipboard" data-clipboard-target="#copyTargetTlDebuff">クリップボードにコピー</button>
           </div>
         </div>
+      </div>
     {% else %}
       <button class="buttonBack" onclick="location.href='/'">戻る</button>
     {% endif %}

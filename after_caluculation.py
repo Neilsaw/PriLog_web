@@ -64,9 +64,9 @@ def make_ub_value_list(ub_data, characters):
         ub_value_type = cd.ub_type_table[characters_num]
 
         if ub_value_type is cd.PHYSICAL:
-            debuff_value.append("↓" + str(physical_debuff_list[ub_start_time]))
+            debuff_value.append(str(physical_debuff_list[ub_start_time]))
         elif ub_value_type is cd.MAGICAL:
-            debuff_value.append("↓" + str(magical_debuff_list[ub_start_time]))
+            debuff_value.append(str(magical_debuff_list[ub_start_time]))
 
         ub_type = db.value_table[characters_num][cd.UB][VALUE_TYPE]
 
