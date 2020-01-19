@@ -413,6 +413,7 @@ input[type="radio"]{
 .debuff{
   display: table-cell;
   text-align: right;
+  color: #6496e6;
 }
 
 #tab1:checked ~ .tab_area .tab1_label{
