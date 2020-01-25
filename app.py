@@ -140,7 +140,7 @@ def analyze_movie(movie_path):
         video.release()
         os.remove(movie_path)
 
-        return None, None
+        return None, None, None, None
 
     n = 0.34  # n秒ごと*
     ub_interval = 0
@@ -427,9 +427,8 @@ def result():
     session.pop('time_data', None)
     session.pop('total_damage', None)
 
-    debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
-
     if request.method == 'GET' and time_line is not None:
+        debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
         return render_template('result.html', title=title, timeLine=time_line,
                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
     else:
