@@ -345,7 +345,7 @@ ub_table = [
         0, 0, 0, 0, 0, 0, 0, 0,        # 18~11
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  # 10~1
     ],
-    # ヒヨリ(ニューイヤー)
+    # ヒヨリ(ニューイヤー) UB
     [
         1, 1, 1, 1, 1, 1, 1, 1,        # 18~11
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  # 10~1
@@ -3819,10 +3819,10 @@ value_table = [
         [0, cd.EMPTY],  # S2
         [0, cd.EMPTY],  # S2_alter
     ],
-    # ヒヨリ(ニューイヤー)
+    # ヒヨリ(ニューイヤー) UB
     [
-        [0, cd.EMPTY],  # UB
-        [0, cd.EMPTY],  # UB_alter
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
+        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
         [0, cd.EMPTY],  # S1
         [0, cd.EMPTY],  # S1_alter
         [0, cd.EMPTY],  # S2
