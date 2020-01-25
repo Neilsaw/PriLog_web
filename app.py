@@ -25,6 +25,9 @@ damage_menu_data = np.load("model/damage_menu.npy")
 # ダメージ数値テンプレート
 damage_data = np.load("model/damage_data.npy")
 
+# アンナアイコンテンプレート
+icon_data = np.load("model/icon_data.npy")
+
 # キャラクター名一覧
 characters = cd.characters_name
 
@@ -52,6 +55,7 @@ ONE_SEC_ROI = (1105, 22, 1121, 44)
 MENU_ROI = (1100, 0, 1280, 90)
 DAMAGE_MENU_ROI = (1040, 36, 1229, 66)
 DAMAGE_DATA_ROI = (60, 54, 230, 93)
+CHARACTER_ICON_ROI = (234, 506, 1046, 668)
 
 MENU_LOC = (63, 23)
 
@@ -73,6 +77,7 @@ UB_THRESH = 0.6
 TIMER_THRESH = 0.75
 MENU_THRESH = 0.6
 DAMAGE_THRESH = 0.7
+ICON_THRESH = 0.7
 
 FOUND = 1
 NOT_FOUND = 0
@@ -189,6 +194,8 @@ def analyze_movie(movie_path):
                             ub_roi = np.array(UB_ROI) - np.array(roi_diff)
                             damage_menu_roi = np.array(DAMAGE_MENU_ROI) - np.array(roi_diff)
                             damage_data_roi = np.array(DAMAGE_DATA_ROI) - np.array(roi_diff)
+
+                            analyze_anna_icon_frame(work_frame, CHARACTER_ICON_ROI, characters_find)
 
                     else:
                         if time_min is "1":
@@ -325,6 +332,18 @@ def analyze_damage_frame(frame, roi, damage):
             damage[i] = str(tmp_damage[0])
 
     return ret
+
+
+def analyze_anna_icon_frame(frame, roi, characters_find):
+    analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
+
+    icon_num = len(icon_data)
+
+    for j in range(icon_num):
+        result_temp = cv2.matchTemplate(analyze_frame, icon_data[j], cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
+        if max_val > ICON_THRESH:
+            characters_find.append(characters.index('アンナ'))
 
 
 app = Flask(__name__)
