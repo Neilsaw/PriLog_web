@@ -63,19 +63,22 @@ def make_ub_value_list(ub_data, characters):
 
         ub_value_type = cd.ub_type_table[characters_num]
 
-        if ub_value_type is cd.PHYSICAL:
-            debuff_value.append(str(physical_debuff_list[ub_start_time]))
-        elif ub_value_type is cd.MAGICAL:
-            debuff_value.append(str(magical_debuff_list[ub_start_time]))
+        if 0 < ub_time <= 90:
+            if ub_value_type is cd.PHYSICAL:
+                debuff_value.append(str(int(physical_debuff_list[ub_start_time])))
+            elif ub_value_type is cd.MAGICAL:
+                debuff_value.append(str(int(magical_debuff_list[ub_start_time])))
+        else:
+            debuff_value.append("???")
 
         ub_type = db.value_table[characters_num][cd.UB][VALUE_TYPE]
 
         if ub_type == cd.PHYSICAL:
-            physical_debuff_list += ub_value
+            physical_debuff_list = physical_debuff_list + ub_value
         elif ub_type == cd.MAGICAL:
-            magical_debuff_list += ub_value
+            magical_debuff_list = magical_debuff_list + ub_value
         elif ub_type == cd.PHYSICAL_AND_MAGICAL:
-            physical_debuff_list += ub_value
-            magical_debuff_list += ub_value
+            physical_debuff_list = physical_debuff_list + ub_value
+            magical_debuff_list = magical_debuff_list + ub_value
 
     return debuff_value
