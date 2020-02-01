@@ -467,6 +467,7 @@ def remoteAnalyze():
             Url = request.args.get('Url')
 
     # youtube動画検索/検証
+    """
     path, title, length, thumbnail, url_result = search(Url)
     status = url_result
     if url_result is ERROR_BAD_URL:
@@ -485,6 +486,9 @@ def remoteAnalyze():
         result["timeline_txt"] = "\r\n".join(time_line)
         result["process_time"] = time_data
         result["debuff_value"] = debuff_value
+    """
+    status = ERROR_CANT_GET_MOVIE
+    msg = "現在REST APIの機能を制限しております。　理由：YouTubeへの処理負荷軽減導入中のため。　2月中に対策を行います。"
 
     ret["msg"] = msg
     ret["status"] = status
