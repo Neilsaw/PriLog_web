@@ -35,13 +35,17 @@
               {% if totalDamage %}
                 {{ totalDamage }}
               {% endif %}<br>
-              {% for idx in timeLine %}
+              {% if timeLine %}
+                {% for idx in timeLine %}
+                  {{ idx }}<br>
+                {% endfor %}
+              {% endif %}
+            </div><br>
+            {% if timeData %}
+              {% for idx in timeData %}
                 {{ idx }}<br>
               {% endfor %}
-            </div><br>
-            {% for idx in timeData %}
-              {{ idx }}<br>
-            {% endfor %}
+            {% endif %}
           </div>
           <div class="ubButton">
             <button class="buttonBack" onclick="location.href='/'">戻る</button>
@@ -55,20 +59,24 @@
               {% if totalDamage %}
                 {{ totalDamage }}
               {% endif %}<br>
-              {% for key, value in debuffDict.items() %}
-                <div class="timeline">
-                  <div class="character">
-                    {{ key }}
+              {% if debuffDict %}
+                {% for key, value in debuffDict.items() %}
+                  <div class="timeline">
+                    <div class="character">
+                      {{ key }}
+                    </div>
+                    <div class="debuff">
+                      ↓{{ value }}
+                    </div>
                   </div>
-                  <div class="debuff">
-                    ↓{{ value }}
-                  </div>
-                </div>
-              {% endfor %}
+                {% endfor %}
+              {% endif %}
             </div><br>
-            {% for idx in timeData %}
-              {{ idx }}<br>
-            {% endfor %}
+            {% if timeData %}
+              {% for idx in timeData %}
+                {{ idx }}<br>
+              {% endfor %}
+            {% endif %}
           </div>
           <div class="ubButton">
             <button class="buttonBack" onclick="location.href='/'">戻る</button>

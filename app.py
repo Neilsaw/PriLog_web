@@ -7,6 +7,8 @@ import re
 from pytube import YouTube
 import time as tm
 import cv2
+import json
+import urllib.parse
 import characters as cd
 import after_caluculation as ac
 
@@ -93,17 +95,35 @@ stream_dir = "tmp/"
 if not os.path.exists(stream_dir):
     os.mkdir(stream_dir)
 
+cache_dir = "cache/"
+if not os.path.exists(cache_dir):
+    os.mkdir(cache_dir)
+
+
+def cache_check(youtube_id):
+    # キャッシュ有無の確認
+    try:
+        return json.load(open(cache_dir + urllib.parse.quote(youtube_id) + '.json'))
+    except FileNotFoundError:
+        return False
+
+
+def get_youtube_id(url):
+    # ID部分の取り出し
+    work_id = re.findall('.*watch(.{14})', url)
+    if not work_id:
+        work_id = re.findall('.youtu.be/(.{11})', url)
+        if not work_id:
+            return False
+
+    ret = work_id[0].replace('?v=', '')
+
+    return ret
+
 
 def search(youtube_id):
-    # ID部分の取り出し
-    work_id = re.findall('.*watch(.{14})', youtube_id)
-    if not work_id:
-        work_id = re.findall('.youtu.be/(.{11})', youtube_id)
-        if not work_id:
-            return None, None, None, None, ERROR_BAD_URL
-        work_id[0] = '?v=' + work_id[0]
-    # Youtubeから動画を保存し保存先パスを返す
-    youtube_url = 'https://www.youtube.com/watch' + work_id[0]
+    # youtubeの動画を検索し取得
+    youtube_url = 'https://www.youtube.com/watch?v=' + youtube_id
     try:
         yt = YouTube(youtube_url)
     except:
@@ -242,6 +262,7 @@ def analyze_movie(movie_path):
 
 
 def edit_frame(frame):
+    # フレームを二値化
     work_frame = frame
 
     work_frame = cv2.cvtColor(work_frame, cv2.COLOR_RGB2GRAY)
@@ -252,11 +273,13 @@ def edit_frame(frame):
 
 
 def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_data_value, characters_find):
+    # ub文字位置を解析　5キャラ見つけている場合は探索対象を5キャラにする
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     characters_num = len(characters)
 
     if len(characters_find) < 5:
+        # 全キャラ探索
         for j in range(characters_num):
             result_temp = cv2.matchTemplate(analyze_frame, characters_data[j], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
@@ -269,6 +292,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
                 return FOUND
     else:
         for j in range(5):
+            # 5キャラのみの探索
             result_temp = cv2.matchTemplate(analyze_frame, characters_data[characters_find[j]], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > UB_THRESH:
@@ -282,6 +306,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
 
 
 def analyze_timer_frame(frame, roi, data_num, time_data):
+    # 時刻位置の探索
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     for j in range(data_num):
@@ -294,6 +319,7 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
 
 
 def analyze_menu_frame(frame, menu, roi):
+    # menuの有無を確認し終了判定に用いる
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     result_temp = cv2.matchTemplate(analyze_frame, menu, cv2.TM_CCOEFF_NORMED)
@@ -305,6 +331,7 @@ def analyze_menu_frame(frame, menu, roi):
 
 
 def analyze_damage_frame(frame, roi, damage):
+    # 総ダメージを判定　現状7桁のみ対応
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     analyze_frame = cv2.cvtColor(analyze_frame, cv2.COLOR_BGR2HSV)
@@ -335,6 +362,7 @@ def analyze_damage_frame(frame, roi, damage):
 
 
 def analyze_anna_icon_frame(frame, roi, characters_find):
+    # アンナの有無を確認　UBを使わない場合があるため
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     icon_num = len(icon_data)
@@ -355,13 +383,25 @@ app.config['JSON_AS_ASCII'] = False
 @app.route('/', methods=['GET', 'POST'])
 def predicts():
     if request.method == 'POST':
-        Url = (request.form["Url"])
+        url = (request.form["Url"])
 
-        path, title, length, thumbnail, url_result = search(Url)
-        if url_result is ERROR_BAD_URL:
+        # urlからid部分の抽出
+        youtube_id = get_youtube_id(url)
+        if youtube_id is False:
             error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
             return render_template('index.html', error=error)
-        elif url_result is ERROR_TOO_LONG:
+
+        cache = cache_check(youtube_id)
+        if cache is not False:
+            title, time_line, time_data, total_damage, debuff_value = cache
+
+            debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+            return render_template('result.html', title=title, timeLine=time_line,
+                                   timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
+
+        path, title, length, thumbnail, url_result = search(url)
+
+        if url_result is ERROR_TOO_LONG:
             error = "動画時間が長すぎるため、解析に対応しておりません"
             return render_template('index.html', error=error)
         elif url_result is ERROR_NOT_SUPPORTED:
@@ -372,6 +412,7 @@ def predicts():
             return render_template('index.html', error=error)
         session['path'] = path
         session['title'] = title
+        session['youtube_id'] = youtube_id
         length = int(int(length) / 4) + 3
 
         return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
@@ -379,6 +420,8 @@ def predicts():
     elif request.method == 'GET':
         path = session.get('path')
         session.pop('path', None)
+        session.pop('title', None)
+        session.pop('youtube_id', None)
 
         error = None
         if path is ERROR_NOT_SUPPORTED:
@@ -397,16 +440,22 @@ def predicts():
 @app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
     path = session.get('path')
+    title = session.get('title')
+    youtube_id = session.get('youtube_id')
     session.pop('path', None)
+    session.pop('youtube_id', None)
 
     if request.method == 'GET' and path is not None:
         time_line, time_data, total_damage, debuff_value = analyze_movie(path)
+        cache = cache_check(youtube_id)
+        if cache is False:
+            json.dump([title, time_line, False, total_damage, debuff_value],
+                      open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
         if time_line is not None:
             session['time_line'] = time_line
             session['time_data'] = time_data
             session['total_damage'] = total_damage
             session['debuff_value'] = debuff_value
-            session.pop('checking', None)
             return render_template('analyze.html')
         else:
             session['path'] = ERROR_NOT_SUPPORTED
@@ -426,6 +475,7 @@ def result():
     session.pop('time_line', None)
     session.pop('time_data', None)
     session.pop('total_damage', None)
+    session.pop('debuff_value', None)
 
     if request.method == 'GET' and time_line is not None:
         debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
@@ -443,7 +493,7 @@ def remoteAnalyze():
 
     ret = {}
     ret["result"] = result
-    Url = ""
+    url = ""
     if request.method == 'POST':
         if "Url" not in request.form:
             status = ERROR_REQUIRED_PARAM
@@ -453,7 +503,7 @@ def remoteAnalyze():
             ret["status"] = status
             return jsonify(ret)
         else:
-            Url = request.form['Url']
+            url = request.form['Url']
 
     elif request.method == 'GET':
         if "Url" not in request.args:
@@ -464,27 +514,62 @@ def remoteAnalyze():
             ret["status"] = status
             return jsonify(ret)
         else:
-            Url = request.args.get('Url')
+            url = request.args.get('Url')
 
-    # youtube動画検索/検証
-    path, title, length, thumbnail, url_result = search(Url)
-    status = url_result
-    if url_result is ERROR_BAD_URL:
+    # キャッシュ確認
+    youtube_id = get_youtube_id(url)
+    if youtube_id is False:
+        # 不正なurlの場合
+        status = ERROR_BAD_URL
         msg = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
-    elif url_result is ERROR_TOO_LONG:
-        msg = "動画時間が長すぎるため、解析に対応しておりません"
-    elif url_result is ERROR_NOT_SUPPORTED:
-        msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
-    elif url_result is ERROR_CANT_GET_MOVIE:
-        msg = "動画の取得に失敗しました。もう一度入力をお願いします"
-    else :
-        # TL解析
-        time_line, time_data, total_damage, debuff_value = analyze_movie(path)
-        result["total_damage"] = total_damage
-        result["timeline"] = time_line
-        result["timeline_txt"] = "\r\n".join(time_line)
-        result["process_time"] = time_data
-        result["debuff_value"] = debuff_value
+    else:
+        # 正常なurlの場合
+        cache = cache_check(youtube_id)
+
+        if cache is not False:
+            # キャッシュ有りの場合
+
+            # キャッシュを返信
+            title, time_line, time_data, total_damage, debuff_value = cache
+            result["title"] = title
+            result["total_damage"] = total_damage
+            result["timeline"] = time_line
+            result["timeline_txt"] = "\r\n".join(time_line)
+            result["process_time"] = time_data
+            result["debuff_value"] = debuff_value
+            result["timeline_txt_debuff"] = "\r\n".join(list(
+                map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]), enumerate(time_line))))
+        else:
+            # キャッシュ無しの場合
+
+            # youtube動画検索/検証
+            path, title, length, thumbnail, url_result = search(youtube_id)
+            status = url_result
+            if url_result is ERROR_TOO_LONG:
+                msg = "動画時間が長すぎるため、解析に対応しておりません"
+            elif url_result is ERROR_NOT_SUPPORTED:
+                msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+            elif url_result is ERROR_CANT_GET_MOVIE:
+                msg = "動画の取得に失敗しました。もう一度入力をお願いします"
+            else:
+                # TL解析
+                time_line, time_data, total_damage, debuff_value = analyze_movie(path)
+
+                # キャッシュ保存
+                cache = cache_check(youtube_id)
+                if cache is False:
+                    json.dump([title, time_line, False, total_damage, debuff_value],
+                              open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+
+                result["title"] = title
+                result["total_damage"] = total_damage
+                result["timeline"] = time_line
+                result["timeline_txt"] = "\r\n".join(time_line)
+                result["process_time"] = time_data
+                result["debuff_value"] = debuff_value
+                result["timeline_txt_debuff"] = "\r\n".join(list(
+                    map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                        enumerate(time_line))))
 
     ret["msg"] = msg
     ret["status"] = status
