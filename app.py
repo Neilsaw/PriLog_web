@@ -160,7 +160,7 @@ def analyze_movie(movie_path):
         video.release()
         os.remove(movie_path)
 
-        return None, None, None, None
+        return None, None, None, None, ERROR_NOT_SUPPORTED
 
     n = 0.34  # n秒ごと*
     ub_interval = 0
@@ -258,7 +258,7 @@ def analyze_movie(movie_path):
     time_data.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
     time_data.append("処理時間 : {:.3f}".format(time_result) + "  sec")
 
-    return ub_data, time_data, total_damage, debuff_value
+    return ub_data, time_data, total_damage, debuff_value, NO_ERROR
 
 
 def edit_frame(frame):
@@ -373,6 +373,8 @@ def analyze_anna_icon_frame(frame, roi, characters_find):
         if max_val > ICON_THRESH:
             characters_find.append(characters.index('アンナ'))
 
+    return
+
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -446,12 +448,13 @@ def analyze():
     session.pop('youtube_id', None)
 
     if request.method == 'GET' and path is not None:
-        time_line, time_data, total_damage, debuff_value = analyze_movie(path)
-        cache = cache_check(youtube_id)
-        if cache is False:
-            json.dump([title, time_line, False, total_damage, debuff_value],
-                      open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
-        if time_line is not None:
+        time_line, time_data, total_damage, debuff_value, status = analyze_movie(path)
+        if status is NO_ERROR:
+            cache = cache_check(youtube_id)
+            if cache is False:
+                json.dump([title, time_line, False, total_damage, debuff_value],
+                          open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+
             session['time_line'] = time_line
             session['time_data'] = time_data
             session['total_damage'] = total_damage
@@ -553,23 +556,26 @@ def remoteAnalyze():
                 msg = "動画の取得に失敗しました。もう一度入力をお願いします"
             else:
                 # TL解析
-                time_line, time_data, total_damage, debuff_value = analyze_movie(path)
+                time_line, time_data, total_damage, debuff_value, status = analyze_movie(path)
 
-                # キャッシュ保存
-                cache = cache_check(youtube_id)
-                if cache is False:
-                    json.dump([title, time_line, False, total_damage, debuff_value],
-                              open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+                if status is NO_ERROR:
+                    # キャッシュ保存
+                    cache = cache_check(youtube_id)
+                    if cache is False:
+                        json.dump([title, time_line, False, total_damage, debuff_value],
+                                  open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
 
-                result["title"] = title
-                result["total_damage"] = total_damage
-                result["timeline"] = time_line
-                result["timeline_txt"] = "\r\n".join(time_line)
-                result["process_time"] = time_data
-                result["debuff_value"] = debuff_value
-                result["timeline_txt_debuff"] = "\r\n".join(list(
-                    map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
-                        enumerate(time_line))))
+                    result["title"] = title
+                    result["total_damage"] = total_damage
+                    result["timeline"] = time_line
+                    result["timeline_txt"] = "\r\n".join(time_line)
+                    result["process_time"] = time_data
+                    result["debuff_value"] = debuff_value
+                    result["timeline_txt_debuff"] = "\r\n".join(list(
+                        map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                            enumerate(time_line))))
+                else:
+                    msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
 
     ret["msg"] = msg
     ret["status"] = status
