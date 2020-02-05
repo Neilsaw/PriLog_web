@@ -396,10 +396,13 @@ def predicts():
         cache = cache_check(youtube_id)
         if cache is not False:
             title, time_line, time_data, total_damage, debuff_value = cache
-
-            debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
-            return render_template('result.html', title=title, timeLine=time_line,
-                                   timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
+            if time_line:
+                debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+                return render_template('result.html', title=title, timeLine=time_line,
+                                       timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
+            else:
+                error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                return render_template('index.html', error=error)
 
         path, title, length, thumbnail, url_result = search(url)
 
@@ -448,13 +451,17 @@ def analyze():
     session.pop('youtube_id', None)
 
     if request.method == 'GET' and path is not None:
+        # TL解析
         time_line, time_data, total_damage, debuff_value, status = analyze_movie(path)
-        if status is NO_ERROR:
-            cache = cache_check(youtube_id)
-            if cache is False:
-                json.dump([title, time_line, False, total_damage, debuff_value],
-                          open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
 
+        # キャッシュ保存
+        cache = cache_check(youtube_id)
+        if cache is False:
+            json.dump([title, time_line, False, total_damage, debuff_value],
+                      open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+
+        if status is NO_ERROR:
+            # 解析が正常終了ならば結果を格納
             session['time_line'] = time_line
             session['time_data'] = time_data
             session['total_damage'] = total_damage
@@ -481,7 +488,10 @@ def result():
     session.pop('debuff_value', None)
 
     if request.method == 'GET' and time_line is not None:
-        debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+        debuff_dict = None
+        if debuff_value:
+            debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+
         return render_template('result.html', title=title, timeLine=time_line,
                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
     else:
@@ -534,14 +544,20 @@ def remoteAnalyze():
 
             # キャッシュを返信
             title, time_line, time_data, total_damage, debuff_value = cache
-            result["title"] = title
-            result["total_damage"] = total_damage
-            result["timeline"] = time_line
-            result["timeline_txt"] = "\r\n".join(time_line)
-            result["process_time"] = time_data
-            result["debuff_value"] = debuff_value
-            result["timeline_txt_debuff"] = "\r\n".join(list(
-                map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]), enumerate(time_line))))
+            if time_line:
+                result["title"] = title
+                result["total_damage"] = total_damage
+                result["timeline"] = time_line
+                result["process_time"] = time_data
+                result["debuff_value"] = debuff_value
+                result["timeline_txt"] = "\r\n".join(time_line)
+                if debuff_value:
+                    result["timeline_txt_debuff"] = "\r\n".join(list(
+                        map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                            enumerate(time_line))))
+            else:
+                status = ERROR_NOT_SUPPORTED
+                msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
         else:
             # キャッシュ無しの場合
 
@@ -556,24 +572,29 @@ def remoteAnalyze():
                 msg = "動画の取得に失敗しました。もう一度入力をお願いします"
             else:
                 # TL解析
-                time_line, time_data, total_damage, debuff_value, status = analyze_movie(path)
+                time_line, time_data, total_damage, debuff_value, analyze_result = analyze_movie(path)
+                status = analyze_result
+                # キャッシュ保存
+                cache = cache_check(youtube_id)
+                if cache is False:
+                    json.dump([title, time_line, False, total_damage, debuff_value],
+                              open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
 
-                if status is NO_ERROR:
-                    # キャッシュ保存
-                    cache = cache_check(youtube_id)
-                    if cache is False:
-                        json.dump([title, time_line, False, total_damage, debuff_value],
-                                  open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
-
+                if analyze_result is NO_ERROR:
+                    # 解析が正常終了ならば結果を格納
                     result["title"] = title
                     result["total_damage"] = total_damage
                     result["timeline"] = time_line
-                    result["timeline_txt"] = "\r\n".join(time_line)
                     result["process_time"] = time_data
                     result["debuff_value"] = debuff_value
-                    result["timeline_txt_debuff"] = "\r\n".join(list(
-                        map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
-                            enumerate(time_line))))
+
+                    if time_line:
+                        result["timeline_txt"] = "\r\n".join(time_line)
+                        if debuff_value:
+                            result["timeline_txt_debuff"] = "\r\n".join(list(
+                                map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                                    enumerate(time_line))))
+
                 else:
                     msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
 
