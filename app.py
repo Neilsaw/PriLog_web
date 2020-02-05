@@ -397,7 +397,9 @@ def predicts():
         if cache is not False:
             title, time_line, time_data, total_damage, debuff_value = cache
             if time_line:
-                debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+                debuff_dict = None
+                if debuff_value:
+                    debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
                 return render_template('result.html', title=title, timeLine=time_line,
                                        timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
             else:
