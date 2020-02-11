@@ -90,6 +90,7 @@ ERROR_TOO_LONG = 2
 ERROR_NOT_SUPPORTED = 3
 ERROR_CANT_GET_MOVIE = 4
 ERROR_REQUIRED_PARAM = 5
+ERROR_NOW_PROCESSING = 6
 
 stream_dir = "tmp/"
 if not os.path.exists(stream_dir):
@@ -99,6 +100,10 @@ cache_dir = "cache/"
 if not os.path.exists(cache_dir):
     os.mkdir(cache_dir)
 
+processing_dir = "processing/"
+if not os.path.exists(processing_dir):
+    os.mkdir(processing_dir)
+
 
 def cache_check(youtube_id):
     # キャッシュ有無の確認
@@ -106,6 +111,29 @@ def cache_check(youtube_id):
         return json.load(open(cache_dir + urllib.parse.quote(youtube_id) + '.json'))
     except FileNotFoundError:
         return False
+
+
+def processing_save(path):
+    # 解析中のIDを保存
+    try:
+        with open(path, mode='w'):
+            pass
+    except FileExistsError:
+        pass
+
+    return
+
+
+def clear_path(path):
+    # ファイルの削除
+    try:
+        os.remove(path)
+    except PermissionError:
+        pass
+    except FileNotFoundError:
+        pass
+
+    return
 
 
 def get_youtube_id(url):
@@ -158,7 +186,7 @@ def analyze_movie(movie_path):
 
     if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
         video.release()
-        os.remove(movie_path)
+        clear_path(movie_path)
 
         return None, None, None, None, ERROR_NOT_SUPPORTED
 
@@ -249,7 +277,7 @@ def analyze_movie(movie_path):
                             break
 
     video.release()
-    os.remove(movie_path)
+    clear_path(movie_path)
 
     # TLに対する後処理
     debuff_value = ac.make_ub_value_list(ub_data_value, characters_find)
@@ -406,7 +434,7 @@ def predicts():
                 error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
                 return render_template('index.html', error=error)
 
-        path, title, length, thumbnail, url_result = search(url)
+        path, title, length, thumbnail, url_result = search(youtube_id)
 
         if url_result is ERROR_TOO_LONG:
             error = "動画時間が長すぎるため、解析に対応しておりません"
@@ -435,11 +463,7 @@ def predicts():
             error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
 
         elif path is not None:
-            if os.path.exists(path):
-                try:
-                    os.remove(path)
-                except PermissionError:
-                    print("PermissionError occur")
+            clear_path(path)
 
         return render_template('index.html', error=error)
 
@@ -563,42 +587,54 @@ def remoteAnalyze():
         else:
             # キャッシュ無しの場合
 
-            # youtube動画検索/検証
-            path, title, length, thumbnail, url_result = search(youtube_id)
-            status = url_result
-            if url_result is ERROR_TOO_LONG:
-                msg = "動画時間が長すぎるため、解析に対応しておりません"
-            elif url_result is ERROR_NOT_SUPPORTED:
-                msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
-            elif url_result is ERROR_CANT_GET_MOVIE:
-                msg = "動画の取得に失敗しました。もう一度入力をお願いします"
+            # 解析中かどうかを確認
+            processing_path = processing_dir + str(youtube_id)
+            processing = os.path.exists(processing_path)
+            if processing is True:
+                status = ERROR_NOW_PROCESSING
+                msg = "現在解析中です。1分~2分後に再度お試し下さい。"
             else:
-                # TL解析
-                time_line, time_data, total_damage, debuff_value, analyze_result = analyze_movie(path)
-                status = analyze_result
-                # キャッシュ保存
-                cache = cache_check(youtube_id)
-                if cache is False:
-                    json.dump([title, time_line, False, total_damage, debuff_value],
-                              open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+                # 解析中として保存
+                processing_save(processing_path)
 
-                if analyze_result is NO_ERROR:
-                    # 解析が正常終了ならば結果を格納
-                    result["title"] = title
-                    result["total_damage"] = total_damage
-                    result["timeline"] = time_line
-                    result["process_time"] = time_data
-                    result["debuff_value"] = debuff_value
-
-                    if time_line:
-                        result["timeline_txt"] = "\r\n".join(time_line)
-                        if debuff_value:
-                            result["timeline_txt_debuff"] = "\r\n".join(list(
-                                map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
-                                    enumerate(time_line))))
-
-                else:
+                # youtube動画検索/検証
+                path, title, length, thumbnail, url_result = search(youtube_id)
+                status = url_result
+                if url_result is ERROR_TOO_LONG:
+                    msg = "動画時間が長すぎるため、解析に対応しておりません"
+                elif url_result is ERROR_NOT_SUPPORTED:
                     msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                elif url_result is ERROR_CANT_GET_MOVIE:
+                    msg = "動画の取得に失敗しました。もう一度入力をお願いします"
+                else:
+                    # TL解析
+                    time_line, time_data, total_damage, debuff_value, analyze_result = analyze_movie(path)
+                    status = analyze_result
+                    # キャッシュ保存
+                    cache = cache_check(youtube_id)
+                    if cache is False:
+                        json.dump([title, time_line, False, total_damage, debuff_value],
+                                  open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+
+                    if analyze_result is NO_ERROR:
+                        # 解析が正常終了ならば結果を格納
+                        result["title"] = title
+                        result["total_damage"] = total_damage
+                        result["timeline"] = time_line
+                        result["process_time"] = time_data
+                        result["debuff_value"] = debuff_value
+
+                        if time_line:
+                            result["timeline_txt"] = "\r\n".join(time_line)
+                            if debuff_value:
+                                result["timeline_txt_debuff"] = "\r\n".join(list(
+                                    map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                                        enumerate(time_line))))
+
+                    else:
+                        msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+
+                clear_path(processing_path)
 
     ret["msg"] = msg
     ret["status"] = status
