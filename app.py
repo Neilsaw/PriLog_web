@@ -453,19 +453,62 @@ def predicts():
         return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
     elif request.method == 'GET':
-        path = session.get('path')
-        session.pop('path', None)
-        session.pop('title', None)
-        session.pop('youtube_id', None)
+        if 'v' in request.args:  # ?v=YoutubeID 形式のGETであればリザルト返却
+            youtube_id = request.args.get('v')
+            if re.fullmatch(r'^([a-zA-Z0-9_-]{11})$', youtube_id):
+                cache = cache_check(youtube_id)
+                if cache is not False:
+                    title, time_line, time_data, total_damage, debuff_value = cache
+                    if time_line:
+                        debuff_dict = None
+                        if debuff_value:
+                            debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+                        data_url = "https://prilog.jp/?v=" + youtube_id
+                        data_txt = title + "\n"
+                        if total_damage:
+                            data_txt += total_damage + "\n"
+                        data_txt += "PriLog Web"
+                        return render_template('result.html', title=title, timeLine=time_line,
+                                               timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
+                                               data_txt=data_txt, data_url=data_url)
+                    else:
+                        error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                        return render_template('index.html', error=error)
+                else:  # キャッシュが存在しない場合は解析
+                    path, title, length, thumbnail, url_result = search(youtube_id)
 
-        error = None
-        if path is ERROR_NOT_SUPPORTED:
-            error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                    if url_result is ERROR_TOO_LONG:
+                        error = "動画時間が長すぎるため、解析に対応しておりません"
+                        return render_template('index.html', error=error)
+                    elif url_result is ERROR_NOT_SUPPORTED:
+                        error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                        return render_template('index.html', error=error)
+                    elif url_result is ERROR_CANT_GET_MOVIE:
+                        error = "動画の取得に失敗しました。もう一度入力をお願いします"
+                        return render_template('index.html', error=error)
+                    session['path'] = path
+                    session['title'] = title
+                    session['youtube_id'] = youtube_id
+                    length = int(int(length) / 4) + 3
 
-        elif path is not None:
-            clear_path(path)
+                    return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
+            else:
+                error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
+                return render_template('index.html', error=error)
+        else:
+            path = session.get('path')
+            session.pop('path', None)
+            session.pop('title', None)
+            session.pop('youtube_id', None)
 
-        return render_template('index.html', error=error)
+            error = None
+            if path is ERROR_NOT_SUPPORTED:
+                error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+
+            elif path is not None:
+                clear_path(path)
+
+            return render_template('index.html', error=error)
 
 
 @app.route('/analyze', methods=['GET', 'POST'])
@@ -507,19 +550,26 @@ def result():
     time_data = session.get('time_data')
     total_damage = session.get('total_damage')
     debuff_value = session.get('debuff_value')
+    youtube_id = session.get('youtube_id')
     session.pop('title', None)
     session.pop('time_line', None)
     session.pop('time_data', None)
     session.pop('total_damage', None)
     session.pop('debuff_value', None)
+    session.pop('youtube_id', None)
 
     if request.method == 'GET' and time_line is not None:
         debuff_dict = None
         if debuff_value:
             debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
-
+        data_url = "https://prilog.jp/?v=" + youtube_id
+        data_txt = title + "\n"
+        if total_damage:
+            data_txt += total_damage + "\n"
+        data_txt += "PriLog Web"
         return render_template('result.html', title=title, timeLine=time_line,
-                               timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
+                               timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
+                               data_txt=data_txt, data_url=data_url)
     else:
         return redirect("/")
 
