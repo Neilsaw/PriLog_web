@@ -90,7 +90,7 @@ ERROR_TOO_LONG = 2
 ERROR_NOT_SUPPORTED = 3
 ERROR_CANT_GET_MOVIE = 4
 ERROR_REQUIRED_PARAM = 5
-ERROR_NOW_PROCESSING = 6
+ERROR_PROCESS_FAILED = 6
 
 stream_dir = "tmp/"
 if not os.path.exists(stream_dir):
@@ -100,9 +100,7 @@ cache_dir = "cache/"
 if not os.path.exists(cache_dir):
     os.mkdir(cache_dir)
 
-processing_dir = "processing/"
-if not os.path.exists(processing_dir):
-    os.mkdir(processing_dir)
+pendingQueue = []
 
 
 def cache_check(youtube_id):
@@ -111,17 +109,6 @@ def cache_check(youtube_id):
         return json.load(open(cache_dir + urllib.parse.quote(youtube_id) + '.json'))
     except FileNotFoundError:
         return False
-
-
-def processing_save(path):
-    # 解析中のIDを保存
-    try:
-        with open(path, mode='w'):
-            pass
-    except FileExistsError:
-        pass
-
-    return
 
 
 def clear_path(path):
@@ -634,18 +621,38 @@ def remoteAnalyze():
             else:
                 status = ERROR_NOT_SUPPORTED
                 msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
-        else:
-            # キャッシュ無しの場合
-
+        else:  # キャッシュ無しの場合
             # 解析中かどうかを確認
-            processing_path = processing_dir + str(youtube_id)
-            processing = os.path.exists(processing_path)
-            if processing is True:
-                status = ERROR_NOW_PROCESSING
-                msg = "現在解析中です。1分~2分後に再度お試し下さい。"
-            else:
-                # 解析中として保存
-                processing_save(processing_path)
+            if youtube_id in pendingQueue:  # 既に解析中の場合
+                while True:  # 解析終了を監視
+                    if youtube_id in pendingQueue:
+                        tm.sleep(1)
+                        continue
+                    else:  # 既に開始されている解析が完了したら、そのキャッシュJSONを返す
+                        cache = cache_check(youtube_id)
+                        if cache is not False:
+                            title, time_line, time_data, total_damage, debuff_value = cache
+                            if time_line:
+                                result["title"] = title
+                                result["total_damage"] = total_damage
+                                result["timeline"] = time_line
+                                result["process_time"] = time_data
+                                result["debuff_value"] = debuff_value
+                                result["timeline_txt"] = "\r\n".join(time_line)
+                                if debuff_value:
+                                    result["timeline_txt_debuff"] = "\r\n".join(list(
+                                        map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                                            enumerate(time_line))))
+                            break
+                        else:  # キャッシュ未生成の場合
+                            # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
+                            status = ERROR_PROCESS_FAILED
+                            msg = "解析結果の取得に失敗しました"
+                            break
+
+            else:  # 既に解析中ではない場合
+                # 解析キューに登録
+                pendingQueue.append(youtube_id)
 
                 # youtube動画検索/検証
                 path, title, length, thumbnail, url_result = search(youtube_id)
@@ -684,7 +691,7 @@ def remoteAnalyze():
                     else:
                         msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
 
-                clear_path(processing_path)
+                pendingQueue.remove(youtube_id)
 
     ret["msg"] = msg
     ret["status"] = status
