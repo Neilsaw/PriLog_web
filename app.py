@@ -448,7 +448,7 @@ def predicts():
         session['path'] = path
         session['title'] = title
         session['youtube_id'] = youtube_id
-        length = int(int(length) / 4) + 3
+        length = int(int(length) / 8) + 3
 
         return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
 
