@@ -495,8 +495,8 @@ def predicts():
                     length = int(int(length) / 4) + 3
 
                     return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
-            else:
-                error = "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします"
+            else:  # prilog.jp/(YoutubeID)に該当しないリクエスト
+                error = "不正なリクエストです"
                 return render_template('index.html', error=error)
         else:
             path = session.get('path')
@@ -559,7 +559,6 @@ def result():
     session.pop('time_data', None)
     session.pop('total_damage', None)
     session.pop('debuff_value', None)
-    session.pop('youtube_id', None)
 
     if request.method == 'GET' and time_line is not None:
         debuff_dict = None
