@@ -429,8 +429,15 @@ def predicts():
                 debuff_dict = None
                 if debuff_value:
                     debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
+                data_url = "https://prilog.jp/?v=" + youtube_id
+                data_txt = title + "\n"
+                if total_damage:
+                    data_txt += total_damage + "\n"
+                data_txt += "タイムラインはこちら\n"
+
                 return render_template('result.html', title=title, timeLine=time_line,
-                                       timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict)
+                                       timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
+                                       data_txt=data_txt, data_url=data_url)
             else:
                 error = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
                 return render_template('index.html', error=error)
@@ -468,7 +475,8 @@ def predicts():
                         data_txt = title + "\n"
                         if total_damage:
                             data_txt += total_damage + "\n"
-                        data_txt += "PriLog Web"
+                        data_txt += "タイムラインはこちら\n"
+
                         return render_template('result.html', title=title, timeLine=time_line,
                                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                                data_txt=data_txt, data_url=data_url)
@@ -490,7 +498,7 @@ def predicts():
                     session['path'] = path
                     session['title'] = title
                     session['youtube_id'] = youtube_id
-                    length = int(int(length) / 4) + 3
+                    length = int(int(length) / 8) + 3
 
                     return render_template('analyze.html', title=title, length=length, thumbnail=thumbnail)
             else:  # prilog.jp/(YoutubeID)に該当しないリクエスト
@@ -566,7 +574,8 @@ def result():
         data_txt = title + "\n"
         if total_damage:
             data_txt += total_damage + "\n"
-        data_txt += "PriLog Web"
+        data_txt += "タイムラインはこちら\n"
+
         return render_template('result.html', title=title, timeLine=time_line,
                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                data_txt=data_txt, data_url=data_url)

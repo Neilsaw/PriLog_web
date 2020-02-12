@@ -50,6 +50,7 @@
           <div class="ubButton">
             <button class="buttonBack" onclick="location.href='/'">戻る</button>
             <button class="buttonClipboard" data-clipboard-target="#copyTargetTl">クリップボードにコピー</button>
+            <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" data-text="{{data_txt}}" class="twitter-share-button" data-url="{{data_url}}" data-lang="ja" data-show-count="false">Tweet</a>
           </div>
         </div>
         <div id="panel2" class="tab_panel">
@@ -84,7 +85,6 @@
           </div>
         </div>
       </div>
-    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" data-text="{{data_txt}}" class="twitter-share-button" data-url="{{data_url}}" data-lang="ja" data-show-count="false">Tweet</a>
     {% else %}
       <button class="buttonBack" onclick="location.href='/'">戻る</button>
     {% endif %}
