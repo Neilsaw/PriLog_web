@@ -105,8 +105,6 @@ pending_dir = "pending/"
 if not os.path.exists(pending_dir):
     os.mkdir(pending_dir)
 
-pendingQueue = []
-
 
 def cache_check(youtube_id):
     # キャッシュ有無の確認
