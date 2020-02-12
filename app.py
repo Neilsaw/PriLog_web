@@ -518,7 +518,6 @@ def analyze():
     title = session.get('title')
     youtube_id = session.get('youtube_id')
     session.pop('path', None)
-    session.pop('youtube_id', None)
 
     if request.method == 'GET' and path is not None:
         # TL解析
@@ -557,6 +556,7 @@ def result():
     session.pop('time_data', None)
     session.pop('total_damage', None)
     session.pop('debuff_value', None)
+    session.pop('youtube_id', None)
 
     if request.method == 'GET' and time_line is not None:
         debuff_dict = None
