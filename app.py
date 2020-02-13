@@ -472,10 +472,10 @@ def predicts():
                         if debuff_value:
                             debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
                         data_url = "https://prilog.jp/?v=" + youtube_id
-                        data_txt = title + "\n"
+                        data_txt = "【プリコネタイムライン】%0a"
+                        data_txt += title + "%0a"
                         if total_damage:
-                            data_txt += total_damage + "\n"
-                        data_txt += "タイムラインはこちら\n"
+                            data_txt += total_damage + "%0a"
 
                         return render_template('result.html', title=title, timeLine=time_line,
                                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
