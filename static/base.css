@@ -222,6 +222,23 @@ span{
   text-align: center;
 }
 
+.buttonTwitter{
+  position: relative;
+}
+
+.tweetIcon{
+  height: 33px;
+  position: absolute;
+  top: -65px;
+  left: 115px;
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  border: none;
+  border-bottom: solid 2px #627295;
+  border-radius: 5px;
+}
+
 /* header用CSS */
 
 #header{
