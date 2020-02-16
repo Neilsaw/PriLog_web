@@ -1,4 +1,3 @@
-#!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, flash, Response, abort, session, redirect
 from wtforms import Form, StringField, SubmitField, validators, ValidationError

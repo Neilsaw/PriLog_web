@@ -1,4 +1,3 @@
-#!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
 import characters as cd
 import debuff as db

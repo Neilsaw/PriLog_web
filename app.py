@@ -1,4 +1,3 @@
-#!/home/prilog/.pyenv/versions/3.6.9/bin/python
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, session, redirect, jsonify
 import numpy as np
