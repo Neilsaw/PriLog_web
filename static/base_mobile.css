@@ -267,6 +267,17 @@ span{
   margin-top: 20px;
 }
 
+.headerIcon {
+  position: absolute;
+  top: 3px;
+  left: 90%;
+}
+
+.headerIcon img {
+  height: 44px;
+}
+
+
 /* footer用CSS */
 
 #modalArea {
@@ -734,6 +745,16 @@ span{
   right: 0;
   left: 0;
   margin-top: 50px;
+}
+
+.headerIcon {
+  position: absolute;
+  top: 3px;
+  left: 80%;
+}
+
+.headerIcon img {
+  height: 44px;
 }
 
 /* footer用CSS */
