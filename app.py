@@ -446,7 +446,7 @@ def predicts():
                 if debuff_value:
                     debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
                 data_url = "https://prilog.jp/?v=" + youtube_id
-                data_txt = "【プリコネタイムライン】%0a"
+                data_txt = "@PriLog_Rより%0a"
                 data_txt += title + "%0a"
                 if total_damage:
                     data_txt += total_damage + "%0a"
@@ -488,7 +488,7 @@ def predicts():
                         if debuff_value:
                             debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
                         data_url = "https://prilog.jp/?v=" + youtube_id
-                        data_txt = "【プリコネタイムライン】%0a"
+                        data_txt = "@PriLog_Rより%0a"
                         data_txt += title + "%0a"
                         if total_damage:
                             data_txt += total_damage + "%0a"
@@ -587,7 +587,7 @@ def result():
         if debuff_value:
             debuff_dict = ({key: val for key, val in zip(time_line, debuff_value)})
         data_url = "https://prilog.jp/?v=" + youtube_id
-        data_txt = "【プリコネタイムライン】%0a"
+        data_txt = "@PriLog_Rより%0a"
         data_txt += title + "%0a"
         if total_damage:
             data_txt += total_damage + "%0a"
