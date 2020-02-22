@@ -57,20 +57,10 @@ TEN_SEC_ROI = (1091, 22, 1107, 44)
 ONE_SEC_ROI = (1105, 22, 1121, 44)
 MENU_ROI = (1100, 0, 1280, 90)
 SCORE_ROI = (160, 630, 290, 680)
-DAMAGE_DATA_ROI = (60, 54, 230, 93)
+DAMAGE_DATA_ROI = (35, 50, 255, 100)
 CHARACTER_ICON_ROI = (234, 506, 1046, 668)
 
 MENU_LOC = (63, 23)
-
-DAMAGE_NUMBER_ROI = [
-    (0, 0, 26, 39),
-    (22, 0, 50, 39),
-    (46, 0, 74, 39),
-    (70, 0, 98, 39),
-    (94, 0, 122, 39),
-    (118, 0, 146, 39),
-    (142, 0, 170, 39)
-]
 
 # 時刻格納位置
 TIMER_MIN = 2
@@ -81,7 +71,7 @@ TIMER_SEC = 0
 UB_THRESH = 0.6
 TIMER_THRESH = 0.7
 MENU_THRESH = 0.6
-DAMAGE_THRESH = 0.7
+DAMAGE_THRESH = 0.65
 ICON_THRESH = 0.6
 
 FOUND = 1
@@ -228,7 +218,7 @@ def analyze_movie(movie_path):
     time_data = []
     characters_find = []
 
-    tmp_damage = ["0", "0", "0", "0", "0", "0", "0"]
+    tmp_damage = []
     total_damage = False
 
     cap_interval = int(frame_rate * n)
@@ -284,10 +274,6 @@ def analyze_movie(movie_path):
 
                             if ret is True:
                                 total_damage = "総ダメージ " + ''.join(tmp_damage)
-                            else:
-                                ret = analyze_damage_frame(original_frame, DAMAGE_DATA_ROI, tmp_damage)
-                                if ret is True:
-                                    total_damage = "総ダメージ " + ''.join(tmp_damage)
 
                             break
 
@@ -386,32 +372,102 @@ def analyze_score_frame(frame, score, roi):
 
 
 def analyze_damage_frame(frame, roi, damage):
-    # 総ダメージを判定　現状7桁のみ対応
+    # 総ダメージを判定
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     analyze_frame = cv2.cvtColor(analyze_frame, cv2.COLOR_BGR2HSV)
     analyze_frame = cv2.inRange(analyze_frame, np.array([10, 120, 160]), np.array([40, 255, 255]))
 
-    ret = False
-    damage_num = len(damage)
+    # 数値の存在位置特定
+    find_list = find_damage_loc(analyze_frame)
+
+    # 探索結果を座標の昇順で並べ替え
+    find_list.sort()
+
+    # 総ダメージ情報作成
+    ret = make_damage_list(find_list, damage)
+
+    return ret
+
+
+def find_damage_loc(frame):
+    # 数値の存在位置特定
+    find_list = []
     number_num = len(numbers)
 
-    for i in range(damage_num):
-        check_roi = DAMAGE_NUMBER_ROI[i]
-        check_frame = analyze_frame[check_roi[1]:check_roi[3], check_roi[0]:check_roi[2]]
-        tmp_damage = [0, NOT_FOUND]
-        damage[i] = "?"
-        for j in range(number_num):
-            result_temp = cv2.matchTemplate(check_frame, damage_data[j], cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
-            if max_val > DAMAGE_THRESH:
-                if max_val > tmp_damage[1]:
-                    tmp_damage[0] = j
-                    tmp_damage[1] = max_val
-                    ret = True
+    for i in range(number_num):
+        # テンプレートマッチングで座標取得
+        result_temp = cv2.matchTemplate(frame, damage_data[i], cv2.TM_CCOEFF_NORMED)
+        loc = np.where(result_temp > DAMAGE_THRESH)[1]
+        result_temp = result_temp.T
 
-        if tmp_damage[1] != NOT_FOUND:
-            damage[i] = str(tmp_damage[0])
+        # 重複を削除し昇順に並び替える
+        loc = list(set(loc))
+        sort_loc = sorted(np.sort(loc))
+
+        loc_number = len(sort_loc)
+
+        # 座標に応じて数値を格納する
+        if loc_number == 0:
+            # 未発見の場合
+            find_list.append([0, i, 0])
+        elif loc_number == 1:
+            # 座標一つの場合
+            find_list.append([sort_loc[0], i, max(result_temp[sort_loc[0]])])
+        else:
+            # 座標複数の場合
+            temp_loc = sort_loc[0]
+            temp_value = max(result_temp[sort_loc[0]])
+
+            # +5の範囲の値を同一視する
+            for j in range(loc_number - 1):
+
+                if sort_loc[j + 1] > sort_loc[j] + 5:
+                    # 異なる座標の場合
+                    find_list.append([temp_loc, i, temp_value])
+                    temp_loc = sort_loc[j + 1]
+                    temp_value = max(result_temp[sort_loc[j + 1]])
+
+                else:
+                    # +5の範囲の座標の場合
+                    value_after = max(result_temp[sort_loc[j + 1]])
+
+                    if value_after > temp_value:
+                        # 直近探査結果より精度が上ならば更新する
+                        temp_loc = sort_loc[j + 1]
+                        temp_value = value_after
+
+            find_list.append([temp_loc, i, temp_value])
+
+    return find_list
+
+
+def make_damage_list(find_list, damage):
+    # 総ダメージ情報作成
+    ret = False
+    temp_list = []
+
+    list_num = len(find_list)
+
+    # 探索結果の中で同一座標の被りを除外する
+    for i in range(list_num):
+        if find_list[i][0] != 0:
+            if not temp_list:
+                temp_list = find_list[i]
+                ret = True
+
+            if find_list[i][0] > temp_list[0] + 5:
+                # 異なる座標の場合
+                damage.append(str(temp_list[1]))
+                temp_list = find_list[i]
+
+            else:
+                # +5の範囲の座標の場合
+                if find_list[i][2] > temp_list[2]:
+                    # 直近探査結果より精度が上ならば更新する
+                    temp_list = find_list[i]
+
+    damage.append(str(temp_list[1]))
 
     return ret
 
