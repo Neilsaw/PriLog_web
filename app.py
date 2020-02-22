@@ -20,8 +20,8 @@ sec_data = np.load("model/timer_sec.npy")
 # MENUテンプレート
 menu_data = np.load("model/menu.npy")
 
-# ダメージレポートテンプレート
-damage_menu_data = np.load("model/damage_menu.npy")
+# スコアテンプレート
+score_data = np.load("model/score_data.npy")
 
 # ダメージ数値テンプレート
 damage_data = np.load("model/damage_data.npy")
@@ -56,7 +56,7 @@ MIN_ROI = (1070, 22, 1089, 44)
 TEN_SEC_ROI = (1091, 22, 1107, 44)
 ONE_SEC_ROI = (1105, 22, 1121, 44)
 MENU_ROI = (1100, 0, 1280, 90)
-DAMAGE_MENU_ROI = (1040, 36, 1229, 66)
+SCORE_ROI = (160, 630, 290, 680)
 DAMAGE_DATA_ROI = (60, 54, 230, 93)
 CHARACTER_ICON_ROI = (234, 506, 1046, 668)
 
@@ -220,7 +220,7 @@ def analyze_movie(movie_path):
     tensec_roi = TEN_SEC_ROI
     onesec_roi = ONE_SEC_ROI
     ub_roi = UB_ROI
-    damage_menu_roi = DAMAGE_MENU_ROI
+    score_roi = SCORE_ROI
     damage_data_roi = DAMAGE_DATA_ROI
 
     ub_data = []
@@ -242,11 +242,11 @@ def analyze_movie(movie_path):
 
             if i % cap_interval is 0:
                 if ((i - ub_interval) > skip_frame) or (ub_interval == 0):
-                    ret, work_frame = video.read()
+                    ret, original_frame = video.read()
 
                     if ret is False:
                         break
-                    work_frame = edit_frame(work_frame)
+                    work_frame = edit_frame(original_frame)
 
                     if menu_check is False:
                         menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data, MENU_ROI)
@@ -257,7 +257,7 @@ def analyze_movie(movie_path):
                             tensec_roi = np.array(TEN_SEC_ROI) - np.array(roi_diff)
                             onesec_roi = np.array(ONE_SEC_ROI) - np.array(roi_diff)
                             ub_roi = np.array(UB_ROI) - np.array(roi_diff)
-                            damage_menu_roi = np.array(DAMAGE_MENU_ROI) - np.array(roi_diff)
+                            score_roi = np.array(SCORE_ROI) - np.array(roi_diff)
                             damage_data_roi = np.array(DAMAGE_DATA_ROI) - np.array(roi_diff)
 
                             analyze_anna_icon_frame(work_frame, CHARACTER_ICON_ROI, characters_find)
@@ -275,19 +275,17 @@ def analyze_movie(movie_path):
                         if ub_result is FOUND:
                             ub_interval = i
 
-                        ret = analyze_menu_frame(work_frame, damage_menu_data, damage_menu_roi)[0]
+                        # スコア表示の有無を確認
+                        ret = analyze_score_frame(work_frame, score_data, score_roi)
 
                         if ret is True:
-                            ret, end_frame = video.read()
+                            # 総ダメージ解析
+                            ret = analyze_damage_frame(original_frame, damage_data_roi, tmp_damage)
 
-                            if ret is False:
-                                break
-
-                            ret = analyze_damage_frame(end_frame, damage_data_roi, tmp_damage)
                             if ret is True:
                                 total_damage = "総ダメージ " + ''.join(tmp_damage)
                             else:
-                                ret = analyze_damage_frame(end_frame, DAMAGE_DATA_ROI, tmp_damage)
+                                ret = analyze_damage_frame(original_frame, DAMAGE_DATA_ROI, tmp_damage)
                                 if ret is True:
                                     total_damage = "総ダメージ " + ''.join(tmp_damage)
 
@@ -364,7 +362,7 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
 
 
 def analyze_menu_frame(frame, menu, roi):
-    # menuの有無を確認し終了判定に用いる
+    # menuの有無を確認し開始判定に用いる
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     result_temp = cv2.matchTemplate(analyze_frame, menu, cv2.TM_CCOEFF_NORMED)
@@ -373,6 +371,18 @@ def analyze_menu_frame(frame, menu, roi):
         return True, max_loc
 
     return False, None
+
+
+def analyze_score_frame(frame, score, roi):
+    # scoreの有無を確認し終了判定に用いる
+    analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
+
+    result_temp = cv2.matchTemplate(analyze_frame, score[0], cv2.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
+    if max_val > MENU_THRESH:
+        return True
+
+    return False
 
 
 def analyze_damage_frame(frame, roi, damage):
