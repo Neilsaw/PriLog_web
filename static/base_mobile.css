@@ -396,7 +396,7 @@ input[type="radio"]{
 
 .tab_area{
   font-size: 0;
-  margin-top: 10px;
+  margin-top: 60px;
   width: 90%;
 }
 
@@ -669,7 +669,7 @@ input[type="radio"]{
 .ubButton{
   position: relative;
   margin-left: 30px;
-  margin-bottom: 30px;
+  margin-bottom: 70px;
   font-size: 0;
   line-height: 0;
 }
@@ -704,13 +704,12 @@ span{
 
 .buttonTwitter{
   position: relative;
+  margin-top: 15px
 }
 
 .tweetIcon{
   height: 33px;
-  position: absolute;
-  top: 10px;
-  left: 50%;
+  position: relative;
   transform: translateX(-50%);
   -webkit-transform: translateX(-50%);
   -ms-transform: translateX(-50%);
@@ -876,7 +875,7 @@ input[type="radio"]{
 
 .tab_area{
   font-size: 0;
-  margin-top: 10px;
+  margin-top: 60px;
   width: 90%;
 }
 
