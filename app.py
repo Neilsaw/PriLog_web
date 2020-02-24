@@ -4,6 +4,8 @@ import numpy as np
 import os
 import re
 from pytube import YouTube
+from pytube import extract
+from pytube import exceptions
 import time as tm
 import cv2
 import json
@@ -145,13 +147,10 @@ def clear_path(path):
 
 def get_youtube_id(url):
     # ID部分の取り出し
-    work_id = re.findall('.*watch(.{14})', url)
-    if not work_id:
-        work_id = re.findall('.youtu.be/(.{11})', url)
-        if not work_id:
-            return False
-
-    ret = work_id[0].replace('?v=', '')
+    try:
+        ret = extract.video_id(url)
+    except exceptions.RegexMatchError:
+        ret = False
 
     return ret
 
