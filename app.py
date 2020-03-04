@@ -54,9 +54,9 @@ FRAME_ROWS = 720
 
 # 画像認識範囲
 UB_ROI = (490, 98, 810, 132)
-MIN_ROI = (1070, 22, 1089, 44)
-TEN_SEC_ROI = (1091, 22, 1107, 44)
-ONE_SEC_ROI = (1105, 22, 1121, 44)
+MIN_ROI = (1068, 22, 1091, 44)
+TEN_SEC_ROI = (1089, 22, 1109, 44)
+ONE_SEC_ROI = (1103, 22, 1123, 44)
 MENU_ROI = (1100, 0, 1280, 90)
 SCORE_ROI = (160, 630, 290, 680)
 DAMAGE_DATA_ROI = (35, 50, 255, 100)
@@ -305,45 +305,59 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
     characters_num = len(characters)
+    ub_result = NOT_FOUND
+    tmp_character = [False, 0]
+    tmp_value = UB_THRESH
 
     if len(characters_find) < 5:
         # 全キャラ探索
         for j in range(characters_num):
             result_temp = cv2.matchTemplate(analyze_frame, characters_data[j], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
-            if max_val > UB_THRESH:
-                ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[j])
-                ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), int(j)]])
-                if j not in characters_find:
-                    characters_find.append(j)
+            if max_val > tmp_value:
+                # 前回取得したキャラクターより一致率が高い場合
+                tmp_character = [characters[j], j]
+                tmp_value = max_val
+                ub_result = FOUND
 
-                return FOUND
+        if ub_result is FOUND:
+            ub_data.append(time_min + ":" + time_10sec + time_sec + " " + tmp_character[0])
+            ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
+            if tmp_character[1] not in characters_find:
+                characters_find.append(tmp_character[1])
     else:
         for j in range(5):
             # 5キャラのみの探索
             result_temp = cv2.matchTemplate(analyze_frame, characters_data[characters_find[j]], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
-            if max_val > UB_THRESH:
-                ub_data.append(time_min + ":" + time_10sec + time_sec + " " + characters[characters_find[j]])
-                ub_data_value.extend([[(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)),
-                                       characters_find[j]]])
+            if max_val > tmp_value:
+                # 前回取得したキャラクターより一致率が高い場合
+                tmp_character = [characters[characters_find[j]], characters_find[j]]
+                tmp_value = max_val
+                ub_result = FOUND
 
-                return FOUND
+        if ub_result is FOUND:
+            ub_data.append(time_min + ":" + time_10sec + time_sec + " " + tmp_character[0])
+            ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
 
-    return NOT_FOUND
+    return ub_result
 
 
 def analyze_timer_frame(frame, roi, data_num, time_data):
     # 時刻位置の探索
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
+    tmp_number = time_data
+    tmp_value = TIMER_THRESH
+
     for j in range(data_num):
         result_temp = cv2.matchTemplate(analyze_frame, sec_data[j], cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
-        if max_val > TIMER_THRESH:
-            return numbers[j]
+        if max_val > tmp_value:
+            tmp_number = numbers[j]
+            tmp_value = max_val
 
-    return time_data
+    return tmp_number
 
 
 def analyze_menu_frame(frame, menu, roi):
