@@ -14,28 +14,28 @@ import characters as cd
 import after_caluculation as ac
 
 # キャラクター名テンプレート
-characters_data = np.load("model/UB_name.npy")
+CHARACTERS_DATA = []
 
 # 時間テンプレート
-sec_data = np.load("model/timer_sec.npy")
+SEC_DATA = []
 
 # MENUテンプレート
-menu_data = np.load("model/menu.npy")
+MENU_DATA = []
 
 # スコアテンプレート
-score_data = np.load("model/score_data.npy")
+SCORE_DATA = []
 
 # ダメージ数値テンプレート
-damage_data = np.load("model/damage_data.npy")
+DAMAGE_DATA = []
 
 # アンナアイコンテンプレート
-icon_data = np.load("model/icon_data.npy")
+ICON_DATA = []
 
 # キャラクター名一覧
-characters = cd.characters_name
+CHARACTERS = cd.characters_name
 
 # 数値一覧
-numbers = [
+NUMBERS = [
     "0",
     "1",
     "2",
@@ -49,20 +49,29 @@ numbers = [
 ]
 
 # 解析可能な解像度
-FRAME_COLS = 1280
-FRAME_ROWS = 720
+FRAME_RESOLUTION = [
+    # width, height
+    (1280, 720),        # RESOLUTION_16_9
+    (1280, 590),        # RESOLUTION_2_1_a
+    (1280, 592)         # RESOLUTION_2_1_b
+]
+
+RESOLUTION_16_9 = 0
+RESOLUTION_2_1_a = 1
+RESOLUTION_2_1_b = 2
 
 # 画像認識範囲
-UB_ROI = (490, 98, 810, 132)
-MIN_ROI = (1068, 22, 1091, 44)
-TEN_SEC_ROI = (1089, 22, 1109, 44)
-ONE_SEC_ROI = (1103, 22, 1123, 44)
-MENU_ROI = (1100, 0, 1280, 90)
-SCORE_ROI = (160, 630, 290, 680)
-DAMAGE_DATA_ROI = (35, 50, 255, 100)
-CHARACTER_ICON_ROI = (234, 506, 1046, 668)
+UB_ROI = (0, 0, 0, 0)
+MIN_ROI = (0, 0, 0, 0)
+TEN_SEC_ROI = (0, 0, 0, 0)
+ONE_SEC_ROI = (0, 0, 0, 0)
+MENU_ROI = (0, 0, 0, 0)
+SCORE_ROI = (0, 0, 0, 0)
+DAMAGE_DATA_ROI = (0, 0, 0, 0)
+CHARACTER_ICON_ROI = (0, 0, 0, 0)
+MENU_LOC = (0, 0)
 
-MENU_LOC = (63, 23)
+FRAME_THRESH = 200
 
 # 時刻格納位置
 TIMER_MIN = 2
@@ -71,7 +80,7 @@ TIMER_SEC = 0
 
 # 認識判定値
 UB_THRESH = 0.6
-TIMER_THRESH = 0.7
+TIMER_THRESH = 0.6
 MENU_THRESH = 0.6
 DAMAGE_THRESH = 0.65
 ICON_THRESH = 0.6
@@ -155,6 +164,86 @@ def get_youtube_id(url):
     return ret
 
 
+def model_init(video_type):
+    # 動画の種類ごとのモデル初期化処理
+    global CHARACTERS_DATA          # キャラクター名テンプレート
+    global SEC_DATA                 # 時間テンプレート
+    global MENU_DATA                # MENUテンプレート
+    global SCORE_DATA               # スコアテンプレート
+    global DAMAGE_DATA              # ダメージ数値テンプレート
+    global ICON_DATA                # アンナアイコンテンプレート
+
+    if video_type is RESOLUTION_16_9:
+        CHARACTERS_DATA = np.load("model/16_9/UB_name_16_9.npy")
+        SEC_DATA = np.load("model/16_9/timer_sec_16_9.npy")
+        MENU_DATA = np.load("model/16_9/menu_16_9.npy")
+        SCORE_DATA = np.load("model/16_9/score_data_16_9.npy")
+        DAMAGE_DATA = np.load("model/16_9/damage_data_16_9.npy")
+        ICON_DATA = np.load("model/16_9/icon_data_16_9.npy")
+
+    elif video_type is RESOLUTION_2_1_a or RESOLUTION_2_1_b:
+        CHARACTERS_DATA = np.load("model/2_1/UB_name_2_1.npy")
+        SEC_DATA = np.load("model/2_1/timer_sec_2_1.npy")
+        MENU_DATA = np.load("model/2_1/menu_2_1.npy")
+        SCORE_DATA = np.load("model/2_1/score_data_2_1.npy")
+        DAMAGE_DATA = np.load("model/2_1/damage_data_2_1.npy")
+        ICON_DATA = np.load("model/2_1/icon_data_2_1.npy")
+
+    return
+
+
+def roi_init(video_type):
+    # 動画の種類ごとのモデル初期化処理
+    global UB_ROI                # UB名　解析位置
+    global MIN_ROI               # 時刻　分　解析位置
+    global TEN_SEC_ROI           # 時刻　10秒　解析位置
+    global ONE_SEC_ROI           # 時刻　1秒　解析位置
+    global MENU_ROI              # MENU　ボタン　解析位置
+    global SCORE_ROI             # スコア　解析位置
+    global DAMAGE_DATA_ROI       # ダメージ　解析位置
+    global CHARACTER_ICON_ROI    # アイコン　解析位置
+    global MENU_LOC              # MENU　ボタン　正位置
+    global FRAME_THRESH          # 解析用下限値
+
+    if video_type is RESOLUTION_16_9:
+        UB_ROI = (490, 98, 810, 132)
+        MIN_ROI = (1068, 22, 1091, 44)
+        TEN_SEC_ROI = (1089, 22, 1109, 44)
+        ONE_SEC_ROI = (1103, 22, 1123, 44)
+        MENU_ROI = (1100, 0, 1280, 90)
+        SCORE_ROI = (160, 630, 290, 680)
+        DAMAGE_DATA_ROI = (35, 50, 255, 100)
+        CHARACTER_ICON_ROI = (234, 506, 1046, 668)
+        MENU_LOC = (63, 23)
+        FRAME_THRESH = 200
+
+    elif video_type is RESOLUTION_2_1_a:
+        UB_ROI = (490, 76, 790, 102)
+        MIN_ROI = (1040, 15, 1063, 33)
+        TEN_SEC_ROI = (1058, 15, 1073, 33)
+        ONE_SEC_ROI = (1069, 15, 1084, 33)
+        MENU_ROI = (1050, 0, 1200, 50)
+        SCORE_ROI = (265, 498, 365, 532)
+        DAMAGE_DATA_ROI = (170, 33, 340, 80)
+        CHARACTER_ICON_ROI = (300, 390, 970, 520)
+        MENU_LOC = (68, 17)
+        FRAME_THRESH = 180
+
+    elif video_type is RESOLUTION_2_1_b:
+        UB_ROI = (490, 76, 790, 102)
+        MIN_ROI = (1046, 15, 1069, 33)
+        TEN_SEC_ROI = (1064, 15, 1079, 33)
+        ONE_SEC_ROI = (1075, 15, 1090, 33)
+        MENU_ROI = (1050, 0, 1200, 50)
+        SCORE_ROI = (265, 498, 365, 532)
+        DAMAGE_DATA_ROI = (170, 33, 340, 80)
+        CHARACTER_ICON_ROI = (300, 390, 970, 520)
+        MENU_LOC = (75, 17)
+        FRAME_THRESH = 180
+
+    return
+
+
 def search(youtube_id):
     # youtubeの動画を検索し取得
     youtube_url = 'https://www.youtube.com/watch?v=' + youtube_id
@@ -190,11 +279,16 @@ def analyze_movie(movie_path):
     frame_width = int(video.get(3))  # フレームの幅
     frame_height = int(video.get(4))  # フレームの高さ
 
-    if frame_width != int(FRAME_COLS) or frame_height != int(FRAME_ROWS):
+    try:
+        video_type = FRAME_RESOLUTION.index((frame_width, frame_height))
+    except ValueError:
         video.release()
         clear_path(movie_path)
 
         return None, None, None, None, ERROR_NOT_SUPPORTED
+
+    model_init(video_type)
+    roi_init(video_type)
 
     n = 0.34  # n秒ごと*
     ub_interval = 0
@@ -238,7 +332,7 @@ def analyze_movie(movie_path):
                     work_frame = edit_frame(original_frame)
 
                     if menu_check is False:
-                        menu_check, menu_loc = analyze_menu_frame(work_frame, menu_data, MENU_ROI)
+                        menu_check, menu_loc = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)
                         if menu_check is True:
                             loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
                             roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
@@ -265,7 +359,7 @@ def analyze_movie(movie_path):
                             ub_interval = i
 
                         # スコア表示の有無を確認
-                        ret = analyze_score_frame(work_frame, score_data, score_roi)
+                        ret = analyze_score_frame(work_frame, SCORE_DATA, score_roi)
 
                         if ret is True:
                             # 総ダメージ解析
@@ -294,7 +388,7 @@ def edit_frame(frame):
     work_frame = frame
 
     work_frame = cv2.cvtColor(work_frame, cv2.COLOR_RGB2GRAY)
-    work_frame = cv2.threshold(work_frame, 200, 255, cv2.THRESH_BINARY)[1]
+    work_frame = cv2.threshold(work_frame, FRAME_THRESH, 255, cv2.THRESH_BINARY)[1]
     work_frame = cv2.bitwise_not(work_frame)
 
     return work_frame
@@ -304,7 +398,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
     # ub文字位置を解析　5キャラ見つけている場合は探索対象を5キャラにする
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
-    characters_num = len(characters)
+    characters_num = len(CHARACTERS)
     ub_result = NOT_FOUND
     tmp_character = [False, 0]
     tmp_value = UB_THRESH
@@ -312,11 +406,11 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
     if len(characters_find) < 5:
         # 全キャラ探索
         for j in range(characters_num):
-            result_temp = cv2.matchTemplate(analyze_frame, characters_data[j], cv2.TM_CCOEFF_NORMED)
+            result_temp = cv2.matchTemplate(analyze_frame, CHARACTERS_DATA[j], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > tmp_value:
                 # 前回取得したキャラクターより一致率が高い場合
-                tmp_character = [characters[j], j]
+                tmp_character = [CHARACTERS[j], j]
                 tmp_value = max_val
                 ub_result = FOUND
 
@@ -328,11 +422,11 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
     else:
         for j in range(5):
             # 5キャラのみの探索
-            result_temp = cv2.matchTemplate(analyze_frame, characters_data[characters_find[j]], cv2.TM_CCOEFF_NORMED)
+            result_temp = cv2.matchTemplate(analyze_frame, CHARACTERS_DATA[characters_find[j]], cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
             if max_val > tmp_value:
                 # 前回取得したキャラクターより一致率が高い場合
-                tmp_character = [characters[characters_find[j]], characters_find[j]]
+                tmp_character = [CHARACTERS[characters_find[j]], characters_find[j]]
                 tmp_value = max_val
                 ub_result = FOUND
 
@@ -351,10 +445,10 @@ def analyze_timer_frame(frame, roi, data_num, time_data):
     tmp_value = TIMER_THRESH
 
     for j in range(data_num):
-        result_temp = cv2.matchTemplate(analyze_frame, sec_data[j], cv2.TM_CCOEFF_NORMED)
+        result_temp = cv2.matchTemplate(analyze_frame, SEC_DATA[j], cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
         if max_val > tmp_value:
-            tmp_number = numbers[j]
+            tmp_number = NUMBERS[j]
             tmp_value = max_val
 
     return tmp_number
@@ -376,7 +470,7 @@ def analyze_score_frame(frame, score, roi):
     # scoreの有無を確認し終了判定に用いる
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
-    result_temp = cv2.matchTemplate(analyze_frame, score[0], cv2.TM_CCOEFF_NORMED)
+    result_temp = cv2.matchTemplate(analyze_frame, score, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
     if max_val > MENU_THRESH:
         return True
@@ -406,11 +500,11 @@ def analyze_damage_frame(frame, roi, damage):
 def find_damage_loc(frame):
     # 数値の存在位置特定
     find_list = []
-    number_num = len(numbers)
+    number_num = len(NUMBERS)
 
     for i in range(number_num):
         # テンプレートマッチングで座標取得
-        result_temp = cv2.matchTemplate(frame, damage_data[i], cv2.TM_CCOEFF_NORMED)
+        result_temp = cv2.matchTemplate(frame, DAMAGE_DATA[i], cv2.TM_CCOEFF_NORMED)
         loc = np.where(result_temp > DAMAGE_THRESH)[1]
         result_temp = result_temp.T
 
@@ -480,7 +574,8 @@ def make_damage_list(find_list, damage):
                     # 直近探査結果より精度が上ならば更新する
                     temp_list = find_list[i]
 
-    damage.append(str(temp_list[1]))
+    if ret is True:
+        damage.append(str(temp_list[1]))
 
     return ret
 
@@ -489,13 +584,13 @@ def analyze_anna_icon_frame(frame, roi, characters_find):
     # アンナの有無を確認　UBを使わない場合があるため
     analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
 
-    icon_num = len(icon_data)
+    icon_num = len(ICON_DATA)
 
     for j in range(icon_num):
-        result_temp = cv2.matchTemplate(analyze_frame, icon_data[j], cv2.TM_CCOEFF_NORMED)
+        result_temp = cv2.matchTemplate(analyze_frame, ICON_DATA[j], cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
         if max_val > ICON_THRESH:
-            characters_find.append(characters.index('アンナ'))
+            characters_find.append(CHARACTERS.index('アンナ'))
 
     return
 
