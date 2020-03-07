@@ -4,19 +4,10 @@ from PIL import Image
 import os, glob
 
 # 画像が保存されているルートディレクトリのパス
-root_dir = "./damage_data"
-# 数値名
-damages = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
+root_dir = "./menu"
+# 時間名
+timers = [
+    "menu",
 ]
 
 # 画像データ用配列
@@ -38,11 +29,14 @@ def make_sample(files):
 # 渡された画像データを読み込んでXに格納し、また、
 # 画像データに対応するcategoriesのidxをY格納する関数
 def add_sample(cat, fname):
-    data = cv2.imread(fname)
-    data_hsv = cv2.cvtColor(data, cv2.COLOR_BGR2HSV)
-    result = cv2.inRange(data_hsv, np.array([10, 120, 160]), np.array([40, 255, 255]))
-    cv2.imwrite('save_damage_data/ ' + str(cat) + '.png', result)
-    X.append(result)
+    img = Image.open(fname)
+#    img = img.resize((10, 14))
+    data = np.asarray(img)
+    data_gray = cv2.cvtColor(data, cv2.COLOR_RGB2GRAY)
+    ret, result = cv2.threshold(data_gray, 180, 255, cv2.THRESH_BINARY)
+    invResult = cv2.bitwise_not(result)
+    cv2.imwrite('menu/ ' + str(cat) + '.png', invResult)
+    X.append(invResult)
     Y.append(cat)
 
 
@@ -50,12 +44,12 @@ def add_sample(cat, fname):
 allfiles = []
 
 # カテゴリ配列の各値と、それに対応するidxを認識し、全データをallfilesにまとめる
-for idx, cat in enumerate(damages):
+for idx, cat in enumerate(timers):
     image_dir = root_dir + "/" + cat
     files = glob.glob(image_dir + "/*.png")
     for f in files:
         allfiles.append((idx, f))
 
 X_train, y_train = make_sample(allfiles)
-# データを保存する（データの名前を「damage_data.npy」としている）
-np.save("model/damage_data.npy", X_train)
+# データを保存する（データの名前を「menu.npy」としている）
+np.save("model/2_1/menu_2_1.npy", X_train[0])

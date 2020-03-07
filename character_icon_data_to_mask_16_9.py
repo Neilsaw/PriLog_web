@@ -4,10 +4,12 @@ from PIL import Image
 import os, glob
 
 # 画像が保存されているルートディレクトリのパス
-root_dir = "./score"
+# 暫定でアンナのみ対応
+root_dir = "./character_icon"
 # 画像名
 types = [
-    "score",
+    "star1_2",
+    "star3_5",
 ]
 
 # 画像データ用配列
@@ -33,7 +35,7 @@ def add_sample(cat, fname):
     data_gray = cv2.cvtColor(data, cv2.COLOR_RGB2GRAY)
     ret, result = cv2.threshold(data_gray, 200, 255, cv2.THRESH_BINARY)
     invResult = cv2.bitwise_not(result)
-    cv2.imwrite('save_score/ ' + str(cat) + '.png', invResult)
+    cv2.imwrite('save_icon_data/ ' + str(cat) + '.png', invResult)
     X.append(invResult)
     Y.append(cat)
 
@@ -49,5 +51,6 @@ for idx, cat in enumerate(types):
         allfiles.append((idx, f))
 
 X_train, y_train = make_sample(allfiles)
-# データを保存する（データの名前を「score_data.npy」としている）
-np.save("model/score_data.npy", X_train)
+# データを保存する（データの名前を「icon_data.npy」としている）
+# 暫定でアンナのみ対応
+np.save("model/16_9/icon_data_16_9.npy", X_train)
