@@ -4,10 +4,19 @@ from PIL import Image
 import os, glob
 
 # 画像が保存されているルートディレクトリのパス
-root_dir = "./menu"
+root_dir = "../timer_data_2_1"
 # 時間名
 timers = [
-    "menu",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
 ]
 
 # 画像データ用配列
@@ -30,12 +39,11 @@ def make_sample(files):
 # 画像データに対応するcategoriesのidxをY格納する関数
 def add_sample(cat, fname):
     img = Image.open(fname)
-#    img = img.resize((10, 14))
     data = np.asarray(img)
     data_gray = cv2.cvtColor(data, cv2.COLOR_RGB2GRAY)
     ret, result = cv2.threshold(data_gray, 180, 255, cv2.THRESH_BINARY)
     invResult = cv2.bitwise_not(result)
-    cv2.imwrite('menu/ ' + str(cat) + '.png', invResult)
+    cv2.imwrite('../timer_data_1sec/ ' + str(cat) + '.png', invResult)
     X.append(invResult)
     Y.append(cat)
 
@@ -51,5 +59,5 @@ for idx, cat in enumerate(timers):
         allfiles.append((idx, f))
 
 X_train, y_train = make_sample(allfiles)
-# データを保存する（データの名前を「menu.npy」としている）
-np.save("model/4_3/menu_4_3.npy", X_train[0])
+# データを保存する（データの名前を「timer_sec.npy」としている）
+np.save("../model/2_1/timer_sec_2_1.npy", X_train)
