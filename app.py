@@ -53,12 +53,14 @@ FRAME_RESOLUTION = [
     # width, height
     (1280, 720),        # RESOLUTION_16_9
     (1280, 590),        # RESOLUTION_2_1_a
-    (1280, 592)         # RESOLUTION_2_1_b
+    (1280, 592),        # RESOLUTION_2_1_b
+    (960, 720)          # RESOLUTION_4_3
 ]
 
 RESOLUTION_16_9 = 0
 RESOLUTION_2_1_a = 1
 RESOLUTION_2_1_b = 2
+RESOLUTION_4_3 = 3
 
 # 画像認識範囲
 UB_ROI = (0, 0, 0, 0)
@@ -181,13 +183,29 @@ def model_init(video_type):
         DAMAGE_DATA = np.load("model/16_9/damage_data_16_9.npy")
         ICON_DATA = np.load("model/16_9/icon_data_16_9.npy")
 
-    elif video_type is RESOLUTION_2_1_a or RESOLUTION_2_1_b:
+    elif video_type is RESOLUTION_2_1_a:
         CHARACTERS_DATA = np.load("model/2_1/UB_name_2_1.npy")
         SEC_DATA = np.load("model/2_1/timer_sec_2_1.npy")
         MENU_DATA = np.load("model/2_1/menu_2_1.npy")
         SCORE_DATA = np.load("model/2_1/score_data_2_1.npy")
         DAMAGE_DATA = np.load("model/2_1/damage_data_2_1.npy")
         ICON_DATA = np.load("model/2_1/icon_data_2_1.npy")
+
+    elif video_type is RESOLUTION_2_1_b:
+        CHARACTERS_DATA = np.load("model/2_1/UB_name_2_1.npy")
+        SEC_DATA = np.load("model/2_1/timer_sec_2_1.npy")
+        MENU_DATA = np.load("model/2_1/menu_2_1.npy")
+        SCORE_DATA = np.load("model/2_1/score_data_2_1.npy")
+        DAMAGE_DATA = np.load("model/2_1/damage_data_2_1.npy")
+        ICON_DATA = np.load("model/2_1/icon_data_2_1.npy")
+
+    elif video_type is RESOLUTION_4_3:
+        CHARACTERS_DATA = np.load("model/4_3/UB_name_4_3.npy")
+        SEC_DATA = np.load("model/4_3/timer_sec_4_3.npy")
+        MENU_DATA = np.load("model/4_3/menu_4_3.npy")
+        SCORE_DATA = np.load("model/4_3/score_data_4_3.npy")
+        DAMAGE_DATA = np.load("model/4_3/damage_data_4_3.npy")
+        ICON_DATA = np.load("model/4_3/icon_data_4_3.npy")
 
     return
 
@@ -239,6 +257,18 @@ def roi_init(video_type):
         DAMAGE_DATA_ROI = (170, 33, 340, 80)
         CHARACTER_ICON_ROI = (300, 390, 970, 520)
         MENU_LOC = (75, 17)
+        FRAME_THRESH = 180
+
+    elif video_type is RESOLUTION_4_3:
+        UB_ROI = (230, 70, 730, 102)
+        MIN_ROI = (802, 14, 819, 34)
+        TEN_SEC_ROI = (816, 14, 831, 34)
+        ONE_SEC_ROI = (826, 14, 841, 34)
+        MENU_ROI = (830, 0, 960, 50)
+        SCORE_ROI = (120, 567, 210, 690)
+        DAMAGE_DATA_ROI = (18, 125, 187, 165)
+        CHARACTER_ICON_ROI = (170, 560, 790, 670)
+        MENU_LOC = (44, 17)
         FRAME_THRESH = 180
 
     return
