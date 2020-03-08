@@ -38,16 +38,22 @@ def add_sample(cat, fname):
     X.append(invResult)
     Y.append(cat)
 
-# 全データ格納用配列
-allfiles = []
 
-# カテゴリ配列の各値と、それに対応するidxを認識し、全データをallfilesにまとめる
-for idx, cat in enumerate(characters):
-    image_dir = root_dir + "/" + cat
-    files = glob.glob(image_dir + "/*.png")
-    for f in files:
-        allfiles.append((idx, f))
+def main():
+    # 全データ格納用配列
+    allfiles = []
 
-X_train, y_train = make_sample(allfiles)
-# データを保存する（データの名前を「UB_name.npy」としている）
-np.save("../model/16_9/UB_name_16_9.npy", X_train)
+    # カテゴリ配列の各値と、それに対応するidxを認識し、全データをallfilesにまとめる
+    for idx, cat in enumerate(characters):
+        image_dir = root_dir + "/" + cat
+        files = glob.glob(image_dir + "/*.png")
+        for f in files:
+            allfiles.append((idx, f))
+
+    X_train, y_train = make_sample(allfiles)
+    # データを保存する（データの名前を「UB_name.npy」としている）
+    np.save("../model/16_9/UB_name_16_9.npy", X_train)
+
+
+if __name__ == "__main__":
+    main()

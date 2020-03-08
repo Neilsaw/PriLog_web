@@ -7,6 +7,7 @@ import tkinter
 import tkinter.filedialog
 import tkinter.messagebox
 from collections import deque
+import mask_maker.make_model
 
 
 NO_ERROR = 0
@@ -37,6 +38,8 @@ def main():
     character_name = get_character_name()
 
     save_learning_data(character_name, master_frame)
+
+    mask_maker.make_model.main()
 
     print("画像の保存が完了しました。終了します")
 
