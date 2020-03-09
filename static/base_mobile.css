@@ -269,12 +269,12 @@ span{
 
 .headerIcon {
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 90%;
 }
 
 .headerIcon img {
-  height: 44px;
+  height: 40px;
 }
 
 
@@ -748,12 +748,12 @@ span{
 
 .headerIcon {
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 80%;
 }
 
 .headerIcon img {
-  height: 44px;
+  height: 40px;
 }
 
 /* footer用CSS */
