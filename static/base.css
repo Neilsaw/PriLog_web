@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  height: 100%;
+  height: auto;
   width: 100%;
   background-image: url('/static/backgroundsp2.jpg');
   background-size:cover;
@@ -460,6 +460,10 @@ input[type="radio"]{
 
 #tab2:checked ~ .panel_area #panel2{
   display:block;
+}
+
+#bottom_space{
+  margin-bottom: 100px;
 }
 
 }

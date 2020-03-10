@@ -469,6 +469,10 @@ input[type="radio"]{
   display:block;
 }
 
+#bottom_space{
+  margin-bottom: 50px;
+}
+
 }
 
 /* スマートフォン用CSS */
@@ -946,6 +950,10 @@ input[type="radio"]{
 
 #tab2:checked ~ .panel_area #panel2{
   display:block;
+}
+
+#bottom_space{
+  margin-bottom: 50px;
 }
 
 }
