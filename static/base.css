@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  height: auto;
+  min-height: 100vh;
   width: 100%;
   background-image: url('/static/backgroundsp2.jpg');
   background-size:cover;
