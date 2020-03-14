@@ -39,8 +39,6 @@ def main():
 
     save_learning_data(character_name, master_frame)
 
-    mask_maker.make_model.main()
-
     print("画像の保存が完了しました。終了します")
 
     return 0
