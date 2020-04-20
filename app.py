@@ -803,6 +803,14 @@ def result():
         return redirect("/")
 
 
+@app.route('/download', methods=['GET', 'POST'])
+def download():
+    if request.method == 'GET':
+        return render_template('download.html')
+    else:
+        return redirect("/")
+
+
 @app.route('/rest/analyze', methods=['POST', 'GET'])
 def remoteAnalyze():
     status = NO_ERROR
