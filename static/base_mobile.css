@@ -286,11 +286,11 @@ span{
 .headerDownload {
   position: relative;
   margin-left: 0%;
-  padding: 14px;
+  padding: 13px;
   text-decoration: none;
   color: black;
   font-size: 15px;
-  background-color: rgba(255,255,255);
+  background-color: rgba(255,255,255,1);
   border: none;
   cursor: pointer;
 }
@@ -872,11 +872,11 @@ span{
 .headerDownload {
   position: relative;
   margin-left: 0%;
-  padding: 14px;
+  padding: 13px;
   text-decoration: none;
   color: black;
   font-size: 15px;
-  background-color: rgba(255,255,255);
+  background-color: rgba(255,255,255,1);
   border: none;
   cursor: pointer;
   border-radius: 5px;
