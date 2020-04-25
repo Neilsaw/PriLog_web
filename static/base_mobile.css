@@ -530,8 +530,17 @@ input[type="radio"]{
   margin-top: 27px;
 }
 
-.downloadButton{
+.downloadButton_64{
   position: relative;
+  margin-bottom: 30px;
+  font-size: 0;
+  line-height: 0;
+  text-decoration: None;
+}
+
+.downloadButton_32{
+  position: relative;
+  margin-left: 30px;
   margin-bottom: 30px;
   font-size: 0;
   line-height: 0;
@@ -1118,7 +1127,15 @@ input[type="radio"]{
   margin-top: 27px;
 }
 
-.downloadButton{
+.downloadButton_64{
+  position: relative;
+  margin-bottom: 30px;
+  font-size: 0;
+  line-height: 0;
+  text-decoration: None;
+}
+
+.downloadButton_32{
   position: relative;
   margin-bottom: 30px;
   font-size: 0;
