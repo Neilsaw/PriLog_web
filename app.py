@@ -90,6 +90,9 @@ ICON_THRESH = 0.6
 FOUND = 1
 NOT_FOUND = 0
 
+# 解析可能動画時間(1s)
+MOVIE_LENGTH_MAX = 600
+
 # エラーリスト
 NO_ERROR = 0
 ERROR_BAD_URL = 1
@@ -284,7 +287,7 @@ def search(youtube_id):
 
     movie_thumbnail = yt.thumbnail_url
     movie_length = yt.length
-    if int(movie_length) > 480:
+    if int(movie_length) > MOVIE_LENGTH_MAX:
         return None, None, None, None, ERROR_TOO_LONG
 
     stream = yt.streams.get_by_itag("22")
