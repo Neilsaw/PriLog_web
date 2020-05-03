@@ -49,7 +49,7 @@ YouTube動画のURLからタイムライン情報を取得する
             + SD画質での解析です (string)
         + result (array[object], fixed-type) - 解析結果
             + (object)
-                + debuff_value (enum) - UB時のデバフ値(存在しない場合:false (boolean), 存在する場合:array[string])
+                + debuff_value (enum) - UB時のデバフ値(存在しない場合:false (boolean), 存在する場合:(array[string])
                     + false (boolean)
                     + (array[object])
                         + 0:0 (string)
@@ -59,9 +59,9 @@ YouTube動画のURLからタイムライン情報を取得する
                         + 4:64 (string)
                         + 5:87 (string)
                         + 6:64 (string)
-                + process_time (enum) - 処理時間(キャッシュ参照の場合:false (boolean), 新規解析の場合:string)
+                + process_time (enum) - 処理時間(キャッシュ参照の場合:false (boolean), 新規解析の場合:(string))
                     + false (boolean)
-                    + 0:00 (string)
+                    + 動画に依存 (string)
                 + timeline (array[object], fixed-type) - タイムライン
                      + (array[object])
                         + 0:1:30 キャル (string)
@@ -74,7 +74,7 @@ YouTube動画のURLからタイムライン情報を取得する
                 + timeline_txt:1:30 キャル\r\n1:27 ペコリーヌ\r\n1:18 コッコロ\r\n1:11 キャル\r\n1:02 ペコリーヌ\r\n1:00 キャル\r\n0:49 コッコロ (string) - 整形済みテキスト(改行コード CRLF)
                 + timeline_txt_debuff:↓  0 1:30 キャル\r\n↓  0 1:27 ペコリーヌ\r\n↓ 64 1:18 コッコロ\r\n↓ 87 1:11 キャル\r\n↓ 64 1:02 ペコリーヌ\r\n↓ 87 1:00 キャル\r\n↓ 64 0:49 コッコロ (string) - デバフ値を入れた整形済みテキスト(改行コード CRLF)
                 + title:タイムライン作成サンプル　(string) - 動画のタイトル
-                + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:string)
+                + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:(string))
                     + false (boolean)
-                    + 1000000 (string)
+                    + 動画に依存 (string)
         + status:0 (number) - エラーステータス(0,8:正常, 1~7:エラー)
