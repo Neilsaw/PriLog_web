@@ -4,7 +4,7 @@ HOST: https://prilog.jp
 # PriLog API
 プリコネ動画のタイムラインを返却するWeb API
 
-## タイムライン取得 [GET /rest/analyze?Url={url}]
+## タイムライン取得 [GET /rest/analyze?Url={url}&Token={token}]
 
 ### 処理概要
 
@@ -12,28 +12,46 @@ YouTube動画のURLからタイムライン情報を取得する
 
 #### エラーステータス詳細
 
-0 再解析不可 解析成功
+##### 2xx
 
-1 再解析不可 URL誤りのため解析不可
+         正常　(再解析不可)　解析結果確定
 
-2 再解析不可 解析可能時間を超えるため解析不可
+    200 解析成功
 
-3 再解析不可 解像度が対応していないため解析不可
+    201 SD画質での解析成功
 
-4 再解析可能 YouTubeから正常に取得できなかった場合
 
-5 再解析不可 GETメソッドにURLが無いため解析不可
 
-6 再解析不可 本来起こりえないエラー
+##### 3xx
 
-7 再解析可能 YouTubeにHD画質が無いためSD画質で解析した場合
+        リダイレクト可能　(再解析可能)　時間をおいて再解析可能
 
-8 再解析不可 SD画質での解析後、再度解析した場合もSD画質だったため解析不可
+    300 YouTubeから正常に取得できなかった場合
+
+    301 YouTubeにHD画質が無いためSD画質で解析した場合
+
+
+##### 4xx
+
+        解析エラー　(再解析不可)　エラー解析結果確定
+
+    400 URL誤りのため解析不可
+
+    401 解析可能時間を超えるため解析不可
+
+    402 解像度が対応していないため解析不可
+
+    403 パラメータにURLが無いため解析不可
+
+    404 パラメータにURLが無いため解析不可
+
+    499 本来起こりえないエラー
 
 
 + Parameters
 
     + url: https://www.youtube.com/watch?v=mvLSw5vCpGU (string, required) - YouTube URL
+    + token: 7AVMHAykgDwkfwiKUgBueOZnUjd5xtWZkoG2iJC3Wa8 (string, required) - API トークン
 
 + Response 200 (application/json)
     + Attributes
@@ -44,6 +62,7 @@ YouTube動画のURLからタイムライン情報を取得する
             + 非対応の動画です。「720p 1280x720」の一部の動画に対応しております (string)
             + 動画の取得に失敗しました。もう一度入力をお願いします (string)
             + 必須パラメータがありません (string)
+            + 不正なトークンです (string)
             + 解析結果の取得に失敗しました (string)
             + SD画質での解析です。5分経過後に再度解析をお願いします (string)
             + SD画質での解析です (string)
@@ -77,4 +96,4 @@ YouTube動画のURLからタイムライン情報を取得する
                 + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:(string))
                     + false (boolean)
                     + 動画に依存 (string)
-        + status:0 (number) - エラーステータス(0,8:正常, 1~7:エラー)
+        + status:0 (number) - エラーステータス(2xx:正常, 3xx:リダイレクト可能, 4xx:解析エラー)
