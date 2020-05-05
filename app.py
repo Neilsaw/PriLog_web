@@ -3,12 +3,14 @@ from flask import Flask, render_template, request, session, redirect, jsonify
 import numpy as np
 import os
 import re
+import datetime
 from pytube import YouTube
 from pytube import extract
 from pytube import exceptions
 import time as tm
 import cv2
 import json
+from glob import glob
 import urllib.parse
 import characters as cd
 import after_caluculation as ac
@@ -118,6 +120,10 @@ pending_dir = "pending/"
 if not os.path.exists(pending_dir):
     os.mkdir(pending_dir)
 
+queue_dir = "queue/"
+if not os.path.exists(queue_dir):
+    os.mkdir(queue_dir)
+
 
 def cache_check(youtube_id):
     # キャッシュ有無の確認
@@ -136,6 +142,17 @@ def cache_check(youtube_id):
         return False
 
 
+def queue_append(path):
+    # 解析中のIDを保存
+    try:
+        with open(path, mode='w'):
+            pass
+    except FileExistsError:
+        pass
+
+    return
+
+
 def pending_append(path):
     # 解析中のIDを保存
     try:
@@ -145,6 +162,31 @@ def pending_append(path):
         pass
 
     return
+
+
+def is_queue_current(queue_path):
+    # queue内で自分の順番が回ってきたか調べ、自分の順番であればTrueを返す
+    try:
+        fl = glob(queue_dir + '*')  # queue内のファイルリストを取得し、タイムスタンプでソート、queue_pathが一番古いか判定
+        fl.sort(cmp=lambda x, y: int(os.path.getctime(x) - os.path.getctime(y)))
+        if fl[0] is queue_path:
+            return True
+        else:
+            return False
+    except:
+        return False
+
+
+def is_pending_exists():
+    # pendingフォルダ内にジョブが存在するか調べ、なければfalseを返す
+    try:
+        fl = os.listdir(pending_dir)
+        if not fl:
+            return False
+        else:
+            return True
+    except:
+        return False
 
 
 def clear_path(path):
@@ -857,7 +899,6 @@ def remoteAnalyze():
 
         if cache is not False:
             # キャッシュ有りの場合
-
             # キャッシュを返信
             title, time_line, time_data, total_damage, debuff_value = cache
             if time_line:
@@ -875,13 +916,29 @@ def remoteAnalyze():
                 status = ERROR_NOT_SUPPORTED
                 msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
         else:  # キャッシュ無しの場合
-            # 解析中かどうかを確認
-            pending_path = pending_dir + str(youtube_id)
-            pending = os.path.exists(pending_path)
-            if pending:  # 既に解析中の場合
-                while True:  # 既に解析中の場合解析終了を監視
-                    pending = os.path.exists(pending_path)
-                    if pending:
+            # 既にキューに登録されているか確認
+            queue_path = queue_dir + str(youtube_id)
+            queued = os.path.exists(queue_path)
+            if queued:  # 既に解析中の場合
+                while True:  # キューが消えるまで監視
+                    # 暫定的実装
+                    # 監視中にキューが30分以上残置されているのを見つけると削除する
+                    now = datetime.date.today()  # 現在の時刻を取得
+                    timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(queue_path)))
+                    if (now - timestamp).seconds >= 30 * 60:  # 30分経過してたら削除
+                        try:
+                            os.remove(queue_path)
+                        except:
+                            continue
+                        pending_path = pending_dir + str(youtube_id)
+                        if os.path.exists(pending_path):  # pendingのまま親が死んでたら、pendingもクリア
+                            try:
+                                os.remove(pending_path)
+                            except:
+                                continue
+
+                    queued = os.path.exists(queue_path)
+                    if queued:
                         tm.sleep(1)
                         continue
                     else:  # 既に開始されている解析が完了したら、そのキャッシュJSONを返す
@@ -908,46 +965,55 @@ def remoteAnalyze():
 
             else:  # 既に解析中ではない場合
                 # 解析キューに登録
-                pending_append(pending_path)
+                queue_append(queue_path)
 
-                # youtube動画検索/検証
-                path, title, length, thumbnail, url_result = search(youtube_id)
-                status = url_result
-                if url_result is ERROR_TOO_LONG:
-                    msg = "動画時間が長すぎるため、解析に対応しておりません"
-                elif url_result is ERROR_NOT_SUPPORTED:
-                    msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
-                elif url_result is ERROR_CANT_GET_MOVIE:
-                    msg = "動画の取得に失敗しました。もう一度入力をお願いします"
-                else:
-                    # TL解析
-                    time_line, time_data, total_damage, debuff_value, analyze_result = analyze_movie(path)
-                    status = analyze_result
-                    # キャッシュ保存
-                    cache = cache_check(youtube_id)
-                    if cache is False:
-                        json.dump([title, time_line, False, total_damage, debuff_value],
-                                  open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
+                # キューが回ってきたか確認し、来たら解析実行
+                while True:
+                    if not is_pending_exists() and is_queue_current(queue_path):
+                        # pendingに登録
+                        pending_path = pending_dir + str(youtube_id)
+                        pending_append(pending_path)
+                        # youtube動画検索/検証
+                        path, title, length, thumbnail, url_result = search(youtube_id)
+                        status = url_result
+                        if url_result is ERROR_TOO_LONG:
+                            msg = "動画時間が長すぎるため、解析に対応しておりません"
+                        elif url_result is ERROR_NOT_SUPPORTED:
+                            msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                        elif url_result is ERROR_CANT_GET_MOVIE:
+                            msg = "動画の取得に失敗しました。もう一度入力をお願いします"
+                        else:
+                            # TL解析
+                            time_line, time_data, total_damage, debuff_value, analyze_result = analyze_movie(path)
+                            status = analyze_result
+                            # キャッシュ保存
+                            cache = cache_check(youtube_id)
+                            if cache is False:
+                                json.dump([title, time_line, False, total_damage, debuff_value],
+                                          open(cache_dir + urllib.parse.quote(youtube_id) + '.json', 'w'))
 
-                    if analyze_result is NO_ERROR:
-                        # 解析が正常終了ならば結果を格納
-                        result["title"] = title
-                        result["total_damage"] = total_damage
-                        result["timeline"] = time_line
-                        result["process_time"] = time_data
-                        result["debuff_value"] = debuff_value
+                            if analyze_result is NO_ERROR:
+                                # 解析が正常終了ならば結果を格納
+                                result["title"] = title
+                                result["total_damage"] = total_damage
+                                result["timeline"] = time_line
+                                result["process_time"] = time_data
+                                result["debuff_value"] = debuff_value
 
-                        if time_line:
-                            result["timeline_txt"] = "\r\n".join(time_line)
-                            if debuff_value:
-                                result["timeline_txt_debuff"] = "\r\n".join(list(
-                                    map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
-                                        enumerate(time_line))))
+                                if time_line:
+                                    result["timeline_txt"] = "\r\n".join(time_line)
+                                    if debuff_value:
+                                        result["timeline_txt_debuff"] = "\r\n".join(list(
+                                            map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                                                enumerate(time_line))))
 
-                    else:
-                        msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
+                            else:
+                                msg = "非対応の動画です。「720p 1280x720」の一部の動画に対応しております"
 
-                clear_path(pending_path)
+                        clear_path(queue_path)
+                        clear_path(pending_path)
+                        break
+                    tm.sleep(1)
 
     ret["msg"] = msg
     ret["status"] = status
