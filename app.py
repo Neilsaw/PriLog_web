@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session, redirect, jsonify
 import numpy as np
 import os
 import re
+import datetime
 from pytube import YouTube
 from pytube import extract
 from pytube import exceptions
@@ -919,7 +920,17 @@ def remoteAnalyze():
             queue_path = queue_dir + str(youtube_id)
             queued = os.path.exists(queue_path)
             if queued:  # 既に解析中の場合
-                while True:  # 既に解析中の場合解析終了を監視
+                while True:  # キューが消えるまで監視
+                    # 暫定的実装
+                    # 監視中にキューが30分以上残置されているのを見つけると削除する
+                    now = datetime.date.today()  # 現在の時刻を取得
+                    timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(queue_path)))
+                    if (now - timestamp).seconds >= 30 * 60:  # 30分経過してたら削除
+                        try:
+                            os.remove(queue_path)
+                        except:
+                            continue
+
                     queued = os.path.exists(queue_path)
                     if queued:
                         tm.sleep(1)
