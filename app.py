@@ -107,20 +107,20 @@ ERROR_PROCESS_FAILED = 6
 # キャッシュ格納数
 CACHE_NUM = 5
 
-stream_dir = "tmp/"
+stream_dir = "tmp\\"
 if not os.path.exists(stream_dir):
     os.mkdir(stream_dir)
 
-cache_dir = "cache/"
+cache_dir = "cache\\"
 if not os.path.exists(cache_dir):
     os.mkdir(cache_dir)
 
 
-pending_dir = "pending/"
+pending_dir = "pending\\"
 if not os.path.exists(pending_dir):
     os.mkdir(pending_dir)
 
-queue_dir = "queue/"
+queue_dir = "queue\\"
 if not os.path.exists(queue_dir):
     os.mkdir(queue_dir)
 
@@ -168,8 +168,9 @@ def is_queue_current(queue_path):
     # queue内で自分の順番が回ってきたか調べ、自分の順番であればTrueを返す
     try:
         fl = glob(queue_dir + '*')  # queue内のファイルリストを取得し、タイムスタンプでソート、queue_pathが一番古いか判定
-        fl.sort(cmp=lambda x, y: int(os.path.getctime(x) - os.path.getctime(y)))
-        if fl[0] is queue_path:
+
+        fl.sort(key=lambda x: os.path.getctime(x))
+        if fl[0] == queue_path:
             return True
         else:
             return False
