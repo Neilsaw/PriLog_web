@@ -929,13 +929,13 @@ def remoteAnalyze():
                         try:
                             os.remove(queue_path)
                         except:
-                            continue
+                            pass
                         pending_path = pending_dir + str(youtube_id)
                         if os.path.exists(pending_path):  # pendingのまま親が死んでたら、pendingもクリア
                             try:
                                 os.remove(pending_path)
                             except:
-                                continue
+                                pass
 
                     queued = os.path.exists(queue_path)
                     if queued:
