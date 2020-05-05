@@ -41,11 +41,16 @@ YouTube動画のURLからタイムライン情報を取得する
 
     402 解像度が対応していないため解析不可
 
-    403 パラメータにURLが無いため解析不可
+    499 予期せぬエラー
 
-    404 パラメータにURLが無いため解析不可
 
-    499 本来起こりえないエラー
+##### 5xx
+
+        APIエラー　(再解析可能)　API受理できなかった場合
+
+    500 パラメータにURLまたはTokenが無いため解析不可
+
+    501 不正なトークンのため解析不可
 
 
 + Parameters
@@ -57,15 +62,16 @@ YouTube動画のURLからタイムライン情報を取得する
     + Attributes
         + msg (enum) - 結果(OK または エラーメッセージ)
             + OK (string)
+            + SD画質での解析です (string)
+            + 動画の取得に失敗しました。もう一度入力をお願いします (string)
+            + SD画質での解析です。5分経過後に再度解析をお願いします (string)
             + URLはhttps://www.youtube.com/watch?v=...の形式でお願いします (string)
             + 動画時間が長すぎるため、解析に対応しておりません (string)
             + 非対応の動画です。「720p 1280x720」の一部の動画に対応しております (string)
-            + 動画の取得に失敗しました。もう一度入力をお願いします (string)
-            + 必須パラメータがありません (string)
-            + 不正なトークンです (string)
             + 解析結果の取得に失敗しました (string)
-            + SD画質での解析です。5分経過後に再度解析をお願いします (string)
-            + SD画質での解析です (string)
+            + 必須パラメータがありません (string)
+            + 不正なトークンです　twitter @PriLog_R までご連絡下さい (string)
+
         + result (array[object], fixed-type) - 解析結果
             + (object)
                 + debuff_value (enum) - UB時のデバフ値(存在しない場合:false (boolean), 存在する場合:(array[string])
@@ -96,4 +102,4 @@ YouTube動画のURLからタイムライン情報を取得する
                 + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:(string))
                     + false (boolean)
                     + 動画に依存 (string)
-        + status:0 (number) - エラーステータス(2xx:正常, 3xx:リダイレクト可能, 4xx:解析エラー)
+        + status:0 (number) - エラーステータス(2xx:正常, 3xx:リダイレクト可能, 4xx:解析エラー, 5xx:APIエラー)
