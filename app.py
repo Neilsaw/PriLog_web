@@ -918,24 +918,21 @@ def remoteAnalyze():
         else:  # キャッシュ無しの場合
             # 既にキューに登録されているか確認
             queue_path = queue_dir + str(youtube_id)
+            pending_path = pending_dir + str(youtube_id)
             queued = os.path.exists(queue_path)
             if queued:  # 既に解析中の場合
                 while True:  # キューが消えるまで監視
                     # 暫定的実装
                     # 監視中にキューが30分以上残置されているのを見つけると削除する
-                    now = datetime.date.today()  # 現在の時刻を取得
-                    timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(queue_path)))
-                    if (now - timestamp).seconds >= 30 * 60:  # 30分経過してたら削除
-                        try:
-                            os.remove(queue_path)
-                        except:
-                            continue
-                        pending_path = pending_dir + str(youtube_id)
-                        if os.path.exists(pending_path):  # pendingのまま親が死んでたら、pendingもクリア
-                            try:
-                                os.remove(pending_path)
-                            except:
-                                continue
+                    try:
+                        now = datetime.date.today()  # 現在の時刻を取得
+                        timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(queue_path)))
+
+                        if (now - timestamp).seconds >= 30 * 60:  # 30分経過してたら削除
+                            clear_path(queue_path)
+                            clear_path(pending_path)
+                    except FileNotFoundError:
+                        pass
 
                     queued = os.path.exists(queue_path)
                     if queued:
