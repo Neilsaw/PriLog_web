@@ -241,8 +241,16 @@ def download():
         return redirect("/")
 
 
-@app.route("/rest/analyze", methods=["POST", "GET"])
+@app.route("/rest", methods=["GET", "POST"])
 def rest():
+    if request.method == "GET":
+        return render_template("rest.html")
+    else:
+        return redirect("/")
+
+
+@app.route("/rest/analyze", methods=["POST", "GET"])
+def rest_analyze():
     status = el.DONE
     rest_result = {}
     ret = {}

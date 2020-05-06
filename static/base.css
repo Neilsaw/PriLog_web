@@ -277,13 +277,22 @@ span{
   height: 44px;
 }
 
-.headerMenu {
+.headerMenudiv {
   position: absolute;
   top: 3px;
   right: 3%;
 }
 
 .headerDownload {
+  position: relative;
+}
+
+.headerRestApi {
+  position: relative;
+  margin-right: 20px
+}
+
+.headerMenu {
   position: relative;
   padding: 14px;
   text-decoration: none;
@@ -294,7 +303,7 @@ span{
   cursor: pointer;
 }
 
-.headerDownload::after {
+.headerMenu::after {
   position: absolute;
   bottom: 8px;
   left: 0;
@@ -307,8 +316,14 @@ span{
   transition: transform .3s;
 }
 
-.headerDownload:hover::after {
+.headerMenu:hover::after {
   transform: scale(1, 1);
+}
+
+.restApiHtml {
+  width: 100%;
+  height: 100%;
+  margin-top: 100px;
 }
 
 /* footer用CSS */
