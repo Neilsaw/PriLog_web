@@ -147,7 +147,8 @@ def is_queue_current(queue_path):
 
         # sort time stamp and find oldest queue
         fl.sort(key=lambda x: os.path.getctime(x))
-        if fl[0] == queue_path:
+        comp = fl[0].replace("\\", "/")
+        if comp == queue_path:
             return True
         else:
             return False

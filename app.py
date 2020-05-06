@@ -18,22 +18,22 @@ import error_list as el
 
 
 # movie download directory
-stream_dir = "tmp\\"
+stream_dir = "tmp/"
 if not os.path.exists(stream_dir):
     os.mkdir(stream_dir)
 
 # analyze result save as cache directory
-cache_dir = "cache\\"
+cache_dir = "cache/"
 if not os.path.exists(cache_dir):
     os.mkdir(cache_dir)
 
 # save analyzing id as file directory
-pending_dir = "pending\\"
+pending_dir = "pending/"
 if not os.path.exists(pending_dir):
     os.mkdir(pending_dir)
 
 # waiting analyze id as file directory
-queue_dir = "queue\\"
+queue_dir = "queue/"
 if not os.path.exists(queue_dir):
     os.mkdir(queue_dir)
 
