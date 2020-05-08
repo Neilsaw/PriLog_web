@@ -38,6 +38,7 @@ error_list = [
     [DONE_IN_SD, "SD画質での解析です。"],
     [TMP_DONE_IN_SD, "SD画質での解析です。5分以上経過後に再度解析を試みられます。"],
     [ERR_INCOMPLETE_IN_SD, "SD画質での解析に失敗しました。5分以上経過後に再度解析を試みられます。"],
+    [ERR_INCOMPLETE_IN_HD, "解析出来ない動画です。"],
     [ERR_CANT_GET_HD, "動画の取得に失敗しました。5分以上経過後に再度解析を試みられます。"],
     [ERR_ANALYZE_TIMEOUT, "解析がタイムアウトしました。5分以上経過後に再度解析を試みられます。"],
     [ERR_TMP_UNEXPECTED, "一時的に解析出来ません。5分以上経過後に再度解析を試みられます。"],
