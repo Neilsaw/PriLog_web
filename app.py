@@ -170,7 +170,7 @@ def index():
             session.pop("youtube_id", None)
 
             error = None
-            if path is el.ERR_BAD_RESOLUTION:
+            if str(path).isdecimal():
                 error = el.get_error_message(path)
 
             elif path is not None:
@@ -191,7 +191,7 @@ def analyze():
         time_line, time_data, total_damage, debuff_value, status = an.analyze_movie(path)
 
         # キャッシュ保存
-        cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, status)
+        status = cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, status)
 
         if status % 100 // 10 == 0:
             # 解析が正常終了ならば結果を格納
@@ -201,7 +201,7 @@ def analyze():
             session["debuff_value"] = debuff_value
             return render_template("analyze.html")
         else:
-            session["path"] = el.ERR_BAD_RESOLUTION
+            session["path"] = status
             return render_template("analyze.html")
     else:
         return redirect("/")
@@ -251,7 +251,7 @@ def rest():
 
 @app.route("/rest/analyze", methods=["POST", "GET"])
 def rest_analyze():
-    status = el.DONE
+    status = el.ERR_REQ_UNEXPECTED
     rest_result = {}
     ret = {}
     url = ""
@@ -341,7 +341,7 @@ def rest_analyze():
                         break
                     else:  # キャッシュ未生成の場合
                         # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
-                        status = el.ERR_UNEXPECTED
+                        status = el.ERR_TMP_UNEXPECTED
                         break
 
         else:  # 既に解析中ではない場合
@@ -358,15 +358,15 @@ def rest_analyze():
                     path, title, length, thumbnail, url_result = an.search(youtube_id)
                     status = url_result
                     if url_result // 100 == 4:
-                        cm.save_cache(youtube_id, title, False, False, False, False, url_result)
+                        status = cm.save_cache(youtube_id, title, False, False, False, False, url_result)
                     elif url_result == el.ERR_CANT_GET_HD:
                         pass
                     else:
                         # TL解析
                         time_line, time_data, total_damage, debuff_value, analyze_result = an.analyze_movie(path)
-                        status = analyze_result
                         # キャッシュ保存
-                        cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, status)
+                        status = cm.save_cache(youtube_id, title, time_line, False,
+                                               total_damage, debuff_value, analyze_result)
 
                         if analyze_result is el.DONE:
                             # 解析が正常終了ならば結果を格納

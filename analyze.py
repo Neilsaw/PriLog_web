@@ -356,11 +356,6 @@ def analyze_movie(movie_path):
 
         return None, None, None, None, el.ERR_BAD_RESOLUTION
 
-    if video_type is RESOLUTION_16_9_SD:
-        status = el.TMP_DONE_IN_SD
-    else:
-        status = el.DONE
-
     model_init(video_type)
     roi_init(video_type)
 
@@ -457,6 +452,8 @@ def analyze_movie(movie_path):
     time_result = tm.time() - start_time
     time_data.append("動画時間 : {:.3f}".format(frame_count / frame_rate) + "  sec")
     time_data.append("処理時間 : {:.3f}".format(time_result) + "  sec")
+
+    status = get_analyze_status(ub_data, video_type)
 
     return ub_data, time_data, total_damage, debuff_value, status
 
@@ -815,3 +812,33 @@ def make_damage_list(find_list, damage):
         damage.append(str(temp_list[1]))
 
     return ret
+
+
+def get_analyze_status(ub_data, video_type):
+    """get video analyze status
+
+    make analyze status from
+    timeline existence and video_resolution(HD / SD)
+
+    Args
+        ub_data (list): timeline list
+        video_type (list): score data, as raw data
+    Returns
+        status (int): error status
+
+
+    """
+    if ub_data:
+        # found timeline
+        if video_type is RESOLUTION_16_9_SD:
+            status = el.TMP_DONE_IN_SD
+        else:
+            status = el.DONE
+    else:
+        # not found timeline
+        if video_type is RESOLUTION_16_9_SD:
+            status = el.TMP_INCOMPLETE_IN_SD
+        else:
+            status = el.ERR_INCOMPLETE_IN_HD
+
+    return status

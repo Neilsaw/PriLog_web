@@ -15,13 +15,14 @@ DONE_IN_SD = 201
 
 # 3xx Temporary Unable
 TMP_DONE_IN_SD = 301
-ERR_INCOMPLETE_IN_SD = 311
+TMP_INCOMPLETE_IN_SD = 311
 ERR_CANT_GET_HD = 312
 ERR_ANALYZE_TIMEOUT = 313
 ERR_TMP_UNEXPECTED = 399
 
 # 4xx Confirmed Failure
 ERR_INCOMPLETE_IN_HD = 410
+ERR_INCOMPLETE_IN_SD = 411
 ERR_BAD_URL = 412
 ERR_BAD_LENGTH = 413
 ERR_BAD_RESOLUTION = 414
@@ -37,11 +38,12 @@ error_list = [
     [DONE, "OK"],
     [DONE_IN_SD, "SD画質での解析です。"],
     [TMP_DONE_IN_SD, "SD画質での解析です。5分以上経過後に再度解析を試みられます。"],
-    [ERR_INCOMPLETE_IN_SD, "SD画質での解析に失敗しました。5分以上経過後に再度解析を試みられます。"],
-    [ERR_INCOMPLETE_IN_HD, "解析出来ない動画です。"],
+    [TMP_INCOMPLETE_IN_SD, "SD画質での解析に失敗しました。5分以上経過後に再度解析を試みられます。"],
     [ERR_CANT_GET_HD, "動画の取得に失敗しました。5分以上経過後に再度解析を試みられます。"],
     [ERR_ANALYZE_TIMEOUT, "解析がタイムアウトしました。5分以上経過後に再度解析を試みられます。"],
     [ERR_TMP_UNEXPECTED, "一時的に解析出来ません。5分以上経過後に再度解析を試みられます。"],
+    [ERR_INCOMPLETE_IN_HD, "解析出来ない動画です。"],
+    [ERR_INCOMPLETE_IN_SD, "解析出来ない動画です。"],
     [ERR_BAD_URL, "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします。"],
     [ERR_BAD_LENGTH, "動画時間が長すぎるため、解析に対応しておりません。"],
     [ERR_BAD_RESOLUTION, "非対応の解像度です。720pの一部の動画に対応しております。"],

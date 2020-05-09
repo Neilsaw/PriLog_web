@@ -24,7 +24,9 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
 
     save cache if cache not found
 
-    save cache if previous cache was tmp sd analyze
+    save cache if before cache is tmp sd analyze
+
+    change status if before and now status are same
 
     Args:
         youtube_id (string): youtube id
@@ -36,6 +38,7 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
         status (int): error status
 
     Returns:
+        status (int): error status
 
 
     """
@@ -52,6 +55,21 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
+
+    elif cache[5] == el.TMP_INCOMPLETE_IN_SD:
+
+        if status is el.TMP_INCOMPLETE_IN_SD:
+            status = el.ERR_INCOMPLETE_IN_SD
+
+        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
+                  open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
+    else:
+        status = el.ERR_PERM_UNEXPECTED
+
+        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
+                  open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
+
+    return status
 
 
 def cache_check(youtube_id):
