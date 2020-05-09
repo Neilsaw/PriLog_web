@@ -16,9 +16,9 @@ YouTube動画のURLからタイムライン情報を取得する
 
          正常　(再解析不可)　解析結果確定
 
-    200 解析成功
+    200 HD画質での解析に成功（TL返却有）
 
-    201 SD画質での解析成功
+    201 SD画質での解析に成功（TL返却有）
 
 
 
@@ -26,22 +26,27 @@ YouTube動画のURLからタイムライン情報を取得する
 
         リダイレクト可能　(再解析可能)　時間をおいて再解析可能
 
-    301 YouTubeにSD画質しか無い場合
+    301 HD画質が見つからずSD画質での解析に成功（TL返却有）
 
-    312 YouTubeから正常に取得できなかった場合
+    311 HD画質が見つからずSD画質での解析に失敗
 
-    313 解析がタイムアウトした場合
+    312 動画取得に失敗した
 
+    313 解析中にタイムアウトした
+
+    399 予期せぬエラー
 
 ##### 4xx
 
         解析エラー　(再解析不可)　エラー解析結果確定
 
-    412 URL誤りのため解析不可
+    410 HD画質の動画は見つかったが解析に失敗
 
-    413 解析可能時間を超えるため解析不可
+    412 URLが誤っている
 
-    414 解像度が対応していないため解析不可
+    413 解析可能時間を超えている
+
+    414 解像度が対応していない
 
     499 予期せぬエラー
 
@@ -50,15 +55,17 @@ YouTube動画のURLからタイムライン情報を取得する
 
         APIエラー　(再解析可能)　API受理できなかった場合
 
-    522 パラメータにURLまたはTokenが無いため解析不可
+    522 パラメータが不足している
 
-    523 不正なトークンのため解析不可
+    523 不正なトークン
+
+    599 予期せぬエラー
 
 
 + Parameters
 
-    + url: https://www.youtube.com/watch?v=mvLSw5vCpGU (string, required) - YouTube URL
-    + token: 7AVMHAykgDwkfwiKUgBueOZnUjd5xtWZkoG2iJC3Wa8 (string, required) - API トークン
+    + Url: https://www.youtube.com/watch?v=mvLSw5vCpGU (string, required) - YouTube URL
+    + Token: 7AVMHAykgDwkfwiKUgBueOZnUjd5xtWZkoG2iJC3Wa8 (string, required) - API トークン
 
 + Response 200 (application/json)
     + Attributes
@@ -105,4 +112,4 @@ YouTube動画のURLからタイムライン情報を取得する
                 + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:(string))
                     + false (boolean)
                     + 動画に依存 (string)
-        + status:0 (number) - エラーステータス(2xx:正常, 3xx:リダイレクト可能, 4xx:解析エラー, 5xx:APIエラー, x0x:TLあり, xx0:HD解析, xx1:SD解析)
+        + status:200 (number) - エラーステータス(2xx:正常, 3xx:リダイレクト可能, 4xx:解析エラー, 5xx:APIエラー, x0x:TLあり, xx0:HD解析, xx1:SD解析)
