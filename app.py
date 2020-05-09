@@ -334,8 +334,7 @@ def rest_analyze():
                     cache = cm.cache_check(youtube_id)
                     if cache is not False:
                         title, time_line, time_data, total_damage, debuff_value, past_status = cache
-                        if past_status // 100 == 2 or past_status // 100 == 3:
-                            rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
+                        rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                         status = past_status
                         break
@@ -368,9 +367,7 @@ def rest_analyze():
                         status = cm.save_cache(youtube_id, title, time_line, False,
                                                total_damage, debuff_value, analyze_result)
 
-                        if analyze_result is el.DONE:
-                            # 解析が正常終了ならば結果を格納
-                            rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
+                        rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                     cm.clear_path(queue_path)
                     cm.clear_path(pending_path)
