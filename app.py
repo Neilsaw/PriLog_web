@@ -256,6 +256,7 @@ def rest_analyze():
     rest_result = {}
     ret = {}
     url = ""
+    raw_url = ""
     if request.method == "POST":
         if "Url" not in request.form:
             status = err.ERR_BAD_REQ
@@ -265,7 +266,7 @@ def rest_analyze():
             ret["status"] = status
             return jsonify(ret)
         else:
-            url = request.form["Url"]
+            raw_url = request.form["Url"]
 
     elif request.method == "GET":
         if "Url" not in request.args:
@@ -276,7 +277,15 @@ def rest_analyze():
             ret["status"] = status
             return jsonify(ret)
         else:
-            url = request.args.get("Url")
+            raw_url = request.args.get("Url")
+
+    # URL抽出
+    tmp_group = re.search('(?:https?://)?(?P<host>.*?)(?:[:#?/@]|$)', raw_url)
+
+    if tmp_group:
+        host = tmp_group.group('host')
+        if host == "youtube.com" or host == "youtu.be":
+            url = raw_url
 
     # キャッシュ確認
     youtube_id = al.get_youtube_id(url)
