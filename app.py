@@ -10,11 +10,11 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import os
 import re
-import datetime
+import subprocess
 import time as tm
-import analyze as an
+import analyze as al
 import common as cm
-import error_list as el
+import error_list as err
 
 
 # movie download directory
@@ -76,9 +76,9 @@ def index():
         url = (request.form["Url"])
 
         # urlからid部分の抽出
-        youtube_id = an.get_youtube_id(url)
+        youtube_id = al.get_youtube_id(url)
         if youtube_id is False:
-            error = el.get_error_message(el.ERR_BAD_URL)
+            error = err.get_error_message(err.ERR_BAD_URL)
             return render_template("index.html", error=error)
 
         cache = cm.cache_check(youtube_id)
@@ -96,18 +96,18 @@ def index():
             elif past_status // 100 == 3:
                 pass
             else:
-                error = el.get_error_message(past_status)
+                error = err.get_error_message(past_status)
                 return render_template("index.html", error=error)
 
-        path, title, length, thumbnail, url_result = an.search(youtube_id)
+        path, title, length, thumbnail, url_result = al.search(youtube_id)
 
         if url_result // 100 == 4:
-            error = el.get_error_message(url_result)
+            error = err.get_error_message(url_result)
             cm.save_cache(youtube_id, title, False, False, False, False, url_result)
             return render_template("index.html", error=error)
 
-        elif url_result == el.ERR_CANT_GET_HD:
-            error = el.get_error_message(url_result)
+        elif url_result == err.ERR_CANT_GET_HD:
+            error = err.get_error_message(url_result)
             return render_template("index.html", error=error)
 
         session["path"] = path
@@ -137,19 +137,19 @@ def index():
                         pass
 
                     else:
-                        error = el.get_error_message(past_status)
+                        error = err.get_error_message(past_status)
                         return render_template("index.html", error=error)
 
                 else:  # キャッシュが存在しない場合は解析
-                    path, title, length, thumbnail, url_result = an.search(youtube_id)
+                    path, title, length, thumbnail, url_result = al.search(youtube_id)
 
                     if url_result // 100 == 4:
-                        error = el.get_error_message(url_result)
+                        error = err.get_error_message(url_result)
                         cm.save_cache(youtube_id, title, False, False, False, False, url_result)
                         return render_template("index.html", error=error)
 
-                    elif url_result == el.ERR_CANT_GET_HD:
-                        error = el.get_error_message(url_result)
+                    elif url_result == err.ERR_CANT_GET_HD:
+                        error = err.get_error_message(url_result)
                         return render_template("index.html", error=error)
 
                     session["path"] = path
@@ -171,7 +171,7 @@ def index():
 
             error = None
             if str(path).isdecimal():
-                error = el.get_error_message(path)
+                error = err.get_error_message(path)
 
             elif path is not None:
                 cm.clear_path(path)
@@ -188,7 +188,7 @@ def analyze():
 
     if request.method == "GET" and path is not None:
         # TL解析
-        time_line, time_data, total_damage, debuff_value, status = an.analyze_movie(path)
+        time_line, time_data, total_damage, debuff_value, status = al.analyze_movie(path)
 
         # キャッシュ保存
         status = cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, status)
@@ -251,16 +251,17 @@ def rest():
 
 @app.route("/rest/analyze", methods=["POST", "GET"])
 def rest_analyze():
-    status = el.ERR_REQ_UNEXPECTED
+    status = err.ERR_REQ_UNEXPECTED
+    is_parent = False
     rest_result = {}
     ret = {}
     url = ""
     if request.method == "POST":
         if "Url" not in request.form:
-            status = el.ERR_BAD_REQ
+            status = err.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = el.get_error_message(status)
+            ret["msg"] = err.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
@@ -268,20 +269,22 @@ def rest_analyze():
 
     elif request.method == "GET":
         if "Url" not in request.args:
-            status = el.ERR_BAD_REQ
+            status = err.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = el.get_error_message(status)
+            ret["msg"] = err.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
             url = request.args.get("Url")
 
     # キャッシュ確認
-    youtube_id = an.get_youtube_id(url)
+    youtube_id = al.get_youtube_id(url)
+    queue_path = queue_dir + str(youtube_id)
+    pending_path = pending_dir + str(youtube_id)
     if youtube_id is False:
         # 不正なurlの場合
-        status = el.ERR_BAD_URL
+        status = err.ERR_BAD_URL
     else:
         # 正常なurlの場合
         cache = cm.cache_check(youtube_id)
@@ -294,7 +297,7 @@ def rest_analyze():
                 rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                 ret["result"] = rest_result
-                ret["msg"] = el.get_error_message(past_status)
+                ret["msg"] = err.get_error_message(past_status)
                 ret["status"] = past_status
                 return jsonify(ret)
 
@@ -302,81 +305,52 @@ def rest_analyze():
                 pass
             else:
                 ret["result"] = rest_result
-                ret["msg"] = el.get_error_message(past_status)
+                ret["msg"] = err.get_error_message(past_status)
                 ret["status"] = past_status
                 return jsonify(ret)
 
         # start analyze
         # 既にキューに登録されているか確認
-        queue_path = queue_dir + str(youtube_id)
-        pending_path = pending_dir + str(youtube_id)
         queued = os.path.exists(queue_path)
-        if queued:  # 既に解析中の場合
-            while True:  # キューが消えるまで監視
-                # 暫定的実装
-                # 監視中にキューが30分以上残置されているのを見つけると削除する
-                try:
-                    now = datetime.date.today()  # 現在の時刻を取得
-                    timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(queue_path)))
-
-                    if (now - timestamp).seconds >= 30 * 60:  # 30分経過してたら削除
-                        cm.clear_path(queue_path)
-                        cm.clear_path(pending_path)
-
-                except FileNotFoundError:
-                    pass
-
-                queued = os.path.exists(queue_path)
-                if queued:
-                    tm.sleep(1)
-                    continue
-                else:  # 既に開始されている解析が完了したら、そのキャッシュJSONを返す
-                    cache = cm.cache_check(youtube_id)
-                    if cache is not False:
-                        title, time_line, time_data, total_damage, debuff_value, past_status = cache
-                        rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
-
-                        status = past_status
-                        break
-                    else:  # キャッシュ未生成の場合
-                        # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
-                        status = el.ERR_TMP_UNEXPECTED
-                        break
-
-        else:  # 既に解析中ではない場合
-            # 解析キューに登録
+        if not queued:  # 既に解析中ではない場合、解析キューに登録
             cm.queue_append(queue_path)
-
             # キューが回ってきたか確認し、来たら解析実行
             while True:
+                cm.watchdog(youtube_id, queue_path, 30, err.ERR_QUEUE_TIMEOUT)
                 if not cm.is_pending_exists() and cm.is_queue_current(queue_path):
-                    # pendingに登録
-                    pending_path = pending_dir + str(youtube_id)
-                    cm.pending_append(pending_path)
-                    # youtube動画検索/検証
-                    path, title, length, thumbnail, url_result = an.search(youtube_id)
-                    status = url_result
-                    if url_result // 100 == 4:
-                        status = cm.save_cache(youtube_id, title, False, False, False, False, url_result)
-                    elif url_result == el.ERR_CANT_GET_HD:
-                        pass
-                    else:
-                        # TL解析
-                        time_line, time_data, total_damage, debuff_value, analyze_result = an.analyze_movie(path)
-                        # キャッシュ保存
-                        status = cm.save_cache(youtube_id, title, time_line, False,
-                                               total_damage, debuff_value, analyze_result)
-
-                        rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
-
-                    cm.clear_path(queue_path)
-                    cm.clear_path(pending_path)
+                    analyzer_path = f'python exec_analyze.py {url}'
+                    subprocess.Popen(analyzer_path.split())
+                    is_parent = True
                     break
 
                 tm.sleep(1)
 
+        while True:  # キューが消えるまで監視
+            queued = os.path.exists(queue_path)
+            if queued:
+                if is_parent:
+                    # 親ならばpendingを監視
+                    cm.watchdog(youtube_id, pending_path, 5, err.ERR_ANALYZE_TIMEOUT)
+                else:
+                    # 子ならばqueueを監視
+                    cm.watchdog(youtube_id, queue_path, 36, err.ERR_QUEUE_TIMEOUT)
+                tm.sleep(1)
+                continue
+            else:  # 解析が完了したら、そのキャッシュJSONを返す
+                cache = cm.cache_check(youtube_id)
+                if cache is not False:
+                    title, time_line, time_data, total_damage, debuff_value, past_status = cache
+                    rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
+
+                    status = past_status
+                    break
+                else:  # キャッシュ未生成の場合
+                    # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
+                    status = err.ERR_TMP_UNEXPECTED
+                    break
+
     ret["result"] = rest_result
-    ret["msg"] = el.get_error_message(status)
+    ret["msg"] = err.get_error_message(status)
     ret["status"] = status
     return jsonify(ret)
 

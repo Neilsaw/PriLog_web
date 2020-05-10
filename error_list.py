@@ -18,6 +18,7 @@ TMP_DONE_IN_SD = 301
 TMP_INCOMPLETE_IN_SD = 311
 ERR_CANT_GET_HD = 312
 ERR_ANALYZE_TIMEOUT = 313
+ERR_QUEUE_TIMEOUT = 314
 ERR_TMP_UNEXPECTED = 399
 
 # 4xx Confirmed Failure
@@ -41,6 +42,7 @@ error_list = [
     [TMP_INCOMPLETE_IN_SD, "SD画質での解析に失敗しました。5分以上経過後に再度解析を試みられます。"],
     [ERR_CANT_GET_HD, "動画の取得に失敗しました。5分以上経過後に再度解析を試みられます。"],
     [ERR_ANALYZE_TIMEOUT, "解析がタイムアウトしました。5分以上経過後に再度解析を試みられます。"],
+    [ERR_QUEUE_TIMEOUT, "解析待機中にタイムアウトしました。5分以上経過後に再度解析を試みられます。"],
     [ERR_TMP_UNEXPECTED, "一時的に解析出来ません。5分以上経過後に再度解析を試みられます。"],
     [ERR_INCOMPLETE_IN_HD, "解析出来ない動画です。"],
     [ERR_INCOMPLETE_IN_SD, "解析出来ない動画です。"],

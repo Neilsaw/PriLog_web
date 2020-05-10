@@ -17,7 +17,7 @@ import characters as cd
 import after_caluculation as ac
 import app as ap
 import common as cm
-import error_list as el
+import error_list as err
 
 
 # character name template
@@ -299,20 +299,20 @@ def search(youtube_id):
     try:
         yt = YouTube(youtube_url)
     except:
-        return None, None, None, None, el.ERR_CANT_GET_HD
+        return None, None, None, None, err.ERR_CANT_GET_HD
 
     movie_thumbnail = yt.thumbnail_url
     movie_length = yt.length
     if int(movie_length) > MOVIE_LENGTH_MAX:
-        return None, None, None, None, el.ERR_BAD_LENGTH
+        return None, None, None, None, err.ERR_BAD_LENGTH
 
-    status = el.DONE
+    status = err.DONE
     stream = yt.streams.get_by_itag("22")
     if stream is None:
-        status = el.TMP_DONE_IN_SD
+        status = err.TMP_DONE_IN_SD
         stream = yt.streams.get_by_itag("18")
         if stream is None:
-            return None, None, None, None, el.ERR_BAD_RESOLUTION
+            return None, None, None, None, err.ERR_BAD_RESOLUTION
 
     movie_title = stream.title
     movie_name = tm.time()
@@ -354,7 +354,7 @@ def analyze_movie(movie_path):
         video.release()
         cm.clear_path(movie_path)
 
-        return None, None, None, None, el.ERR_BAD_RESOLUTION
+        return None, None, None, None, err.ERR_BAD_RESOLUTION
 
     model_init(video_type)
     roi_init(video_type)
@@ -831,14 +831,14 @@ def get_analyze_status(ub_data, video_type):
     if ub_data:
         # found timeline
         if video_type is RESOLUTION_16_9_SD:
-            status = el.TMP_DONE_IN_SD
+            status = err.TMP_DONE_IN_SD
         else:
-            status = el.DONE
+            status = err.DONE
     else:
         # not found timeline
         if video_type is RESOLUTION_16_9_SD:
-            status = el.TMP_INCOMPLETE_IN_SD
+            status = err.TMP_INCOMPLETE_IN_SD
         else:
-            status = el.ERR_INCOMPLETE_IN_HD
+            status = err.ERR_INCOMPLETE_IN_HD
 
     return status

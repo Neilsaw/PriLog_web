@@ -12,11 +12,12 @@ import json
 from glob import glob
 import urllib.parse
 import app as ap
-import error_list as el
+import error_list as err
+import datetime
 
 
 # cache max number
-CACHE_NUM = 6
+CACHE_ELMS = 6
 
 
 def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_value, status):
@@ -48,23 +49,23 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif cache[5] == el.TMP_DONE_IN_SD:
+    elif cache[5] == err.TMP_DONE_IN_SD:
 
-        if status is el.TMP_DONE_IN_SD:
-            status = el.DONE_IN_SD
+        if status is err.TMP_DONE_IN_SD:
+            status = err.DONE_IN_SD
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif cache[5] == el.TMP_INCOMPLETE_IN_SD:
+    elif cache[5] == err.TMP_INCOMPLETE_IN_SD:
 
-        if status is el.TMP_INCOMPLETE_IN_SD:
-            status = el.ERR_INCOMPLETE_IN_SD
+        if status is err.TMP_INCOMPLETE_IN_SD:
+            status = err.ERR_INCOMPLETE_IN_SD
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
     else:
-        status = el.ERR_PERM_UNEXPECTED
+        status = err.ERR_PERM_UNEXPECTED
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
@@ -90,11 +91,19 @@ def cache_check(youtube_id):
     try:
         cache_path = ap.cache_dir + urllib.parse.quote(youtube_id) + ".json"
         ret = json.load(open(cache_path))
-        if len(ret) is CACHE_NUM:
-            # cache elements count is control value
-            return ret
-        else:
-            # cache elements count is not control value
+        if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
+            title, time_line, time_data, total_damage, debuff_value, past_status = ret
+            if past_status // 100 == 3:
+                now = datetime.date.today()  # 現在の時刻を取得
+                timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(cache_path)))
+                if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは削除、無視する
+                    clear_path(cache_path)
+                    return False
+                else:
+                    return ret
+            else:
+                return ret
+        else:  # in case of number of cached elements is incorrect
             # delete cache
             clear_path(cache_path)
             return False
@@ -194,6 +203,32 @@ def is_pending_exists():
             return True
     except:
         return False
+
+
+def watchdog(youtube_id, job_path, margin, err_type):
+    """check is job timeout
+
+    check pending and queue timestamp to determine timeout
+
+    Args:
+        youtube_id: str
+        job_path: str
+        margin: int
+        err_type: ERR_CODE
+
+    Returns:
+        None
+
+
+    """
+    if os.path.exists(job_path):
+        now = datetime.date.today()  # 現在の時刻を取得
+        timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(job_path)))
+        if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
+            save_cache(youtube_id, "", False, False, False, False, err_type)
+            clear_path(job_path)
+
+    return
 
 
 def clear_path(path):
