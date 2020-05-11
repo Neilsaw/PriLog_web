@@ -94,8 +94,8 @@ def cache_check(youtube_id):
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
             title, time_line, time_data, total_damage, debuff_value, past_status = ret
             if past_status // 100 == 3:
-                now = datetime.date.today()  # 現在の時刻を取得
-                timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(cache_path)))
+                now = datetime.datetime.today()  # 現在の時刻を取得
+                timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(cache_path)))
                 if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは削除、無視する
                     clear_path(cache_path)
                     return False
@@ -222,8 +222,8 @@ def watchdog(youtube_id, job_path, margin, err_type):
 
     """
     if os.path.exists(job_path):
-        now = datetime.date.today()  # 現在の時刻を取得
-        timestamp = datetime.date.fromtimestamp(int(os.path.getmtime(job_path)))
+        now = datetime.datetime.today()  # 現在の時刻を取得
+        timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(job_path)))
         if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
             save_cache(youtube_id, "", False, False, False, False, err_type)
             clear_path(job_path)
