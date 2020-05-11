@@ -205,14 +205,14 @@ def is_pending_exists():
         return False
 
 
-def watchdog(youtube_id, job_path, margin, err_type):
+def watchdog(youtube_id, is_parent, margin, err_type):
     """check is job timeout
 
     check pending and queue timestamp to determine timeout
 
     Args:
         youtube_id: str
-        job_path: str
+        is_parent: bool
         margin: int
         err_type: ERR_CODE
 
@@ -221,12 +221,22 @@ def watchdog(youtube_id, job_path, margin, err_type):
 
 
     """
+    queue_path = ap.queue_dir + str(youtube_id)
+    pending_path = ap.pending_dir + str(youtube_id)
+
+    if is_parent:
+        job_path = pending_path
+    else:
+        job_path = queue_path
+
     if os.path.exists(job_path):
         now = datetime.datetime.today()  # 現在の時刻を取得
         timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(job_path)))
         if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
             save_cache(youtube_id, "", False, False, False, False, err_type)
             clear_path(job_path)
+            if is_parent:
+                clear_path(queue_path)
 
     return
 

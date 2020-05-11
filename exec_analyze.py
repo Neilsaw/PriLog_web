@@ -26,7 +26,6 @@ def do_analyze():
 
     queue_path = ap.queue_dir + str(youtube_id)
     pending_path = ap.pending_dir + str(youtube_id)
-    cm.pending_append(pending_path)
 
     # youtube動画検索/検証
     path, title, length, thumbnail, url_result = al.search(youtube_id)

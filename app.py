@@ -284,7 +284,7 @@ def rest_analyze():
 
     if tmp_group:
         host = tmp_group.group('host')
-        if host == "youtube.com" or host == "youtu.be":
+        if host == "www.youtube.com" or host == "youtu.be":
             url = raw_url
 
     # キャッシュ確認
@@ -328,6 +328,7 @@ def rest_analyze():
                 cm.watchdog(youtube_id, queue_path, 30, err.ERR_QUEUE_TIMEOUT)
                 if not cm.is_pending_exists() and cm.is_queue_current(queue_path):
                     analyzer_path = f'python exec_analyze.py {url}'
+                    cm.pending_append(pending_path)
                     subprocess.Popen(analyzer_path.split())
                     is_parent = True
                     break
@@ -339,10 +340,10 @@ def rest_analyze():
             if queued:
                 if is_parent:
                     # 親ならばpendingを監視
-                    cm.watchdog(youtube_id, pending_path, 5, err.ERR_ANALYZE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 5, err.ERR_ANALYZE_TIMEOUT)
                 else:
                     # 子ならばqueueを監視
-                    cm.watchdog(youtube_id, queue_path, 36, err.ERR_QUEUE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 36, err.ERR_QUEUE_TIMEOUT)
                 tm.sleep(1)
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す
