@@ -29,7 +29,7 @@ def do_analyze():
 
     # youtube動画検索/検証
     path, title, length, thumbnail, url_result = al.search(youtube_id)
-    if url_result // 100 == 4 or url_result == err.ERR_CANT_GET_HD:
+    if url_result % 100 // 10 == 2:
         cm.save_cache(youtube_id, title, False, False, False, False, url_result)
     else:
         # TL解析
