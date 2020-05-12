@@ -54,12 +54,19 @@ def get_web_txt(youtube_id, title, time_line, debuff_value, total_damage):
 
 def get_rest_result(title, time_line, time_data, total_damage, debuff_value):
     rest_result = {"title": title, "timeline": time_line, "process_time": time_data, "total_damage": total_damage,
-                   "debuff_value": debuff_value, "timeline_txt": "\r\n".join(time_line)}
+                   "debuff_value": debuff_value}
 
-    if debuff_value:
-        rest_result["timeline_txt_debuff"] = "\r\n".join(list(
-            map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
-                enumerate(time_line))))
+    if time_line:
+        rest_result["timeline_txt"] = "\r\n".join(time_line)
+        if debuff_value:
+            rest_result["timeline_txt_debuff"] = "\r\n".join(list(
+                map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
+                    enumerate(time_line))))
+        else:
+            rest_result["timeline_txt_debuff"] = False
+    else:
+        rest_result["timeline_txt"] = False
+        rest_result["timeline_txt_debuff"] = False
 
     return rest_result
 
@@ -85,7 +92,7 @@ def index():
 
         if cache is not False:
             title, time_line, time_data, total_damage, debuff_value, past_status = cache
-            if past_status // 100 == 2:
+            if past_status % 100 // 10 == 0:
                 debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
                                                                             time_line, debuff_value, total_damage)
 
@@ -93,8 +100,6 @@ def index():
                                        timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                        data_txt=data_txt, data_url=data_url)
 
-            elif past_status // 100 == 3:
-                pass
             else:
                 error = err.get_error_message(past_status)
                 return render_template("index.html", error=error)
@@ -124,7 +129,7 @@ def index():
                 cache = cm.cache_check(youtube_id)
                 if cache is not False:
                     title, time_line, time_data, total_damage, debuff_value, past_status = cache
-                    if past_status // 100 == 2:
+                    if past_status % 100 // 10 == 0:
                         debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
                                                                                     time_line, debuff_value,
                                                                                     total_damage)
@@ -132,9 +137,6 @@ def index():
                         return render_template("result.html", title=title, timeLine=time_line,
                                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                                data_txt=data_txt, data_url=data_url)
-
-                    elif past_status // 100 == 3:
-                        pass
 
                     else:
                         error = err.get_error_message(past_status)
@@ -302,7 +304,7 @@ def rest_analyze():
             # キャッシュ有りの場合
             # キャッシュを返信
             title, time_line, time_data, total_damage, debuff_value, past_status = cache
-            if past_status // 100 == 2:
+            if past_status % 100 // 10 == 0:
                 rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                 ret["result"] = rest_result
@@ -310,8 +312,6 @@ def rest_analyze():
                 ret["status"] = past_status
                 return jsonify(ret)
 
-            elif (past_status // 100) == 3:
-                pass
             else:
                 ret["result"] = rest_result
                 ret["msg"] = err.get_error_message(past_status)
@@ -325,7 +325,7 @@ def rest_analyze():
             cm.queue_append(queue_path)
             # キューが回ってきたか確認し、来たら解析実行
             while True:
-                cm.watchdog(youtube_id, queue_path, 30, err.ERR_QUEUE_TIMEOUT)
+                cm.watchdog(youtube_id, is_parent, 30, err.ERR_QUEUE_TIMEOUT)
                 if not cm.is_pending_exists() and cm.is_queue_current(queue_path):
                     analyzer_path = f'python exec_analyze.py {url}'
                     cm.pending_append(pending_path)
