@@ -43,13 +43,13 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
 
 
     """
-    cache = cache_check(youtube_id)
-    if cache is False:
+    past_status = cache_status_check(youtube_id)
+    if past_status is False:
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif cache[5] == err.TMP_DONE_IN_SD:
+    elif past_status == err.TMP_DONE_IN_SD:
 
         if status is err.TMP_DONE_IN_SD:
             status = err.DONE_IN_SD
@@ -57,7 +57,7 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif cache[5] == err.TMP_INCOMPLETE_IN_SD:
+    elif past_status == err.TMP_INCOMPLETE_IN_SD:
 
         if status is err.TMP_INCOMPLETE_IN_SD:
             status = err.ERR_INCOMPLETE_IN_SD
@@ -84,7 +84,7 @@ def cache_check(youtube_id):
         youtube_id (str): user input youtube_id
 
     Returns:
-        ret (list, boolean): cache or False
+        status (int): cache or False
 
 
     """
@@ -96,8 +96,7 @@ def cache_check(youtube_id):
             if past_status // 100 == 3:
                 now = datetime.datetime.today()  # 現在の時刻を取得
                 timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(cache_path)))
-                if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは削除、無視する
-                    clear_path(cache_path)
+                if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは無視する
                     return False
                 else:
                     return ret
@@ -106,6 +105,43 @@ def cache_check(youtube_id):
         else:  # in case of number of cached elements is incorrect
             # delete cache
             clear_path(cache_path)
+            return False
+
+    except FileNotFoundError:
+        # not found cache
+        return False
+
+
+def cache_status_check(youtube_id):
+    """cache status check with youtube_id
+
+    search cache and get cache data
+    cache: (6)
+    [title, time_line, time_data, total_damage, debuff_value, status]
+
+    and if status is 3xx error, then return past status
+
+    Args:
+        youtube_id (str): user input youtube_id
+
+    Returns:
+        status (int, boolean): error status or False (in case of cache status is not 3xx)
+
+
+    """
+    try:
+        cache_path = ap.cache_dir + urllib.parse.quote(youtube_id) + ".json"
+        ret = json.load(open(cache_path))
+        if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
+            past_status = ret[5]
+            if past_status // 100 == 3:
+                # if past status is 3xx, return status to change 4xx.
+                return past_status
+
+            else:
+                return False
+        else:  # in case of number of cached elements is incorrect
+            # not found cache
             return False
 
     except FileNotFoundError:
