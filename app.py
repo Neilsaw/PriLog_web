@@ -10,6 +10,8 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import os
 import re
+import json
+import urllib.parse
 import subprocess
 import time as tm
 import analyze as al
@@ -36,6 +38,11 @@ if not os.path.exists(pending_dir):
 queue_dir = "queue/"
 if not os.path.exists(queue_dir):
     os.mkdir(queue_dir)
+
+# api token as file directory
+token_dir = "token/"
+if not os.path.exists(token_dir):
+    os.mkdir(token_dir)
 
 
 def get_web_txt(youtube_id, title, time_line, debuff_value, total_damage):
@@ -251,6 +258,7 @@ def rest_analyze():
     ret = {}
     url = ""
     raw_url = ""
+    token = ""
     if request.method == "POST":
         if "Url" not in request.form:
             status = err.ERR_BAD_REQ
@@ -262,6 +270,16 @@ def rest_analyze():
         else:
             raw_url = request.form["Url"]
 
+        if "Token" not in request.form:
+            status = err.ERR_BAD_REQ
+
+            ret["result"] = rest_result
+            ret["msg"] = err.get_error_message(status)
+            ret["status"] = status
+            return jsonify(ret)
+        else:
+            token = request.form["Token"]
+
     elif request.method == "GET":
         if "Url" not in request.args:
             status = err.ERR_BAD_REQ
@@ -272,6 +290,28 @@ def rest_analyze():
             return jsonify(ret)
         else:
             raw_url = request.args.get("Url")
+
+        if "Token" not in request.args:
+            status = err.ERR_BAD_REQ
+
+            ret["result"] = rest_result
+            ret["msg"] = err.get_error_message(status)
+            ret["status"] = status
+            return jsonify(ret)
+        else:
+            token = request.args.get("Token")
+
+    try:
+        # tokenの確認とロード
+        json.load(open(token_dir + urllib.parse.quote(token) + ".json"))
+
+    except FileNotFoundError:
+        status = err.ERR_BAD_TOKEN
+
+        ret["result"] = rest_result
+        ret["msg"] = err.get_error_message(status)
+        ret["status"] = status
+        return jsonify(ret)
 
     # URL抽出
     tmp_group = re.search('(?:https?://)?(?P<host>.*?)(?:[:#?/@]|$)', raw_url)

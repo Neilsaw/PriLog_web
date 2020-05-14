@@ -3,7 +3,6 @@ import sys
 import analyze as al
 import common as cm
 import app as ap
-import error_list as err
 
 
 def do_analyze():
