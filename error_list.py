@@ -70,6 +70,10 @@ def get_error_message(error_type):
 
     arr = np.array(error_list)
     pos = np.argwhere(arr == str(error_type))
-    error = error_list[pos[0][0]][1]
+    try:
+        error = error_list[pos[0][0]][1]
+    except IndexError:
+        # エラーステータス改訂時に過去のキャッシュ参照した場合に発生する
+        error = error_list[-1][1]
 
     return error

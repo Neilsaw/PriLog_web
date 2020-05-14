@@ -106,13 +106,9 @@ def index():
 
         path, title, length, thumbnail, url_result = al.search(youtube_id)
 
-        if url_result // 100 == 4:
+        if url_result % 100 // 10 == 2:
             error = err.get_error_message(url_result)
             cm.save_cache(youtube_id, title, False, False, False, False, url_result)
-            return render_template("index.html", error=error)
-
-        elif url_result == err.ERR_CANT_GET_HD:
-            error = err.get_error_message(url_result)
             return render_template("index.html", error=error)
 
         session["path"] = path
@@ -145,13 +141,9 @@ def index():
                 else:  # キャッシュが存在しない場合は解析
                     path, title, length, thumbnail, url_result = al.search(youtube_id)
 
-                    if url_result // 100 == 4:
+                    if url_result % 100 // 10 == 2:
                         error = err.get_error_message(url_result)
                         cm.save_cache(youtube_id, title, False, False, False, False, url_result)
-                        return render_template("index.html", error=error)
-
-                    elif url_result == err.ERR_CANT_GET_HD:
-                        error = err.get_error_message(url_result)
                         return render_template("index.html", error=error)
 
                     session["path"] = path
