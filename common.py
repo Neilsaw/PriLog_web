@@ -191,27 +191,28 @@ def pending_append(path):
     return
 
 
-def is_queue_current(queue_path):
-    """check queue
+def is_path_current(path):
+    """check path
 
-    check queue and check queue turn
+    check path turn
 
     Args:
-        queue_path (str): analyze control queue file path
+        path (str): analyze control file path
 
     Returns:
-        True/False (boolean): oldest queue:True secondly queue:False
+        True/False (boolean): oldest path:True secondly path:False
 
 
     """
     try:
         # get list queue file
-        fl = glob(ap.queue_dir + "*")
+        directory = os.path.dirname(path)
+        fl = glob(directory + "/*")
 
         # sort time stamp and find oldest queue
         fl.sort(key=lambda x: os.path.getctime(x))
         comp = fl[0].replace("\\", "/")
-        if comp == queue_path:
+        if comp == path:
             return True
         else:
             return False
@@ -219,12 +220,13 @@ def is_queue_current(queue_path):
         return False
 
 
-def is_pending_exists():
-    """check pending
+def is_path_exists(path):
+    """check path
 
-    check pending and check pending existence
+    check path existence
 
     Args:
+        path (str): analyze control queue file path
 
     Returns:
         True/False (boolean): exist:True not found:False
@@ -232,7 +234,8 @@ def is_pending_exists():
 
     """
     try:
-        fl = os.listdir(ap.pending_dir)
+        directory = os.path.dirname(path)
+        fl = os.listdir(directory + "/")
         if not fl:
             return False
         else:
@@ -275,6 +278,34 @@ def watchdog(youtube_id, is_parent, margin, err_type):
                 clear_path(queue_path)
 
     return
+
+
+def watchdog_download(youtube_id, margin):
+    """check is download job timeout
+
+    check pending and queue timestamp to determine timeout
+
+    Args:
+        youtube_id: str
+        margin: int
+
+    Returns:
+        True/False: boolean
+
+
+    """
+    queue_path = ap.dl_queue_dir + str(youtube_id)
+
+    result = False
+
+    if os.path.exists(queue_path):
+        now = datetime.datetime.today()  # 現在の時刻を取得
+        timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(queue_path)))
+        if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
+            clear_path(queue_path)
+            result = True
+
+    return result
 
 
 def clear_path(path):

@@ -30,14 +30,29 @@ if not os.path.exists(cache_dir):
     os.mkdir(cache_dir)
 
 # save analyzing id as file directory
-pending_dir = "pending/"
-if not os.path.exists(pending_dir):
-    os.mkdir(pending_dir)
+download_dir = "download/"
+if not os.path.exists(download_dir):
+    os.mkdir(download_dir)
+
+# waiting analyze id as file directory
+dl_queue_dir = "download/queue/"
+if not os.path.exists(dl_queue_dir):
+    os.mkdir(dl_queue_dir)
+
+# save analyzing id as file directory
+dl_doing_dir = "download/doing/"
+if not os.path.exists(dl_doing_dir):
+    os.mkdir(dl_doing_dir)
 
 # waiting analyze id as file directory
 queue_dir = "queue/"
 if not os.path.exists(queue_dir):
     os.mkdir(queue_dir)
+
+# save analyzing id as file directory
+pending_dir = "pending/"
+if not os.path.exists(pending_dir):
+    os.mkdir(pending_dir)
 
 # api token as file directory
 token_dir = "token/"
@@ -111,7 +126,35 @@ def index():
                 error = err.get_error_message(past_status)
                 return render_template("index.html", error=error)
 
+        # start download
+        dl_queue_path = dl_queue_dir + str(youtube_id)
+        dl_doing_path = dl_doing_dir + str(youtube_id)
+
+        # 既にキューに登録されているか確認
+        queued = os.path.exists(dl_queue_path)
+        if not queued:  # 既にダウンロード待機中ではない場合、ダウンロード待機キューに登録
+            cm.queue_append(dl_queue_path)
+            # キューが回ってきたか確認し、来たらダウンロード実行
+            while True:
+                if not cm.is_path_exists(dl_doing_path) and cm.is_path_current(dl_queue_path):
+                    break
+
+                timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
+
+                if timeout:
+                    cm.clear_path(dl_queue_path)
+                    error = "動画の解析待ちでタイムアウトが発生しました。再実行をお願いします。"
+                    return render_template("index.html", error=error)
+
+                tm.sleep(1)
+
+        else:  # ダウンロード待機中の場合エラーメッセージ表示
+            cm.clear_path(dl_queue_path)
+            error = "同一の動画が解析中です。時間を置いて再実行をお願いします。"
+            return render_template("index.html", error=error)
+
         path, title, length, thumbnail, url_result = al.search(youtube_id)
+        cm.clear_path(dl_queue_path)
 
         if url_result % 100 // 10 == 2:
             error = err.get_error_message(url_result)
@@ -146,7 +189,35 @@ def index():
                         return render_template("index.html", error=error)
 
                 else:  # キャッシュが存在しない場合は解析
+                    # start download
+                    dl_queue_path = dl_queue_dir + str(youtube_id)
+                    dl_doing_path = dl_doing_dir + str(youtube_id)
+
+                    # 既にキューに登録されているか確認
+                    queued = os.path.exists(dl_queue_path)
+                    if not queued:  # 既にダウンロード待機中ではない場合、ダウンロード待機キューに登録
+                        cm.queue_append(dl_queue_path)
+                        # キューが回ってきたか確認し、来たらダウンロード実行
+                        while True:
+                            if not cm.is_path_exists(dl_doing_path) and cm.is_path_current(dl_queue_path):
+                                break
+
+                            timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
+
+                            if timeout:
+                                cm.clear_path(dl_queue_path)
+                                error = "動画の解析待ちでタイムアウトが発生しました。再実行をお願いします。"
+                                return render_template("index.html", error=error)
+
+                            tm.sleep(1)
+
+                    else:  # ダウンロード待機中の場合エラーメッセージ表示
+                        cm.clear_path(dl_queue_path)
+                        error = "同一の動画が解析中です。時間を置いて再実行をお願いします。"
+                        return render_template("index.html", error=error)
+
                     path, title, length, thumbnail, url_result = al.search(youtube_id)
+                    cm.clear_path(dl_queue_path)
 
                     if url_result % 100 // 10 == 2:
                         error = err.get_error_message(url_result)
@@ -325,6 +396,7 @@ def rest_analyze():
     youtube_id = al.get_youtube_id(url)
     queue_path = queue_dir + str(youtube_id)
     pending_path = pending_dir + str(youtube_id)
+    dl_queue_path = dl_queue_dir + str(youtube_id)
     if youtube_id is False:
         # 不正なurlの場合
         status = err.ERR_BAD_URL
@@ -358,7 +430,10 @@ def rest_analyze():
             # キューが回ってきたか確認し、来たら解析実行
             while True:
                 cm.watchdog(youtube_id, is_parent, 30, err.ERR_QUEUE_TIMEOUT)
-                if not cm.is_pending_exists() and cm.is_queue_current(queue_path):
+                rest_pending = cm.is_path_exists(pending_path)
+                rest_queue = cm.is_path_current(queue_path)
+                web_download = cm.is_path_exists(dl_queue_path)
+                if not rest_pending and rest_queue and not web_download:
                     analyzer_path = f'python exec_analyze.py {url}'
                     cm.pending_append(pending_path)
                     subprocess.Popen(analyzer_path.split())
