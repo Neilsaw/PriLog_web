@@ -40,9 +40,9 @@ if not os.path.exists(dl_queue_dir):
     os.mkdir(dl_queue_dir)
 
 # save analyzing id as file directory
-dl_doing_dir = "download/doing/"
-if not os.path.exists(dl_doing_dir):
-    os.mkdir(dl_doing_dir)
+dl_ongoing_dir = "download/ongoing/"
+if not os.path.exists(dl_ongoing_dir):
+    os.mkdir(dl_ongoing_dir)
 
 # waiting analyze id as file directory
 queue_dir = "queue/"
@@ -128,7 +128,7 @@ def index():
 
         # start download
         dl_queue_path = dl_queue_dir + str(youtube_id)
-        dl_doing_path = dl_doing_dir + str(youtube_id)
+        dl_ongoing_path = dl_ongoing_dir + str(youtube_id)
 
         # 既にキューに登録されているか確認
         queued = os.path.exists(dl_queue_path)
@@ -136,7 +136,7 @@ def index():
             cm.queue_append(dl_queue_path)
             # キューが回ってきたか確認し、来たらダウンロード実行
             while True:
-                if not cm.is_path_exists(dl_doing_path) and cm.is_path_current(dl_queue_path):
+                if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_current(dl_queue_path):
                     break
 
                 timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
@@ -191,7 +191,7 @@ def index():
                 else:  # キャッシュが存在しない場合は解析
                     # start download
                     dl_queue_path = dl_queue_dir + str(youtube_id)
-                    dl_doing_path = dl_doing_dir + str(youtube_id)
+                    dl_ongoing_path = dl_ongoing_dir + str(youtube_id)
 
                     # 既にキューに登録されているか確認
                     queued = os.path.exists(dl_queue_path)
@@ -199,7 +199,7 @@ def index():
                         cm.queue_append(dl_queue_path)
                         # キューが回ってきたか確認し、来たらダウンロード実行
                         while True:
-                            if not cm.is_path_exists(dl_doing_path) and cm.is_path_current(dl_queue_path):
+                            if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_current(dl_queue_path):
                                 break
 
                             timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
