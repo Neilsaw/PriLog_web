@@ -16,7 +16,7 @@ import subprocess
 import time as tm
 import analyze as al
 import common as cm
-import error_list as err
+import state_list as state
 
 
 # movie download directory
@@ -107,7 +107,7 @@ def index():
         # urlからid部分の抽出
         youtube_id = al.get_youtube_id(url)
         if youtube_id is False:
-            error = err.get_error_message(err.ERR_BAD_URL)
+            error = state.get_error_message(state.ERR_BAD_URL)
             return render_template("index.html", error=error)
 
         cache = cm.cache_check(youtube_id)
@@ -123,7 +123,7 @@ def index():
                                        data_txt=data_txt, data_url=data_url)
 
             else:
-                error = err.get_error_message(past_status)
+                error = state.get_error_message(past_status)
                 return render_template("index.html", error=error)
 
         # start download
@@ -157,7 +157,7 @@ def index():
         cm.clear_path(dl_queue_path)
 
         if url_result % 100 // 10 == 2:
-            error = err.get_error_message(url_result)
+            error = state.get_error_message(url_result)
             cm.save_cache(youtube_id, title, False, False, False, False, url_result)
             return render_template("index.html", error=error)
 
@@ -185,7 +185,7 @@ def index():
                                                data_txt=data_txt, data_url=data_url)
 
                     else:
-                        error = err.get_error_message(past_status)
+                        error = state.get_error_message(past_status)
                         return render_template("index.html", error=error)
 
                 else:  # キャッシュが存在しない場合は解析
@@ -220,7 +220,7 @@ def index():
                     cm.clear_path(dl_queue_path)
 
                     if url_result % 100 // 10 == 2:
-                        error = err.get_error_message(url_result)
+                        error = state.get_error_message(url_result)
                         cm.save_cache(youtube_id, title, False, False, False, False, url_result)
                         return render_template("index.html", error=error)
 
@@ -243,7 +243,7 @@ def index():
 
             error = None
             if str(path).isdecimal():
-                error = err.get_error_message(path)
+                error = state.get_error_message(path)
 
             elif path is not None:
                 cm.clear_path(path)
@@ -323,7 +323,7 @@ def rest():
 
 @app.route("/rest/analyze", methods=["POST", "GET"])
 def rest_analyze():
-    status = err.ERR_REQ_UNEXPECTED
+    status = state.ERR_REQ_UNEXPECTED
     is_parent = False
     rest_result = {}
     ret = {}
@@ -332,20 +332,20 @@ def rest_analyze():
     token = ""
     if request.method == "POST":
         if "Url" not in request.form:
-            status = err.ERR_BAD_REQ
+            status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = err.get_error_message(status)
+            ret["msg"] = state.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
             raw_url = request.form["Url"]
 
         if "Token" not in request.form:
-            status = err.ERR_BAD_REQ
+            status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = err.get_error_message(status)
+            ret["msg"] = state.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
@@ -353,20 +353,20 @@ def rest_analyze():
 
     elif request.method == "GET":
         if "Url" not in request.args:
-            status = err.ERR_BAD_REQ
+            status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = err.get_error_message(status)
+            ret["msg"] = state.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
             raw_url = request.args.get("Url")
 
         if "Token" not in request.args:
-            status = err.ERR_BAD_REQ
+            status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
-            ret["msg"] = err.get_error_message(status)
+            ret["msg"] = state.get_error_message(status)
             ret["status"] = status
             return jsonify(ret)
         else:
@@ -377,10 +377,10 @@ def rest_analyze():
         json.load(open(token_dir + urllib.parse.quote(token) + ".json"))
 
     except FileNotFoundError:
-        status = err.ERR_BAD_TOKEN
+        status = state.ERR_BAD_TOKEN
 
         ret["result"] = rest_result
-        ret["msg"] = err.get_error_message(status)
+        ret["msg"] = state.get_error_message(status)
         ret["status"] = status
         return jsonify(ret)
 
@@ -399,7 +399,7 @@ def rest_analyze():
     dl_queue_path = dl_queue_dir + str(youtube_id)
     if youtube_id is False:
         # 不正なurlの場合
-        status = err.ERR_BAD_URL
+        status = state.ERR_BAD_URL
     else:
         # 正常なurlの場合
         cache = cm.cache_check(youtube_id)
@@ -412,13 +412,13 @@ def rest_analyze():
                 rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                 ret["result"] = rest_result
-                ret["msg"] = err.get_error_message(past_status)
+                ret["msg"] = state.get_error_message(past_status)
                 ret["status"] = past_status
                 return jsonify(ret)
 
             else:
                 ret["result"] = rest_result
-                ret["msg"] = err.get_error_message(past_status)
+                ret["msg"] = state.get_error_message(past_status)
                 ret["status"] = past_status
                 return jsonify(ret)
 
@@ -429,7 +429,7 @@ def rest_analyze():
             cm.queue_append(queue_path)
             # キューが回ってきたか確認し、来たら解析実行
             while True:
-                cm.watchdog(youtube_id, is_parent, 30, err.ERR_QUEUE_TIMEOUT)
+                cm.watchdog(youtube_id, is_parent, 30, state.ERR_QUEUE_TIMEOUT)
                 rest_pending = cm.is_path_exists(pending_path)
                 rest_queue = cm.is_path_current(queue_path)
                 web_download = cm.is_path_exists(dl_queue_path)
@@ -447,10 +447,10 @@ def rest_analyze():
             if queued:
                 if is_parent:
                     # 親ならばpendingを監視
-                    cm.watchdog(youtube_id, is_parent, 5, err.ERR_ANALYZE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 5, state.ERR_ANALYZE_TIMEOUT)
                 else:
                     # 子ならばqueueを監視
-                    cm.watchdog(youtube_id, is_parent, 36, err.ERR_QUEUE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 36, state.ERR_QUEUE_TIMEOUT)
                 tm.sleep(1)
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す
@@ -463,11 +463,11 @@ def rest_analyze():
                     break
                 else:  # キャッシュ未生成の場合
                     # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
-                    status = err.ERR_TMP_UNEXPECTED
+                    status = state.ERR_TMP_UNEXPECTED
                     break
 
     ret["result"] = rest_result
-    ret["msg"] = err.get_error_message(status)
+    ret["msg"] = state.get_error_message(status)
     ret["status"] = status
     return jsonify(ret)
 
