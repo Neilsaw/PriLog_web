@@ -191,7 +191,7 @@ def pending_append(path):
     return
 
 
-def is_path_current(path):
+def is_path_due(path):
     """check path
 
     check path turn

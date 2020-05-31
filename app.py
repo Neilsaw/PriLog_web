@@ -136,7 +136,7 @@ def index():
             cm.queue_append(dl_queue_path)
             # キューが回ってきたか確認し、来たらダウンロード実行
             while True:
-                if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_current(dl_queue_path):
+                if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
                     break
 
                 timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
@@ -199,7 +199,7 @@ def index():
                         cm.queue_append(dl_queue_path)
                         # キューが回ってきたか確認し、来たらダウンロード実行
                         while True:
-                            if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_current(dl_queue_path):
+                            if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
                                 break
 
                             timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
@@ -431,7 +431,7 @@ def rest_analyze():
             while True:
                 cm.watchdog(youtube_id, is_parent, 30, state.ERR_QUEUE_TIMEOUT)
                 rest_pending = cm.is_path_exists(pending_path)
-                rest_queue = cm.is_path_current(queue_path)
+                rest_queue = cm.is_path_due(queue_path)
                 web_download = cm.is_path_exists(dl_queue_path)
                 if not rest_pending and rest_queue and not web_download:
                     analyzer_path = f'python exec_analyze.py {url}'
