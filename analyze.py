@@ -304,7 +304,7 @@ def search(youtube_id):
         yt = YouTube(youtube_url)
     except:
         cm.clear_path(dl_ongoing_path)
-        return None, None, None, None, state.ERR_CANT_GET_HD
+        return None, None, None, None, state.TMP_CANT_GET_HD
 
     movie_thumbnail = yt.thumbnail_url
     movie_length = yt.length

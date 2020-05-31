@@ -429,7 +429,7 @@ def rest_analyze():
             cm.queue_append(queue_path)
             # キューが回ってきたか確認し、来たら解析実行
             while True:
-                cm.watchdog(youtube_id, is_parent, 30, state.ERR_QUEUE_TIMEOUT)
+                cm.watchdog(youtube_id, is_parent, 30, state.TMP_QUEUE_TIMEOUT)
                 rest_pending = cm.is_path_exists(pending_path)
                 rest_queue = cm.is_path_due(queue_path)
                 web_download = cm.is_path_exists(dl_queue_path)
@@ -447,10 +447,10 @@ def rest_analyze():
             if queued:
                 if is_parent:
                     # 親ならばpendingを監視
-                    cm.watchdog(youtube_id, is_parent, 5, state.ERR_ANALYZE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 5, state.TMP_ANALYZE_TIMEOUT)
                 else:
                     # 子ならばqueueを監視
-                    cm.watchdog(youtube_id, is_parent, 36, state.ERR_QUEUE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 36, state.TMP_QUEUE_TIMEOUT)
                 tm.sleep(1)
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す
@@ -463,7 +463,7 @@ def rest_analyze():
                     break
                 else:  # キャッシュ未生成の場合
                     # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
-                    status = state.ERR_TMP_UNEXPECTED
+                    status = state.TMP_TMP_UNEXPECTED
                     break
 
     ret["result"] = rest_result
