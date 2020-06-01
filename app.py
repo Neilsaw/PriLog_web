@@ -463,7 +463,7 @@ def rest_analyze():
                     break
                 else:  # キャッシュ未生成の場合
                     # キャッシュを書き出してから解析キューから削除されるため、本来起こり得ないはずのエラー
-                    status = state.TMP_TMP_UNEXPECTED
+                    status = state.TMP_UNEXPECTED
                     break
 
     ret["result"] = rest_result
