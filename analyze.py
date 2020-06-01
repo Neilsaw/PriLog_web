@@ -17,7 +17,7 @@ import characters as cd
 import after_caluculation as ac
 import app as ap
 import common as cm
-import error_list as err
+import state_list as state
 
 
 # character name template
@@ -294,38 +294,38 @@ def search(youtube_id):
 
 
     """
-    # add dl doing queue
-    dl_doing_path = ap.dl_doing_dir + str(youtube_id)
-    cm.queue_append(dl_doing_path)
+    # add dl ongoing queue
+    dl_ongoing_path = ap.dl_ongoing_dir + str(youtube_id)
+    cm.queue_append(dl_ongoing_path)
 
     youtube_url = "https://www.youtube.com/watch?v=" + youtube_id
 
     try:
         yt = YouTube(youtube_url)
     except:
-        cm.clear_path(dl_doing_path)
-        return None, None, None, None, err.ERR_CANT_GET_HD
+        cm.clear_path(dl_ongoing_path)
+        return None, None, None, None, state.TMP_CANT_GET_HD
 
     movie_thumbnail = yt.thumbnail_url
     movie_length = yt.length
     if int(movie_length) > MOVIE_LENGTH_MAX:
-        cm.clear_path(dl_doing_path)
-        return None, None, None, None, err.ERR_BAD_LENGTH
+        cm.clear_path(dl_ongoing_path)
+        return None, None, None, None, state.ERR_BAD_LENGTH
 
-    status = err.DONE
+    status = state.DONE
     stream = yt.streams.get_by_itag("22")
     if stream is None:
-        status = err.TMP_DONE_IN_SD
+        status = state.TMP_DONE_IN_SD
         stream = yt.streams.get_by_itag("18")
         if stream is None:
-            cm.clear_path(dl_doing_path)
-            return None, None, None, None, err.ERR_BAD_RESOLUTION
+            cm.clear_path(dl_ongoing_path)
+            return None, None, None, None, state.ERR_BAD_RESOLUTION
 
     movie_title = stream.title
     movie_name = tm.time()
     movie_path = stream.download(ap.stream_dir, str(movie_name))
 
-    cm.clear_path(dl_doing_path)
+    cm.clear_path(dl_ongoing_path)
 
     return movie_path, movie_title, movie_length, movie_thumbnail, status
 
@@ -363,7 +363,7 @@ def analyze_movie(movie_path):
         video.release()
         cm.clear_path(movie_path)
 
-        return None, None, None, None, err.ERR_BAD_RESOLUTION
+        return None, None, None, None, state.ERR_BAD_RESOLUTION
 
     model_init(video_type)
     roi_init(video_type)
@@ -840,14 +840,14 @@ def get_analyze_status(ub_data, video_type):
     if ub_data:
         # found timeline
         if video_type is RESOLUTION_16_9_SD:
-            status = err.TMP_DONE_IN_SD
+            status = state.TMP_DONE_IN_SD
         else:
-            status = err.DONE
+            status = state.DONE
     else:
         # not found timeline
         if video_type is RESOLUTION_16_9_SD:
-            status = err.TMP_INCOMPLETE_IN_SD
+            status = state.TMP_INCOMPLETE_IN_SD
         else:
-            status = err.ERR_INCOMPLETE_IN_HD
+            status = state.ERR_INCOMPLETE_IN_HD
 
     return status

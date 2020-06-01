@@ -12,7 +12,7 @@ import json
 from glob import glob
 import urllib.parse
 import app as ap
-import error_list as err
+import state_list as state
 import datetime
 
 
@@ -49,23 +49,23 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif past_status == err.TMP_DONE_IN_SD:
+    elif past_status == state.TMP_DONE_IN_SD:
 
-        if status is err.TMP_DONE_IN_SD:
-            status = err.DONE_IN_SD
+        if status is state.TMP_DONE_IN_SD:
+            status = state.DONE_IN_SD
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif past_status == err.TMP_INCOMPLETE_IN_SD:
+    elif past_status == state.TMP_INCOMPLETE_IN_SD:
 
-        if status is err.TMP_INCOMPLETE_IN_SD:
-            status = err.ERR_INCOMPLETE_IN_SD
+        if status is state.TMP_INCOMPLETE_IN_SD:
+            status = state.ERR_INCOMPLETE_IN_SD
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
     else:
-        status = err.ERR_PERM_UNEXPECTED
+        status = state.ERR_PERM_UNEXPECTED
 
         json.dump([title, time_line, time_data, total_damage, debuff_value, status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
@@ -191,7 +191,7 @@ def pending_append(path):
     return
 
 
-def is_path_current(path):
+def is_path_due(path):
     """check path
 
     check path turn
