@@ -44,33 +44,20 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
 
     """
     past_status = cache_status_check(youtube_id)
+    present_status = status
     if past_status is False:
 
-        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
+        json.dump([title, time_line, time_data, total_damage, debuff_value, present_status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    elif past_status == state.TMP_DONE_IN_SD:
-
-        if status is state.TMP_DONE_IN_SD:
-            status = state.DONE_IN_SD
-
-        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
-                  open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
-
-    elif past_status == state.TMP_INCOMPLETE_IN_SD:
-
-        if status is state.TMP_INCOMPLETE_IN_SD:
-            status = state.ERR_INCOMPLETE_IN_SD
-
-        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
-                  open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
     else:
-        status = state.ERR_PERM_UNEXPECTED
+        result, present_status = status_combination_check(past_status, status)
+        if result is True:
 
-        json.dump([title, time_line, time_data, total_damage, debuff_value, status],
-                  open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
+            json.dump([title, time_line, time_data, total_damage, debuff_value, present_status],
+                      open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
-    return status
+    return present_status
 
 
 def cache_check(youtube_id):
@@ -94,6 +81,9 @@ def cache_check(youtube_id):
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
             title, time_line, time_data, total_damage, debuff_value, past_status = ret
             if past_status // 100 == 3:
+                if past_status == state.TMP_CANT_GET_HD:
+                    return False
+
                 now = datetime.datetime.today()  # 現在の時刻を取得
                 timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(cache_path)))
                 if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは無視する
@@ -134,12 +124,7 @@ def cache_status_check(youtube_id):
         ret = json.load(open(cache_path))
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
             past_status = ret[5]
-            if past_status // 100 == 3:
-                # if past status is 3xx, return status to change 4xx.
-                return past_status
-
-            else:
-                return False
+            return past_status
         else:  # in case of number of cached elements is incorrect
             # not found cache
             return False
@@ -147,6 +132,50 @@ def cache_status_check(youtube_id):
     except FileNotFoundError:
         # not found cache
         return False
+
+
+def status_combination_check(past, present):
+    """cache status combination with past and present
+
+    check combination status
+    this function calls if valid cache exists
+
+
+    Args:
+        past (int): past analyze status (should be 3xx)
+        present (int): present analyze status
+
+    Returns:
+        cacheable (boolean): cache is able to make or not
+        set_status (int): chosen status by combination
+
+
+    """
+    cacheable = False
+    set_status = past
+
+    if past // 100 == 2 or past // 100 == 4:
+        # past status is 2xx/4xx return confirmed status
+        return cacheable, set_status
+
+    # past status is 3xx
+    cacheable = True
+
+    if past == present:
+        # same 3xx status
+        if past == state.TMP_DONE_IN_SD:
+            # 2 times analyze only sd, set confirmed
+            set_status = state.DONE_IN_SD
+        elif past == state.TMP_INCOMPLETE_IN_SD:
+            # 2 times analyze only sd and no timeline, set confirmed
+            set_status = state.ERR_INCOMPLETE_IN_SD
+        else:
+            # other temporary analyze failure, keep cacheable
+            set_status = present
+    else:
+        set_status = present
+
+    return cacheable, set_status
 
 
 def queue_append(path):
