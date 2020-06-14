@@ -330,6 +330,10 @@ def rest_analyze():
     url = ""
     raw_url = ""
     token = ""
+
+    # clear old movie if passed 2 hours
+    cm.tmp_movie_clear()
+
     if request.method == "POST":
         if "Url" not in request.form:
             status = state.ERR_BAD_REQ

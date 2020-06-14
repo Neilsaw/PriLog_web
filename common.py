@@ -84,9 +84,7 @@ def cache_check(youtube_id):
                 if past_status == state.TMP_CANT_GET_HD:
                     return False
 
-                now = datetime.datetime.today()  # 現在の時刻を取得
-                timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(cache_path)))
-                if (now - timestamp).seconds >= 5 * 60:  # 5分経過している3xxは無視する
+                if check_pass_time(cache_path, 5):  # through 3xx error if passed 5 minutes
                     return False
                 else:
                     return ret
@@ -237,6 +235,8 @@ def is_path_due(path):
         # get list queue file
         directory = os.path.dirname(path)
         fl = glob(directory + "/*")
+        if not fl:
+            return False
 
         # sort time stamp and find oldest queue
         fl.sort(key=lambda x: os.path.getctime(x))
@@ -298,9 +298,7 @@ def watchdog(youtube_id, is_parent, margin, err_type):
         job_path = queue_path
 
     if os.path.exists(job_path):
-        now = datetime.datetime.today()  # 現在の時刻を取得
-        timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(job_path)))
-        if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
+        if check_pass_time(job_path, margin):
             save_cache(youtube_id, "", False, False, False, False, err_type)
             clear_path(job_path)
             if is_parent:
@@ -328,13 +326,66 @@ def watchdog_download(youtube_id, margin):
     result = False
 
     if os.path.exists(queue_path):
-        now = datetime.datetime.today()  # 現在の時刻を取得
-        timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(queue_path)))
-        if (now - timestamp).seconds >= margin * 60:  # margin分経過しているjobは削除、指定エラーを投げる
+        if check_pass_time(queue_path, margin):
             clear_path(queue_path)
             result = True
 
     return result
+
+
+def tmp_movie_clear():
+    """delete movie file
+
+    delete oldest 1 movie file if its made 2 hours later
+
+    this function is intended as every query
+
+    Args:
+
+    Returns:
+
+
+    """
+    try:
+        fl = glob(ap.stream_dir + "/*")
+        if not fl:
+            return
+
+        fl.sort(key=lambda x: os.path.getctime(x))
+
+        if check_pass_time(fl[0], 120):
+            clear_path(fl[0])
+
+    except FileNotFoundError:
+        pass
+
+
+def check_pass_time(file_path, thresh):
+    """check time
+
+    check file update time with current time
+
+
+    Args:
+        file_path (str): time as datetime
+        thresh (int): thresh value "minutes" for check
+
+    Returns:
+        True (boolean): passed time or file not found
+        False (boolean): not passed time
+
+
+    """
+    now = datetime.datetime.today()
+    try:
+        timestamp = datetime.datetime.fromtimestamp(int(os.path.getmtime(file_path)))
+    except FileNotFoundError:
+        return True
+
+    if (now - timestamp).total_seconds() >= thresh * 60:
+        return True
+    else:
+        return False
 
 
 def clear_path(path):
