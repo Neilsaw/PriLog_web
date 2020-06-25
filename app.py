@@ -458,7 +458,7 @@ def rest_analyze():
                 tm.sleep(1)
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す
-                cache = cm.cache_check(youtube_id)
+                cache = cm.queue_cache_check(youtube_id)
                 if cache is not False:
                     title, time_line, time_data, total_damage, debuff_value, past_status = cache
                     rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)

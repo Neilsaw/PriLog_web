@@ -100,6 +100,35 @@ def cache_check(youtube_id):
         return False
 
 
+def queue_cache_check(youtube_id):
+    """cache check with youtube_id while queue
+
+    search cache and get cache data
+    cache: (6)
+    [title, time_line, time_data, total_damage, debuff_value, status]
+
+    Args:
+        youtube_id (str): user input youtube_id
+
+    Returns:
+        status (int): cache or False
+
+
+    """
+    try:
+        cache_path = ap.cache_dir + urllib.parse.quote(youtube_id) + ".json"
+        ret = json.load(open(cache_path))
+        if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
+            return ret
+
+        else:  # in case of number of cached elements is incorrect
+            return False
+
+    except FileNotFoundError:
+        # not found cache
+        return False
+
+
 def cache_status_check(youtube_id):
     """cache status check with youtube_id
 
