@@ -30,6 +30,7 @@ ERR_BAD_RESOLUTION = 424
 ERR_PERM_UNEXPECTED = 499
 
 # 5xx API Request Failure
+ERR_SERVICE_UNAVAILABLE = 503
 ERR_BAD_REQ = 532
 ERR_BAD_TOKEN = 533
 ERR_REQ_UNEXPECTED = 599
@@ -50,9 +51,10 @@ error_list = [
     [ERR_BAD_LENGTH, "動画時間が長すぎるため、解析に対応しておりません。"],
     [ERR_BAD_RESOLUTION, "非対応の解像度です。720pの一部の動画に対応しております。"],
     [ERR_PERM_UNEXPECTED, "解析出来ない動画です。"],
+    [ERR_SERVICE_UNAVAILABLE, "申し訳ありません。現在サーバー側の問題により解析ができません。"],
     [ERR_BAD_REQ, "必須パラメータがありません。"],
-    [ERR_BAD_TOKEN, "不正なトークンです。　twitter @PriLog_R までご連絡下さい。"],
-    [ERR_REQ_UNEXPECTED, "API処理中に予期しない問題が起きました。　twitter @PriLog_R までご連絡下さい。"]
+    [ERR_BAD_TOKEN, "不正なトークンです。　Twitter @PriLog_R までご連絡下さい。"],
+    [ERR_REQ_UNEXPECTED, "API処理中に予期しない問題が起きました。　Twitter @PriLog_R までご連絡下さい。"]
 ]
 
 
