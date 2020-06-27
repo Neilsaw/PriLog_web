@@ -81,8 +81,6 @@ def cache_check(youtube_id):
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
             title, time_line, time_data, total_damage, debuff_value, past_status = ret
             if past_status // 100 == 3:
-                if past_status == state.TMP_CANT_GET_HD:
-                    return False
 
                 if check_pass_time(cache_path, 5):  # through 3xx error if passed 5 minutes
                     return False
