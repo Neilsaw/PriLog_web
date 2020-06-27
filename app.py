@@ -18,6 +18,7 @@ import analyze as al
 import common as cm
 import state_list as state
 
+SERVER_ERROR_STATE = False
 
 # movie download directory
 stream_dir = "tmp/"
@@ -126,6 +127,10 @@ def index():
                 error = state.get_error_message(past_status)
                 return render_template("index.html", error=error)
 
+        if SERVER_ERROR_STATE:
+            error = state.get_error_message(state.ERR_SERVICE_UNAVAILABLE)
+            return render_template("index.html", error=error)
+
         # start download
         dl_queue_path = dl_queue_dir + str(youtube_id)
         dl_ongoing_path = dl_ongoing_dir + str(youtube_id)
@@ -189,6 +194,10 @@ def index():
                         return render_template("index.html", error=error)
 
                 else:  # キャッシュが存在しない場合は解析
+                    if SERVER_ERROR_STATE:
+                        error = state.get_error_message(state.ERR_SERVICE_UNAVAILABLE)
+                        return render_template("index.html", error=error)
+
                     # start download
                     dl_queue_path = dl_queue_dir + str(youtube_id)
                     dl_ongoing_path = dl_ongoing_dir + str(youtube_id)
@@ -425,6 +434,12 @@ def rest_analyze():
                 ret["msg"] = state.get_error_message(past_status)
                 ret["status"] = past_status
                 return jsonify(ret)
+
+        if SERVER_ERROR_STATE:
+            ret["result"] = rest_result
+            ret["msg"] = state.get_error_message(state.ERR_SERVICE_UNAVAILABLE)
+            ret["status"] = state.ERR_SERVICE_UNAVAILABLE
+            return jsonify(ret)
 
         # start analyze
         # 既にキューに登録されているか確認
