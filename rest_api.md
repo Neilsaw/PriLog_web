@@ -63,6 +63,8 @@ YouTube動画のURLからタイムライン情報を取得する
 
     533 不正なトークン
 
+    544 サーバー側で解析不可能
+
     599 予期せぬエラー
 
 
@@ -89,6 +91,7 @@ YouTube動画のURLからタイムライン情報を取得する
             + 解析出来ない動画です。 (string)
             + 必須パラメータがありません。 (string)
             + 不正なトークンです。　twitter @PriLog_R までご連絡下さい。 (string)
+            + 申し訳ありません。現在サーバー側の問題により解析ができません。 (string)
             + API処理中に予期しない問題が起きました。　twitter @PriLog_R までご連絡下さい。 (string)
 
         + result (array[object], fixed-type) - 解析結果
