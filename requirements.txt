@@ -10,7 +10,7 @@ mkl-service==2.3.0
 numpy==1.16.5
 olefile==0.46
 opencv-python==4.1.1.26
-Pillow==6.2.0
+Pillow==7.1.2
 pytube3==9.6.4
 six==1.15.0
 typing-extensions==3.7.4.2
