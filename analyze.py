@@ -301,6 +301,9 @@ def search(youtube_id):
     youtube_url = "https://www.youtube.com/watch?v=" + youtube_id
 
     try:
+        # add dl pending queue
+        dl_pending_path = ap.dl_pending_dir + "pending"
+        cm.queue_append(dl_pending_path)
         yt = YouTube(youtube_url)
     except:
         cm.clear_path(dl_ongoing_path)
@@ -313,10 +316,10 @@ def search(youtube_id):
         return None, None, None, None, state.ERR_BAD_LENGTH
 
     status = state.DONE
-    stream = yt.streams.get_by_itag("22")
+    stream = yt.streams.get_by_itag(22)
     if stream is None:
         status = state.TMP_DONE_IN_SD
-        stream = yt.streams.get_by_itag("18")
+        stream = yt.streams.get_by_itag(18)
         if stream is None:
             cm.clear_path(dl_ongoing_path)
             return None, None, None, None, state.ERR_BAD_RESOLUTION

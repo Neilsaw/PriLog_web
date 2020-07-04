@@ -45,6 +45,11 @@ dl_ongoing_dir = "download/ongoing/"
 if not os.path.exists(dl_ongoing_dir):
     os.mkdir(dl_ongoing_dir)
 
+# save analyzing id as file directory
+dl_pending_dir = "download/pending/"
+if not os.path.exists(dl_pending_dir):
+    os.mkdir(dl_pending_dir)
+
 # waiting analyze id as file directory
 queue_dir = "queue/"
 if not os.path.exists(queue_dir):
@@ -142,9 +147,10 @@ def index():
             # キューが回ってきたか確認し、来たらダウンロード実行
             while True:
                 if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
-                    break
+                    if cm.is_pending_download(15):  # check pending download
+                        break
 
-                timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
+                timeout = cm.watchdog_download(youtube_id, 300)  # 5分間タイムアウト監視
 
                 if timeout:
                     cm.clear_path(dl_queue_path)
@@ -209,9 +215,10 @@ def index():
                         # キューが回ってきたか確認し、来たらダウンロード実行
                         while True:
                             if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
-                                break
+                                if cm.is_pending_download(15):  # check pending download
+                                    break
 
-                            timeout = cm.watchdog_download(youtube_id, 5)  # 5分間タイムアウト監視
+                            timeout = cm.watchdog_download(youtube_id, 300)  # 5分間タイムアウト監視
 
                             if timeout:
                                 cm.clear_path(dl_queue_path)
@@ -448,16 +455,17 @@ def rest_analyze():
             cm.queue_append(queue_path)
             # キューが回ってきたか確認し、来たら解析実行
             while True:
-                cm.watchdog(youtube_id, is_parent, 30, state.TMP_QUEUE_TIMEOUT)
+                cm.watchdog(youtube_id, is_parent, 1800, state.TMP_QUEUE_TIMEOUT)
                 rest_pending = cm.is_path_exists(pending_path)
                 rest_queue = cm.is_path_due(queue_path)
                 web_download = cm.is_path_exists(dl_queue_path)
                 if not rest_pending and rest_queue and not web_download:
-                    analyzer_path = f'python exec_analyze.py {url}'
-                    cm.pending_append(pending_path)
-                    subprocess.Popen(analyzer_path.split())
-                    is_parent = True
-                    break
+                    if cm.is_pending_download(15):  # check pending download
+                        analyzer_path = f'python exec_analyze.py {url}'
+                        cm.pending_append(pending_path)
+                        subprocess.Popen(analyzer_path.split())
+                        is_parent = True
+                        break
 
                 tm.sleep(1)
 
@@ -466,10 +474,10 @@ def rest_analyze():
             if queued:
                 if is_parent:
                     # 親ならばpendingを監視
-                    cm.watchdog(youtube_id, is_parent, 5, state.TMP_ANALYZE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 300, state.TMP_ANALYZE_TIMEOUT)
                 else:
                     # 子ならばqueueを監視
-                    cm.watchdog(youtube_id, is_parent, 36, state.TMP_QUEUE_TIMEOUT)
+                    cm.watchdog(youtube_id, is_parent, 2160, state.TMP_QUEUE_TIMEOUT)
                 tm.sleep(1)
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す

@@ -82,7 +82,7 @@ def cache_check(youtube_id):
             title, time_line, time_data, total_damage, debuff_value, past_status = ret
             if past_status // 100 == 3:
 
-                if check_pass_time(cache_path, 5):  # through 3xx error if passed 5 minutes
+                if check_pass_time(cache_path, 300):  # through 3xx error if passed 5 minutes
                     return False
                 else:
                     return ret
@@ -300,6 +300,34 @@ def is_path_exists(path):
         return False
 
 
+def is_pending_download(margin):
+    """check is download job ready
+
+    check pending timestamp to download available
+    for avoid too many query to YouTube
+
+    Args:
+        margin (int):
+
+    Returns:
+        result (boolean): True: ready to download / False: not ready
+
+
+    """
+    queue_path = ap.dl_pending_dir + "pending"
+
+    result = False
+
+    if os.path.exists(queue_path):
+        if check_pass_time(queue_path, margin):
+            clear_path(queue_path)
+            result = True
+    else:
+        result = True
+
+    return result
+
+
 def watchdog(youtube_id, is_parent, margin, err_type):
     """check is job timeout
 
@@ -380,7 +408,7 @@ def tmp_movie_clear():
 
         fl.sort(key=lambda x: os.path.getctime(x))
 
-        if check_pass_time(fl[0], 120):
+        if check_pass_time(fl[0], 7200):
             clear_path(fl[0])
 
     except FileNotFoundError:
@@ -395,7 +423,7 @@ def check_pass_time(file_path, thresh):
 
     Args:
         file_path (str): time as datetime
-        thresh (int): thresh value "minutes" for check
+        thresh (int): thresh value "seconds" for check
 
     Returns:
         True (boolean): passed time or file not found
@@ -409,7 +437,7 @@ def check_pass_time(file_path, thresh):
     except FileNotFoundError:
         return True
 
-    if (now - timestamp).total_seconds() >= thresh * 60:
+    if (now - timestamp).total_seconds() >= thresh:
         return True
     else:
         return False
