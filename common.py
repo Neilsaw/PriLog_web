@@ -51,7 +51,7 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
     else:
-        result, present_status = status_combination_check(past_status, status)
+        result, present_status = status_comparison(past_status, status)
         if result is True:
 
             json.dump([title, time_line, time_data, total_damage, debuff_value, present_status],
@@ -159,10 +159,8 @@ def cache_status_check(youtube_id):
         return False
 
 
-def status_combination_check(past, present):
-    """cache status combination with past and present
-
-    check combination status
+def status_comparison(past, present):
+    """status compares with past and present
     this function calls if valid cache exists
 
 
@@ -176,31 +174,31 @@ def status_combination_check(past, present):
 
 
     """
-    cacheable = False
-    set_status = past
 
+    # past status is 2xx/4xx return confirmed status
     if past // 100 == 2 or past // 100 == 4:
-        # past status is 2xx/4xx return confirmed status
-        return cacheable, set_status
+        return False, past
 
-    # past status is 3xx
-    cacheable = True
+    # Only 3xx should go below but it dose not matter
+    # past status is 30x and recently 3xx, do not update
+    if not past % 100 // 10 and present % 100 // 10:
+        return False, past
 
-    if past == present:
-        # same 3xx status
-        if past == state.TMP_DONE_IN_SD:
-            # 2 times analyze only sd, set confirmed
-            set_status = state.DONE_IN_SD
-        elif past == state.TMP_INCOMPLETE_IN_SD:
-            # 2 times analyze only sd and no timeline, set confirmed
-            set_status = state.ERR_INCOMPLETE_IN_SD
-        else:
-            # other temporary analyze failure, keep cacheable
-            set_status = present
+    # past status is 30x and recently 30x, fix as 20x
+    elif not past % 100 // 10 and not present % 100 // 10:
+        return True, present - 100
+
+    # past status is 3xx and recently 30x, yield to try one more time
+    elif not present % 100 // 10:
+        return True, present
+
+    # past status is 3xx and recently 3xx, fix as 4xx
+    elif past % 100 // 10 and present % 100 // 10:
+        return True, present + 100
+
+    # all pattern should be covered on above, but just in case throw exception
     else:
-        set_status = present
-
-    return cacheable, set_status
+        return True, 399
 
 
 def queue_append(path):
