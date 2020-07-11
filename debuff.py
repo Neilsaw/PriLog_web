@@ -4583,8 +4583,8 @@ value_table = [
     [
         [0, cd.EMPTY],  # UB
         [0, cd.EMPTY],  # UB_alter
-        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
-        [math.ceil(0.2 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [math.ceil(0.36 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(0.36 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
         [0, cd.EMPTY],  # S2
         [0, cd.EMPTY],  # S2_alter
     ],
@@ -4709,8 +4709,8 @@ value_table = [
     [
         [math.ceil(1.1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB
         [math.ceil(1.1 * (cd.LEVEL + 1)), cd.PHYSICAL],  # UB_alter
-        [math.ceil(0.3 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
-        [math.ceil(0.3 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
+        [math.ceil(0.5 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1
+        [math.ceil(0.5 * (cd.LEVEL + 1)), cd.PHYSICAL],  # S1_alter
         [0, cd.EMPTY],  # S2
         [0, cd.EMPTY],  # S2_alter
     ],
@@ -5154,4 +5154,5 @@ alter_table = [
     cd.characters_name_mask.index("ネネカ"),
     cd.characters_name_mask.index("ムイミ"),
     cd.characters_name_mask.index("リノ(ワンダー)"),
+    cd.characters_name_mask.index("レイ(☆6以降)"),
 ]
