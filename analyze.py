@@ -252,7 +252,7 @@ def roi_init(video_type):
         CHARACTER_ICON_ROI = (234, 506, 1046, 668)
         MENU_LOC = (63, 23)
         UB_THRESH = 0.4
-        FRAME_THRESH = 200
+        FRAME_THRESH = 160
 
     return
 
