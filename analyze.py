@@ -196,7 +196,7 @@ def roi_init(video_type):
         ONE_SEC_ROI = (1103, 22, 1123, 44)
         MENU_ROI = (1100, 0, 1280, 90)
         SCORE_ROI = (160, 630, 290, 680)
-        DAMAGE_DATA_ROI = (35, 50, 255, 100)
+        DAMAGE_DATA_ROI = (35, 40, 255, 100)
         CHARACTER_ICON_ROI = (234, 506, 1046, 668)
         MENU_LOC = (63, 23)
         UB_THRESH = 0.6
@@ -209,7 +209,7 @@ def roi_init(video_type):
         ONE_SEC_ROI = (1069, 15, 1084, 33)
         MENU_ROI = (1050, 0, 1200, 50)
         SCORE_ROI = (265, 498, 365, 532)
-        DAMAGE_DATA_ROI = (170, 33, 340, 80)
+        DAMAGE_DATA_ROI = (170, 23, 340, 80)
         CHARACTER_ICON_ROI = (300, 390, 970, 520)
         MENU_LOC = (68, 17)
         UB_THRESH = 0.6
@@ -222,7 +222,7 @@ def roi_init(video_type):
         ONE_SEC_ROI = (1075, 15, 1090, 33)
         MENU_ROI = (1050, 0, 1200, 50)
         SCORE_ROI = (265, 498, 365, 532)
-        DAMAGE_DATA_ROI = (170, 33, 340, 80)
+        DAMAGE_DATA_ROI = (170, 23, 340, 80)
         CHARACTER_ICON_ROI = (300, 390, 970, 520)
         MENU_LOC = (75, 17)
         UB_THRESH = 0.6
@@ -235,7 +235,7 @@ def roi_init(video_type):
         ONE_SEC_ROI = (826, 14, 841, 34)
         MENU_ROI = (830, 0, 960, 50)
         SCORE_ROI = (120, 567, 210, 690)
-        DAMAGE_DATA_ROI = (18, 125, 187, 165)
+        DAMAGE_DATA_ROI = (18, 115, 187, 175)
         CHARACTER_ICON_ROI = (170, 560, 790, 670)
         MENU_LOC = (44, 17)
         UB_THRESH = 0.6
@@ -248,7 +248,7 @@ def roi_init(video_type):
         ONE_SEC_ROI = (1103, 22, 1123, 44)
         MENU_ROI = (1100, 0, 1280, 90)
         SCORE_ROI = (160, 630, 290, 680)
-        DAMAGE_DATA_ROI = (35, 50, 255, 100)
+        DAMAGE_DATA_ROI = (35, 40, 255, 100)
         CHARACTER_ICON_ROI = (234, 506, 1046, 668)
         MENU_LOC = (63, 23)
         UB_THRESH = 0.4
