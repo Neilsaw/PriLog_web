@@ -305,7 +305,28 @@ def search(youtube_id):
         dl_pending_path = ap.dl_pending_dir + "pending"
         cm.queue_append(dl_pending_path)
         yt = YouTube(youtube_url)
+
+    except KeyError as e:
+        # cant get movie by status
+        ret = state.ERR_PERM_UNEXPECTED
+        error = e.args[0]
+        if error == "cipher":
+            ret = state.ERR_COPYRIGHTED_CONTENT
+        elif error == "adaptiveFormats":
+            ret = state.TMP_CANT_GET_HD
+        elif error == "formats":
+            ret = state.ERR_UNAVAILABLE_CONTENT
+
+        cm.clear_path(dl_ongoing_path)
+        return None, None, None, None, ret
+
+    except exceptions.RegexMatchError:
+        # cant get movie by private or deleted
+        cm.clear_path(dl_ongoing_path)
+        return None, None, None, None, state.ERR_PRIVATE_DELETED_CONTENT
+
     except:
+        # cant get movie by other reason
         cm.clear_path(dl_ongoing_path)
         return None, None, None, None, state.TMP_CANT_GET_HD
 
