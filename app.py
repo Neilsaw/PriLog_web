@@ -7,6 +7,7 @@
 
 
 """
+from glob import glob
 from flask import Flask, render_template, request, session, redirect, jsonify
 import os
 import re
@@ -335,6 +336,29 @@ def rest():
         return render_template("rest.html")
     else:
         return redirect("/")
+
+
+@app.route("/standalone/version", methods=["GET"])
+def standalone_version():
+    ret = {"version": "", "update": False}
+    if request.method == "GET":
+        path = "./static/release"
+        fl = glob(path + "/*")
+        if not fl:
+            return jsonify(ret)
+
+        # sort time stamp and find latest version
+        fl.sort(key=lambda x: os.path.getctime(x), reverse=True)
+        version = os.path.basename(fl[0])
+        ret["version"] = version
+
+        if "Version" in request.args:
+            if request.args.get("Version") < version:
+                ret["update"] = True
+
+        return jsonify(ret)
+    else:
+        return jsonify(ret)
 
 
 @app.route("/rest/analyze", methods=["POST", "GET"])
