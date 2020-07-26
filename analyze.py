@@ -323,7 +323,7 @@ def search(youtube_id):
     except exceptions.RegexMatchError:
         # cant get movie by private or deleted
         cm.clear_path(dl_ongoing_path)
-        return None, None, None, None, state.ERR_PRIVATE_DELETED_CONTENT
+        return None, None, None, None, state.TMP_CANT_GET_HD
 
     except:
         # cant get movie by other reason
