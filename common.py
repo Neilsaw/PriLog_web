@@ -179,6 +179,10 @@ def status_comparison(past, present):
     if past // 100 == 2 or past // 100 == 4:
         return False, past
 
+    # present status is 2xx/4xx return confirmed status
+    if present // 100 == 2 or present // 100 == 4:
+        return True, present
+
     # Only 3xx should go below but it dose not matter
     # past status is 30x and recently 3xx, do not update
     if not past % 100 // 10 and present % 100 // 10:
