@@ -54,7 +54,7 @@ error_list = [
     [ERR_INCOMPLETE_IN_SD, "解析出来ない動画です。"],
     [ERR_ANALYZE_TIMEOUT, "動画の解析中にタイムアウトしました。"],
     [ERR_QUEUE_TIMEOUT, "動画の解析待ち中にタイムアウトしました。"],
-    [ERR_INCOMPLETE_IN_HD, "解析出来ない動画です。"],
+    [ERR_INCOMPLETE_IN_HD, "TLが存在しない動画です。"],
     [ERR_CANT_GET_HD, "解析出来ない動画です。"],
     [ERR_BAD_URL, "URLはhttps://www.youtube.com/watch?v=...の形式でお願いします。"],
     [ERR_BAD_LENGTH, "動画時間が長すぎるため、解析に対応しておりません。"],
