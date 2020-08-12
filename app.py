@@ -18,8 +18,13 @@ import time as tm
 import analyze as al
 import common as cm
 import state_list as state
+import configparser
 
-SERVER_ERROR_STATE = False
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+SERVER_ERROR_STATE = config.get("general", "error_state")
+SERVER_TOKEN_AUTH = config.get("general", "token_auth")
 
 # movie download directory
 stream_dir = "tmp/"
@@ -385,7 +390,7 @@ def rest_analyze():
         else:
             raw_url = request.form["Url"]
 
-        if "Token" not in request.form:
+        if SERVER_TOKEN_AUTH and "Token" not in request.form:
             status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
@@ -406,7 +411,7 @@ def rest_analyze():
         else:
             raw_url = request.args.get("Url")
 
-        if "Token" not in request.args:
+        if SERVER_TOKEN_AUTH and "Token" not in request.args:
             status = state.ERR_BAD_REQ
 
             ret["result"] = rest_result
@@ -418,7 +423,8 @@ def rest_analyze():
 
     try:
         # tokenの確認とロード
-        json.load(open(token_dir + urllib.parse.quote(token) + ".json"))
+        if SERVER_TOKEN_AUTH:
+            json.load(open(token_dir + urllib.parse.quote(token) + ".json"))
 
     except FileNotFoundError:
         status = state.ERR_BAD_TOKEN
