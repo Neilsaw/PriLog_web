@@ -36,6 +36,8 @@ ERR_UNAVAILABLE_CONTENT = 428
 ERR_PERM_UNEXPECTED = 499
 
 # 5xx API Request Failure
+ERR_APP_SERVER_URL = 520
+ERR_APP_SERVER_HTTP = 521
 ERR_BAD_REQ = 532
 ERR_BAD_TOKEN = 533
 ERR_SERVICE_UNAVAILABLE = 544
@@ -63,6 +65,8 @@ error_list = [
     [ERR_PRIVATE_DELETED_CONTENT, "非公開または削除されたため、動画の取得ができません。"],
     [ERR_UNAVAILABLE_CONTENT, "ライブ配信または現在公開されていないため、動画の取得ができません。"],
     [ERR_PERM_UNEXPECTED, "解析出来ない動画です。"],
+    [ERR_APP_SERVER_URL, "解析サーバーへのエラーが発生しました。"],
+    [ERR_APP_SERVER_HTTP, "解析サーバーへのエラーが発生しました。"],
     [ERR_BAD_REQ, "必須パラメータがありません。"],
     [ERR_BAD_TOKEN, "不正なトークンです。　Twitter @PriLog_R までご連絡下さい。"],
     [ERR_SERVICE_UNAVAILABLE, "申し訳ありません。現在サーバー側の問題により解析ができません。"],

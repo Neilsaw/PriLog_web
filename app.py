@@ -25,6 +25,7 @@ config.read("config.ini")
 
 SERVER_ERROR_STATE = config.get("general", "error_state")
 SERVER_TOKEN_AUTH = config.get("general", "token_auth")
+MULTI_SERVER = config.get("rest", "multi_server")
 
 # movie download directory
 stream_dir = "tmp/"
@@ -55,6 +56,11 @@ if not os.path.exists(dl_ongoing_dir):
 dl_pending_dir = "download/pending/"
 if not os.path.exists(dl_pending_dir):
     os.mkdir(dl_pending_dir)
+
+# save analyzing id as file directory
+dl_server_dir = "download/server/"
+if not os.path.exists(dl_server_dir):
+    os.mkdir(dl_server_dir)
 
 # waiting analyze id as file directory
 queue_dir = "queue/"
@@ -491,10 +497,16 @@ def rest_analyze():
                 web_download = cm.is_path_exists(dl_queue_path)
                 if not rest_pending and rest_queue and not web_download:
                     if cm.is_pending_download(15):  # check pending download
-                        analyzer_path = f'python exec_analyze.py {url}'
-                        cm.pending_append(pending_path)
-                        subprocess.Popen(analyzer_path.split())
-                        is_parent = True
+                        if not MULTI_SERVER:
+                            analyzer_path = f'python exec_analyze.py {url}'
+                            cm.pending_append(pending_path)
+                            subprocess.Popen(analyzer_path.split())
+                            is_parent = True
+                        else:
+                            analyzer_path = f'python multi_exec_analyze.py {url}'
+                            cm.pending_append(pending_path)
+                            subprocess.Popen(analyzer_path.split())
+                            is_parent = True
                         break
 
                 tm.sleep(1)
