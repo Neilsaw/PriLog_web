@@ -19,6 +19,7 @@ import app as ap
 import common as cm
 import state_list as state
 
+
 # character name template
 CHARACTERS_DATA = []
 
@@ -57,11 +58,11 @@ NUMBERS = [
 # analyzable resolution
 FRAME_RESOLUTION = [
     # width, height
-    (1280, 720),  # RESOLUTION_16_9
-    (1280, 590),  # RESOLUTION_2_1_a
-    (1280, 592),  # RESOLUTION_2_1_b
-    (960, 720),  # RESOLUTION_4_3
-    (640, 360)  # RESOLUTION_16_9_SD
+    (1280, 720),        # RESOLUTION_16_9
+    (1280, 590),        # RESOLUTION_2_1_a
+    (1280, 592),        # RESOLUTION_2_1_b
+    (960, 720),         # RESOLUTION_4_3
+    (640, 360)          # RESOLUTION_16_9_SD
 ]
 
 RESOLUTION_16_9 = 0
@@ -114,12 +115,12 @@ def model_init(video_type):
 
 
     """
-    global CHARACTERS_DATA  # character name template
-    global SEC_DATA  # timer template
-    global MENU_DATA  # menu button template
-    global SCORE_DATA  # score template
-    global DAMAGE_DATA  # total damage template
-    global ICON_DATA  # anna icon template
+    global CHARACTERS_DATA          # character name template
+    global SEC_DATA                 # timer template
+    global MENU_DATA                # menu button template
+    global SCORE_DATA               # score template
+    global DAMAGE_DATA              # total damage template
+    global ICON_DATA                # anna icon template
 
     if video_type is RESOLUTION_16_9:
         CHARACTERS_DATA = np.load("model/16_9/UB_name_16_9.npy")
@@ -176,17 +177,17 @@ def roi_init(video_type):
 
 
     """
-    global UB_ROI  # ub name analyze roi
-    global MIN_ROI  # timer min analyze roi
-    global TEN_SEC_ROI  # timer 10 sec analyze roi
-    global ONE_SEC_ROI  # timer 1 sec analyze roi
-    global MENU_ROI  # menu button analyze roi
-    global SCORE_ROI  # score analyze roi
-    global DAMAGE_DATA_ROI  # damage analyze roi
-    global CHARACTER_ICON_ROI  # character icon analyze roi
-    global MENU_LOC  # basic menu button location
-    global UB_THRESH  # ub analyze thresh value
-    global FRAME_THRESH  # frame color thresh value
+    global UB_ROI                # ub name analyze roi
+    global MIN_ROI               # timer min analyze roi
+    global TEN_SEC_ROI           # timer 10 sec analyze roi
+    global ONE_SEC_ROI           # timer 1 sec analyze roi
+    global MENU_ROI              # menu button analyze roi
+    global SCORE_ROI             # score analyze roi
+    global DAMAGE_DATA_ROI       # damage analyze roi
+    global CHARACTER_ICON_ROI    # character icon analyze roi
+    global MENU_LOC              # basic menu button location
+    global UB_THRESH             # ub analyze thresh value
+    global FRAME_THRESH          # frame color thresh value
 
     if video_type is RESOLUTION_16_9:
         UB_ROI = (490, 98, 810, 132)
