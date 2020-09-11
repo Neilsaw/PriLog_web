@@ -510,6 +510,15 @@ input[type="radio"]{
   display:block;
 }
 
+#tab3:checked ~ .tab_area .tab3_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab3:checked ~ .panel_area #panel3{
+  display:block;
+}
+
 #bottom_space{
   margin-bottom: 100px;
 }

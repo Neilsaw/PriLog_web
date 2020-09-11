@@ -17,10 +17,10 @@ import datetime
 
 
 # cache max number
-CACHE_ELMS = 6
+CACHE_ELMS = 7
 
 
-def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_value, status):
+def save_cache(youtube_id, title, time_line, time_line_enemy, time_data, total_damage, debuff_value, status):
     """save cache
 
     save cache if cache not found
@@ -33,6 +33,7 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
         youtube_id (string): youtube id
         title (string): youtube movie title
         time_line (list, boolean): found ub data or False
+        time_line_enemy (list, boolean): found ub data with enemy data or False
         time_data (list, boolean): spend time while analyze or False
         total_damage (string, boolean): total damage or False
         debuff_value (list, boolean): ub timing debuff values or False
@@ -47,14 +48,14 @@ def save_cache(youtube_id, title, time_line, time_data, total_damage, debuff_val
     present_status = status
     if past_status is False:
 
-        json.dump([title, time_line, time_data, total_damage, debuff_value, present_status],
+        json.dump([title, time_line, time_line_enemy, time_data, total_damage, debuff_value, present_status],
                   open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
     else:
         result, present_status = status_comparison(past_status, status)
         if result is True:
 
-            json.dump([title, time_line, time_data, total_damage, debuff_value, present_status],
+            json.dump([title, time_line, time_line_enemy, time_data, total_damage, debuff_value, present_status],
                       open(ap.cache_dir + urllib.parse.quote(youtube_id) + ".json", "w"))
 
     return present_status
@@ -79,7 +80,7 @@ def cache_check(youtube_id):
         cache_path = ap.cache_dir + urllib.parse.quote(youtube_id) + ".json"
         ret = json.load(open(cache_path))
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
-            title, time_line, time_data, total_damage, debuff_value, past_status = ret
+            title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = ret
             if past_status // 100 == 3:
 
                 if check_pass_time(cache_path, 300):  # through 3xx error if passed 5 minutes
@@ -356,7 +357,7 @@ def watchdog(youtube_id, is_parent, margin, err_type):
 
     if os.path.exists(job_path):
         if check_pass_time(job_path, margin):
-            save_cache(youtube_id, "", False, False, False, False, err_type)
+            save_cache(youtube_id, "", False, False, False, False, False, err_type)
             clear_path(job_path)
             if is_parent:
                 clear_path(queue_path)

@@ -15,8 +15,8 @@
   <meta property="og:site_name" content="PriLog" />
   <meta property="og:locale" content="ja_JP" />
   <link rel="stylesheet" type="text/css" href="/static/reset.css">
-  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base.css?202005070127">
-  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base_mobile.css?202005070127">
+  <link rel="stylesheet" media="(min-width: 850px)" type="text/css" href="/static/base.css?202009112257">
+  <link rel="stylesheet" media="(max-width: 850px)" type="text/css" href="/static/base_mobile.css?202009112257">
   <link rel="shortcut icon" href="/static/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
 </head>
@@ -39,10 +39,16 @@
     {% if title %}
       <input id="tab1" type="radio" name="tab_btn" checked>
       <input id="tab2" type="radio" name="tab_btn">
+      {% if timeLineEnemy %}
+        <input id="tab3" type="radio" name="tab_btn">
+      {% endif %}
 
       <div class="tab_area">
           <label class="tab1_label" for="tab1">TL</label>
           <label class="tab2_label" for="tab2">TL+デバフ</label>
+          {% if timeLineEnemy %}
+            <label class="tab3_label" for="tab3">TL+敵UB</label>
+          {% endif %}
       </div>
       <div class="panel_area">
         <div id="panel1" class="tab_panel">
@@ -100,6 +106,32 @@
             <button class="buttonClipboard" data-clipboard-target="#copyTargetTlDebuff">クリップボードにコピー</button>
           </div>
         </div>
+        {% if timeLineEnemy %}
+          <div id="panel3" class="tab_panel">
+            <div class="ubText">
+              <div id="copyTargetTlEnemy">
+                <font class="title">{{ title }}</font><br>
+                {% if totalDamage %}
+                  {{ totalDamage }}
+                {% endif %}<br>
+                {% if timeLineEnemy %}
+                  {% for idx in timeLineEnemy %}
+                    {{ idx }}<br>
+                  {% endfor %}
+                {% endif %}
+              </div><br>
+              {% if timeData %}
+                {% for idx in timeData %}
+                  {{ idx }}<br>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="ubButton">
+              <button class="buttonBack" onclick="location.href='/'">戻る</button>
+              <button class="buttonClipboard" data-clipboard-target="#copyTargetTlEnemy">クリップボードにコピー</button>
+            </div>
+          </div>
+        {% endif %}
       </div>
       <a class="buttonTwitter" href="https://twitter.com/share?url={{data_url}}&text={{data_txt}}" target="_blank">
           <img class="tweetIcon" src="/static/twitter_icon.png">

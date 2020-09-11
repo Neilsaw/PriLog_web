@@ -29,12 +29,12 @@ def do_analyze():
     # youtube動画検索/検証
     path, title, length, thumbnail, url_result = al.search(youtube_id)
     if url_result % 100 // 10 == 2:
-        cm.save_cache(youtube_id, title, False, False, False, False, url_result)
+        cm.save_cache(youtube_id, title, False, False, False, False, False, url_result)
     else:
         # TL解析
-        time_line, time_data, total_damage, debuff_value, analyze_result = al.analyze_movie(path)
+        time_line, time_line_enemy, time_data, total_damage, debuff_value, analyze_result = al.analyze_movie(path)
         # キャッシュ保存
-        cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, analyze_result)
+        cm.save_cache(youtube_id, title, time_line, time_line_enemy, False, total_damage, debuff_value, analyze_result)
 
     cm.clear_path(queue_path)
     cm.clear_path(pending_path)

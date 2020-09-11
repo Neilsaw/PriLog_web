@@ -131,12 +131,12 @@ def index():
         cache = cm.cache_check(youtube_id)
 
         if cache is not False:
-            title, time_line, time_data, total_damage, debuff_value, past_status = cache
+            title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
             if past_status % 100 // 10 == 0:
                 debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
                                                                             time_line, debuff_value, total_damage)
 
-                return render_template("result.html", title=title, timeLine=time_line,
+                return render_template("result.html", title=title, timeLine=time_line, timeLineEnemy=time_line_enemy,
                                        timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                        data_txt=data_txt, data_url=data_url)
 
@@ -181,7 +181,7 @@ def index():
 
         if url_result % 100 // 10 == 2:
             error = state.get_error_message(url_result)
-            cm.save_cache(youtube_id, title, False, False, False, False, url_result)
+            cm.save_cache(youtube_id, title, False, False, False, False, False, url_result)
             return render_template("index.html", error=error)
 
         session["path"] = path
@@ -197,13 +197,13 @@ def index():
             if re.fullmatch(r"^([a-zA-Z0-9_-]{11})$", youtube_id):
                 cache = cm.cache_check(youtube_id)
                 if cache is not False:
-                    title, time_line, time_data, total_damage, debuff_value, past_status = cache
+                    title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
                     if past_status % 100 // 10 == 0:
                         debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
                                                                                     time_line, debuff_value,
                                                                                     total_damage)
 
-                        return render_template("result.html", title=title, timeLine=time_line,
+                        return render_template("result.html", title=title, timeLine=time_line, timeLineEnemy=time_line_enemy,
                                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                                data_txt=data_txt, data_url=data_url)
 
@@ -249,7 +249,7 @@ def index():
 
                     if url_result % 100 // 10 == 2:
                         error = state.get_error_message(url_result)
-                        cm.save_cache(youtube_id, title, False, False, False, False, url_result)
+                        cm.save_cache(youtube_id, title, False, False, False, False, False, url_result)
                         return render_template("index.html", error=error)
 
                     session["path"] = path
@@ -288,14 +288,15 @@ def analyze():
 
     if request.method == "GET" and path is not None:
         # TL解析
-        time_line, time_data, total_damage, debuff_value, status = al.analyze_movie(path)
+        time_line, time_line_enemy, time_data, total_damage, debuff_value, status = al.analyze_movie(path)
 
         # キャッシュ保存
-        status = cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, status)
+        status = cm.save_cache(youtube_id, title, time_line, time_line_enemy, False, total_damage, debuff_value, status)
 
         if status % 100 // 10 == 0:
             # 解析が正常終了ならば結果を格納
             session["time_line"] = time_line
+            session["time_line_enemy"] = time_line_enemy
             session["time_data"] = time_data
             session["total_damage"] = total_damage
             session["debuff_value"] = debuff_value
@@ -311,12 +312,14 @@ def analyze():
 def result():
     title = session.get("title")
     time_line = session.get("time_line")
+    time_line_enemy = session.get("time_line_enemy")
     time_data = session.get("time_data")
     total_damage = session.get("total_damage")
     debuff_value = session.get("debuff_value")
     youtube_id = session.get("youtube_id")
     session.pop("title", None)
     session.pop("time_line", None)
+    session.pop("time_line_enemy", None)
     session.pop("time_data", None)
     session.pop("total_damage", None)
     session.pop("debuff_value", None)
@@ -326,7 +329,7 @@ def result():
         debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
                                                                     time_line, debuff_value, total_damage)
 
-        return render_template("result.html", title=title, timeLine=time_line,
+        return render_template("result.html", title=title, timeLine=time_line, timeLineEnemy=time_line_enemy,
                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                data_txt=data_txt, data_url=data_url)
     else:
@@ -463,7 +466,7 @@ def rest_analyze():
         if cache is not False:
             # キャッシュ有りの場合
             # キャッシュを返信
-            title, time_line, time_data, total_damage, debuff_value, past_status = cache
+            title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
             if past_status % 100 // 10 == 0:
                 rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
@@ -525,7 +528,7 @@ def rest_analyze():
             else:  # 解析が完了したら、そのキャッシュJSONを返す
                 cache = cm.queue_cache_check(youtube_id)
                 if cache is not False:
-                    title, time_line, time_data, total_damage, debuff_value, past_status = cache
+                    title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
                     rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
 
                     status = past_status

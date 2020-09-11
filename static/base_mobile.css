@@ -518,6 +518,15 @@ input[type="radio"]{
   display:block;
 }
 
+#tab3:checked ~ .tab_area .tab3_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab3:checked ~ .panel_area #panel3{
+  display:block;
+}
+
 #bottom_space{
   margin-bottom: 50px;
 }
@@ -1127,6 +1136,15 @@ input[type="radio"]{
 }
 
 #tab2:checked ~ .panel_area #panel2{
+  display:block;
+}
+
+#tab3:checked ~ .tab_area .tab3_label{
+  background:#fff;
+  color:#000;
+}
+
+#tab3:checked ~ .panel_area #panel3{
   display:block;
 }
 

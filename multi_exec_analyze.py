@@ -58,6 +58,7 @@ def do_analyze():
 
             title = body.get("result").get("title")
             time_line = body.get("result").get("timeline")
+            time_line_enemy = body.get("result").get("timeline_enemy")
             total_damage = body.get("result").get("total_damage")
             debuff_value = body.get("result").get("debuff_value")
             url_result = body.get("status")
@@ -72,10 +73,10 @@ def do_analyze():
         url_result = state.ERR_ANALYZE_TIMEOUT
 
     if url_result % 100 // 10 == 2:
-        cm.save_cache(youtube_id, title, False, False, False, False, url_result)
+        cm.save_cache(youtube_id, title, False, False, False, False, False, url_result)
     else:
         # キャッシュ保存
-        cm.save_cache(youtube_id, title, time_line, False, total_damage, debuff_value, url_result)
+        cm.save_cache(youtube_id, title, time_line, time_line_enemy, False, total_damage, debuff_value, url_result)
 
     cm.clear_path(queue_path)
     cm.clear_path(pending_path)
