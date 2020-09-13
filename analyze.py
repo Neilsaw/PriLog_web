@@ -420,6 +420,7 @@ def analyze_movie(movie_path):
     past_time = 90
     time_count = 0
     find_time = "1:30"
+    enemy_ub = "――――敵UB――――"
 
     if (frame_count / frame_rate) < 600:  # only check less than 10 min movie
         for i in range(frame_count):  # cycle check movie per frame
@@ -471,7 +472,7 @@ def analyze_movie(movie_path):
                             menu_check = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)[0]
 
                             if menu_check is True:
-                                ub_data_enemy.append(find_time + " ――――敵UB――――")
+                                ub_data_enemy.append(find_time + " " + enemy_ub)
 
                         # check score existence
                         ret = analyze_score_frame(work_frame, SCORE_DATA, score_roi)
@@ -482,6 +483,9 @@ def analyze_movie(movie_path):
 
                             if ret is True:
                                 total_damage = "".join(tmp_damage)
+
+                            if enemy_ub in ub_data_enemy[-1]:
+                                ub_data_enemy.pop()
 
                             break
                 else:
@@ -932,7 +936,7 @@ def count_up(time_min, time_sec10, time_sec1, past_time, find_time, ub_result, f
     else:
         time_count += 1
 
-    if time_count > 6:
+    if time_count > 7:
         new_time = time_min + ":" + time_sec10 + time_sec1
         if find_time != new_time:
             find_time = new_time
