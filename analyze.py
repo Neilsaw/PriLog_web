@@ -930,7 +930,7 @@ def count_up(time_min, time_sec10, time_sec1, past_time, find_time, ub_result, f
     enemy_result = NOT_FOUND
     now_time = int(time_min) * 60 + int(time_sec10) * 10 + int(time_sec1)
 
-    if past_time > now_time:
+    if past_time != now_time:
         past_time = now_time
         time_count = 0
     else:
