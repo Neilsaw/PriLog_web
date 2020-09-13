@@ -92,12 +92,17 @@ def get_web_txt(youtube_id, title, time_line, debuff_value, total_damage):
     return debuff_dict, data_txt, data_url, total_damage
 
 
-def get_rest_result(title, time_line, time_data, total_damage, debuff_value):
-    rest_result = {"title": title, "timeline": time_line, "process_time": time_data, "total_damage": total_damage,
-                   "debuff_value": debuff_value}
+def get_rest_result(title, time_line, time_line_enemy, time_data, total_damage, debuff_value):
+    rest_result = {"title": title, "timeline": time_line, "timeline_enemy": time_line_enemy, "process_time": time_data,
+                   "total_damage": total_damage, "debuff_value": debuff_value}
 
     if time_line:
         rest_result["timeline_txt"] = "\r\n".join(time_line)
+        if time_line_enemy:
+            rest_result["timeline_txt_enemy"] = "\r\n".join(time_line_enemy)
+        else:
+            rest_result["timeline_txt_enemy"] = False
+
         if debuff_value:
             rest_result["timeline_txt_debuff"] = "\r\n".join(list(
                 map(lambda x: "↓{} {}".format(str(debuff_value[x[0]][0:]).rjust(3, " "), x[1]),
@@ -106,6 +111,7 @@ def get_rest_result(title, time_line, time_data, total_damage, debuff_value):
             rest_result["timeline_txt_debuff"] = False
     else:
         rest_result["timeline_txt"] = False
+        rest_result["timeline_txt_enemy"] = False
         rest_result["timeline_txt_debuff"] = False
 
     return rest_result
@@ -468,7 +474,7 @@ def rest_analyze():
             # キャッシュを返信
             title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
             if past_status % 100 // 10 == 0:
-                rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
+                rest_result = get_rest_result(title, time_line, time_line_enemy, time_data, total_damage, debuff_value)
 
                 ret["result"] = rest_result
                 ret["msg"] = state.get_error_message(past_status)
@@ -529,7 +535,7 @@ def rest_analyze():
                 cache = cm.queue_cache_check(youtube_id)
                 if cache is not False:
                     title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
-                    rest_result = get_rest_result(title, time_line, time_data, total_damage, debuff_value)
+                    rest_result = get_rest_result(title, time_line, time_line_enemy, time_data, total_damage, debuff_value)
 
                     status = past_status
                     break

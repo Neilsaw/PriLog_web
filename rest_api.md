@@ -71,6 +71,10 @@ YouTube動画のURLからタイムライン情報を取得する
 
         APIエラー　(再解析可能)　API受理できなかった場合
 
+    520 解析サーバーでのURLエラー
+
+    521 解析サーバーでのHTTPエラー
+
     532 パラメータが不足している
 
     533 不正なトークン
@@ -114,8 +118,18 @@ YouTube動画のURLからタイムライン情報を取得する
                         + 4:1:02 ペコリーヌ (string)
                         + 5:1:00 キャル (string)
                         + 6:0:49 コッコロ (string)
+                + timeline_enemy (array[object], fixed-type) - 敵UBを入れたタイムライン
+                     + (array[object])
+                        + 0:1:30 キャル (string)
+                        + 1:1:27 ペコリーヌ (string)
+                        + 2:1:18 コッコロ (string)
+                        + 3:1:11 キャル (string)
+                        + 4:1:02 ペコリーヌ (string)
+                        + 5:1:00 キャル (string)
+                        + 6:0:49 コッコロ (string)
                 + timeline_txt:1:30 キャル\r\n1:27 ペコリーヌ\r\n1:18 コッコロ\r\n1:11 キャル\r\n1:02 ペコリーヌ\r\n1:00 キャル\r\n0:49 コッコロ (string) - 整形済みテキスト(改行コード CRLF)
                 + timeline_txt_debuff:↓  0 1:30 キャル\r\n↓  0 1:27 ペコリーヌ\r\n↓ 64 1:18 コッコロ\r\n↓ 87 1:11 キャル\r\n↓ 64 1:02 ペコリーヌ\r\n↓ 87 1:00 キャル\r\n↓ 64 0:49 コッコロ (string) - デバフ値を入れた整形済みテキスト(改行コード CRLF)
+                + timeline_txt_enemy:1:30 キャル\r\n1:27 ペコリーヌ\r\n1:18 コッコロ\r\n1:11 キャル\r\n1:02 ペコリーヌ\r\n1:00 キャル\r\n0:49 コッコロ (string) - 敵UBを入れた整形済みテキスト(改行コード CRLF)
                 + title:タイムライン作成サンプル　(string) - 動画のタイトル
                 + total_damage (enum) - 動画での総ダメージ値(存在しない場合:false (boolean), 存在する場合:(string))
                     + false (boolean)
