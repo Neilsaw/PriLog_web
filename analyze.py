@@ -387,7 +387,7 @@ def analyze_movie(movie_path):
         video.release()
         cm.clear_path(movie_path)
 
-        return None, None, None, None, state.ERR_BAD_RESOLUTION
+        return None, None, None, None, None, state.ERR_BAD_RESOLUTION
 
     model_init(video_type)
     roi_init(video_type)
