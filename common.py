@@ -149,7 +149,7 @@ def cache_status_check(youtube_id):
         cache_path = ap.cache_dir + urllib.parse.quote(youtube_id) + ".json"
         ret = json.load(open(cache_path))
         if len(ret) is CACHE_ELMS:  # in case of number of cached elements is correct
-            past_status = ret[5]
+            past_status = ret[-1]
             return past_status
         else:  # in case of number of cached elements is incorrect
             # not found cache
