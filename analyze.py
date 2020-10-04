@@ -19,7 +19,6 @@ import app as ap
 import common as cm
 import state_list as state
 
-
 # character name template
 CHARACTERS_DATA = []
 
@@ -37,6 +36,9 @@ DAMAGE_DATA = []
 
 # anna icon template
 ICON_DATA = []
+
+# SPEED icon template
+SPEED_DATA = []
 
 # character names
 CHARACTERS = cd.characters_name
@@ -58,11 +60,11 @@ NUMBERS = [
 # analyzable resolution
 FRAME_RESOLUTION = [
     # width, height
-    (1280, 720),        # RESOLUTION_16_9
-    (1280, 590),        # RESOLUTION_2_1_a
-    (1280, 592),        # RESOLUTION_2_1_b
-    (960, 720),         # RESOLUTION_4_3
-    (640, 360)          # RESOLUTION_16_9_SD
+    (1280, 720),  # RESOLUTION_16_9
+    (1280, 590),  # RESOLUTION_2_1_a
+    (1280, 592),  # RESOLUTION_2_1_b
+    (960, 720),  # RESOLUTION_4_3
+    (640, 360)  # RESOLUTION_16_9_SD
 ]
 
 RESOLUTION_16_9 = 0
@@ -80,9 +82,11 @@ MENU_ROI = (0, 0, 0, 0)
 SCORE_ROI = (0, 0, 0, 0)
 DAMAGE_DATA_ROI = (0, 0, 0, 0)
 CHARACTER_ICON_ROI = (0, 0, 0, 0)
+SPEED_ICON_ROI = (0, 0, 0, 0)
 MENU_LOC = (0, 0)
 
 FRAME_THRESH = 200
+SPEED_ICON_THRESH = 240
 
 # timer storage place
 TIMER_MIN = 2
@@ -95,12 +99,15 @@ TIMER_THRESH = 0.6
 MENU_THRESH = 0.6
 DAMAGE_THRESH = 0.65
 ICON_THRESH = 0.6
+SPEED_THRESH = 0.6
 
 FOUND = 1
 NOT_FOUND = 0
 
 # analyzable movie length (res:1s)
 MOVIE_LENGTH_MAX = 600
+
+ENEMY_UB = "――――敵UB――――"
 
 
 def model_init(video_type):
@@ -115,12 +122,13 @@ def model_init(video_type):
 
 
     """
-    global CHARACTERS_DATA          # character name template
-    global SEC_DATA                 # timer template
-    global MENU_DATA                # menu button template
-    global SCORE_DATA               # score template
-    global DAMAGE_DATA              # total damage template
-    global ICON_DATA                # anna icon template
+    global CHARACTERS_DATA  # character name template
+    global SEC_DATA  # timer template
+    global MENU_DATA  # menu button template
+    global SCORE_DATA  # score template
+    global DAMAGE_DATA  # total damage template
+    global ICON_DATA  # anna icon template
+    global SPEED_DATA  # SPEED icon template
 
     if video_type is RESOLUTION_16_9:
         CHARACTERS_DATA = np.load("model/16_9/UB_name_16_9.npy")
@@ -129,6 +137,7 @@ def model_init(video_type):
         SCORE_DATA = np.load("model/16_9/score_data_16_9.npy")
         DAMAGE_DATA = np.load("model/16_9/damage_data_16_9.npy")
         ICON_DATA = np.load("model/16_9/icon_data_16_9.npy")
+        SPEED_DATA = np.load("model/16_9/speed_data_16_9.npy")
 
     elif video_type is RESOLUTION_2_1_a:
         CHARACTERS_DATA = np.load("model/2_1/UB_name_2_1.npy")
@@ -137,6 +146,7 @@ def model_init(video_type):
         SCORE_DATA = np.load("model/2_1/score_data_2_1.npy")
         DAMAGE_DATA = np.load("model/2_1/damage_data_2_1.npy")
         ICON_DATA = np.load("model/2_1/icon_data_2_1.npy")
+        SPEED_DATA = np.load("model/2_1/speed_data_2_1.npy")
 
     elif video_type is RESOLUTION_2_1_b:
         CHARACTERS_DATA = np.load("model/2_1/UB_name_2_1.npy")
@@ -145,6 +155,7 @@ def model_init(video_type):
         SCORE_DATA = np.load("model/2_1/score_data_2_1.npy")
         DAMAGE_DATA = np.load("model/2_1/damage_data_2_1.npy")
         ICON_DATA = np.load("model/2_1/icon_data_2_1.npy")
+        SPEED_DATA = np.load("model/2_1/speed_data_2_1.npy")
 
     elif video_type is RESOLUTION_4_3:
         CHARACTERS_DATA = np.load("model/4_3/UB_name_4_3.npy")
@@ -153,6 +164,7 @@ def model_init(video_type):
         SCORE_DATA = np.load("model/4_3/score_data_4_3.npy")
         DAMAGE_DATA = np.load("model/4_3/damage_data_4_3.npy")
         ICON_DATA = np.load("model/4_3/icon_data_4_3.npy")
+        SPEED_DATA = np.load("model/4_3/speed_data_4_3.npy")
 
     elif video_type is RESOLUTION_16_9_SD:
         CHARACTERS_DATA = np.load("model/16_9/UB_name_16_9.npy")
@@ -161,6 +173,7 @@ def model_init(video_type):
         SCORE_DATA = np.load("model/16_9/score_data_16_9.npy")
         DAMAGE_DATA = np.load("model/16_9/damage_data_16_9.npy")
         ICON_DATA = np.load("model/16_9/icon_data_16_9.npy")
+        SPEED_DATA = np.load("model/16_9/speed_data_16_9.npy")
 
     return
 
@@ -177,17 +190,19 @@ def roi_init(video_type):
 
 
     """
-    global UB_ROI                # ub name analyze roi
-    global MIN_ROI               # timer min analyze roi
-    global TEN_SEC_ROI           # timer 10 sec analyze roi
-    global ONE_SEC_ROI           # timer 1 sec analyze roi
-    global MENU_ROI              # menu button analyze roi
-    global SCORE_ROI             # score analyze roi
-    global DAMAGE_DATA_ROI       # damage analyze roi
-    global CHARACTER_ICON_ROI    # character icon analyze roi
-    global MENU_LOC              # basic menu button location
-    global UB_THRESH             # ub analyze thresh value
-    global FRAME_THRESH          # frame color thresh value
+    global UB_ROI  # ub name analyze roi
+    global MIN_ROI  # timer min analyze roi
+    global TEN_SEC_ROI  # timer 10 sec analyze roi
+    global ONE_SEC_ROI  # timer 1 sec analyze roi
+    global MENU_ROI  # menu button analyze roi
+    global SCORE_ROI  # score analyze roi
+    global DAMAGE_DATA_ROI  # damage analyze roi
+    global CHARACTER_ICON_ROI  # character icon analyze roi
+    global SPEED_ICON_ROI  # speed icon analyze roi
+    global MENU_LOC  # basic menu button location
+    global UB_THRESH  # ub analyze thresh value
+    global FRAME_THRESH  # frame color thresh value
+    global SPEED_ICON_THRESH  # frame color thresh value
 
     if video_type is RESOLUTION_16_9:
         UB_ROI = (490, 98, 810, 132)
@@ -198,9 +213,11 @@ def roi_init(video_type):
         SCORE_ROI = (160, 630, 290, 680)
         DAMAGE_DATA_ROI = (35, 40, 255, 100)
         CHARACTER_ICON_ROI = (234, 506, 1046, 668)
+        SPEED_ICON_ROI = (1180, 616, 1271, 707)
         MENU_LOC = (63, 23)
         UB_THRESH = 0.6
         FRAME_THRESH = 200
+        SPEED_ICON_THRESH = 240
 
     elif video_type is RESOLUTION_2_1_a:
         UB_ROI = (490, 76, 790, 102)
@@ -211,9 +228,11 @@ def roi_init(video_type):
         SCORE_ROI = (265, 498, 365, 532)
         DAMAGE_DATA_ROI = (170, 23, 340, 80)
         CHARACTER_ICON_ROI = (300, 390, 970, 520)
+        SPEED_ICON_ROI = (1122, 474, 1195, 542)
         MENU_LOC = (68, 17)
         UB_THRESH = 0.6
         FRAME_THRESH = 180
+        SPEED_ICON_THRESH = 240
 
     elif video_type is RESOLUTION_2_1_b:
         UB_ROI = (490, 76, 790, 102)
@@ -224,9 +243,11 @@ def roi_init(video_type):
         SCORE_ROI = (265, 498, 365, 532)
         DAMAGE_DATA_ROI = (170, 23, 340, 80)
         CHARACTER_ICON_ROI = (300, 390, 970, 520)
+        SPEED_ICON_ROI = (1122, 474, 1195, 542)
         MENU_LOC = (75, 17)
         UB_THRESH = 0.6
         FRAME_THRESH = 180
+        SPEED_ICON_THRESH = 240
 
     elif video_type is RESOLUTION_4_3:
         UB_ROI = (230, 70, 730, 102)
@@ -237,9 +258,11 @@ def roi_init(video_type):
         SCORE_ROI = (120, 567, 210, 690)
         DAMAGE_DATA_ROI = (18, 115, 187, 175)
         CHARACTER_ICON_ROI = (170, 560, 790, 670)
+        SPEED_ICON_ROI = (878, 639, 948, 709)
         MENU_LOC = (44, 17)
         UB_THRESH = 0.6
         FRAME_THRESH = 180
+        SPEED_ICON_THRESH = 230
 
     elif video_type is RESOLUTION_16_9_SD:
         UB_ROI = (490, 98, 810, 132)
@@ -250,9 +273,11 @@ def roi_init(video_type):
         SCORE_ROI = (160, 630, 290, 680)
         DAMAGE_DATA_ROI = (35, 40, 255, 100)
         CHARACTER_ICON_ROI = (234, 506, 1046, 668)
+        SPEED_ICON_ROI = (1180, 616, 1271, 707)
         MENU_LOC = (63, 23)
         UB_THRESH = 0.4
         FRAME_THRESH = 160
+        SPEED_ICON_THRESH = 240
 
     return
 
@@ -365,6 +390,7 @@ def analyze_movie(movie_path):
 
     Returns
         ub_data (list): found ub data
+        ub_data_enemy (list): found ub data with enemy ub
         time_data (list): spend time while analyze
         total_damage (string): total damage
         debuff_value (list): ub timing debuff values
@@ -406,6 +432,7 @@ def analyze_movie(movie_path):
     ub_roi = UB_ROI
     score_roi = SCORE_ROI
     damage_data_roi = DAMAGE_DATA_ROI
+    speed_roi = SPEED_ICON_ROI
 
     ub_data = []
     ub_data_enemy = []
@@ -419,8 +446,6 @@ def analyze_movie(movie_path):
     cap_interval = int(frame_rate * n)
     past_time = 90
     time_count = 0
-    find_time = "1:30"
-    enemy_ub = "――――敵UB――――"
 
     if (frame_count / frame_rate) < 600:  # only check less than 10 min movie
         for i in range(frame_count):  # cycle check movie per frame
@@ -429,72 +454,86 @@ def analyze_movie(movie_path):
                 break
 
             if i % cap_interval is 0:
-                if time_count >= 0:
-                    ret, original_frame = video.read()
+                ret, original_frame = video.read()
 
-                    if ret is False:
-                        break
+                if ret is False:
+                    break
 
-                    if video_type is RESOLUTION_16_9_SD:
-                        original_frame = expand_frame(original_frame)
+                if video_type is RESOLUTION_16_9_SD:
+                    original_frame = expand_frame(original_frame)
 
-                    work_frame = edit_frame(original_frame)
+                work_frame = edit_frame(original_frame)
 
-                    if menu_check is False:
-                        menu_check, menu_loc = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)
-                        if menu_check is True:
-                            loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
-                            roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
-                            min_roi = np.array(MIN_ROI) - np.array(roi_diff)
-                            tensec_roi = np.array(TEN_SEC_ROI) - np.array(roi_diff)
-                            onesec_roi = np.array(ONE_SEC_ROI) - np.array(roi_diff)
-                            ub_roi = np.array(UB_ROI) - np.array(roi_diff)
-                            score_roi = np.array(SCORE_ROI) - np.array(roi_diff)
-                            damage_data_roi = np.array(DAMAGE_DATA_ROI) - np.array(roi_diff)
+                if menu_check is False:
+                    menu_check, menu_loc = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)
+                    if menu_check is True:
+                        loc_diff = np.array(MENU_LOC) - np.array(menu_loc)
+                        roi_diff = (loc_diff[0], loc_diff[1], loc_diff[0], loc_diff[1])
+                        min_roi = np.array(MIN_ROI) - np.array(roi_diff)
+                        tensec_roi = np.array(TEN_SEC_ROI) - np.array(roi_diff)
+                        onesec_roi = np.array(ONE_SEC_ROI) - np.array(roi_diff)
+                        ub_roi = np.array(UB_ROI) - np.array(roi_diff)
+                        score_roi = np.array(SCORE_ROI) - np.array(roi_diff)
+                        damage_data_roi = np.array(DAMAGE_DATA_ROI) - np.array(roi_diff)
+                        speed_roi = np.array(SPEED_ICON_ROI) - np.array(roi_diff)
 
-                            analyze_anna_icon_frame(work_frame, CHARACTER_ICON_ROI, characters_find)
+                        analyze_anna_icon_frame(work_frame, CHARACTER_ICON_ROI, characters_find)
 
+                else:
+                    if time_min is "1":
+                        time_min = analyze_timer_frame(work_frame, min_roi, 2, time_min)
+
+                    time_sec10 = analyze_timer_frame(work_frame, tensec_roi, 6, time_sec10)
+                    time_sec1 = analyze_timer_frame(work_frame, onesec_roi, 10, time_sec1)
+
+                    find_time = time_min + ":" + time_sec10 + time_sec1
+                    now_time, is_same_time = time_check(time_min, time_sec10, time_sec1, past_time)
+
+                    is_normal_speed = analyze_speed(original_frame, speed_roi)
+
+                    if is_same_time:
+                        #  count up if normal speed, neither, reset count
+                        if is_normal_speed:
+                            time_count += 1
+                        else:
+                            time_count = 0
                     else:
-                        if time_min is "1":
-                            time_min = analyze_timer_frame(work_frame, min_roi, 2, time_min)
+                        time_count = 0
+                        past_time = now_time
 
-                        time_sec10 = analyze_timer_frame(work_frame, tensec_roi, 6, time_sec10)
-                        time_sec1 = analyze_timer_frame(work_frame, onesec_roi, 10, time_sec1)
-
+                    if time_count >= 0:
+                        # check friendly ub
                         ub_result, find_id = analyze_ub_frame(work_frame, ub_roi, time_min, time_sec10, time_sec1,
-                                                              ub_data, ub_data_enemy, ub_data_value, characters_find)
+                                                              ub_data, ub_data_enemy, ub_data_value,
+                                                              characters_find)
 
-                        past_time, find_time, time_count, enemy_result = count_up(time_min, time_sec10, time_sec1,
-                                                                                  past_time,
-                                                                                  find_time, ub_result, find_id,
-                                                                                  time_count, cap_interval)
-                        if enemy_result is FOUND:
-                            menu_check = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)[0]
+                        if ub_result:
+                            # update count
+                            time_count = update_count(frame_rate, find_id, cap_interval)
 
-                            if menu_check is True:
-                                ub_data_enemy.append(find_time + " " + enemy_ub)
+                        elif is_normal_speed:
+                            # check enemy ub
+                            analyze_enemy_ub(time_count, work_frame, find_time, ub_data_enemy)
 
-                        # check score existence
-                        ret = analyze_score_frame(work_frame, SCORE_DATA, score_roi)
+                    # check score existence
+                    ret = analyze_score_frame(work_frame, SCORE_DATA, score_roi)
+
+                    if ret is True:
+                        # analyze total damage
+                        ret = analyze_damage_frame(original_frame, damage_data_roi, tmp_damage)
 
                         if ret is True:
-                            # analyze total damage
-                            ret = analyze_damage_frame(original_frame, damage_data_roi, tmp_damage)
+                            total_damage = "".join(tmp_damage)
 
-                            if ret is True:
-                                total_damage = "".join(tmp_damage)
-
-                            if enemy_ub in ub_data_enemy[-1]:
-                                ub_data_enemy.pop()
-
-                            break
-                else:
-                    time_count += 1
+                        break
 
     video.release()
     cm.clear_path(movie_path)
 
     # post-processing to timeline
+    if len(ub_data_enemy) != 0 and ENEMY_UB in ub_data_enemy[-1]:
+        ub_data_enemy.pop()
+
     debuff_value = ac.make_ub_value_list(ub_data_value, characters_find)
 
     time_result = tm.time() - start_time
@@ -556,7 +595,8 @@ def expand_frame(frame):
     return work_frame
 
 
-def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_data_enemy, ub_data_value, characters_find):
+def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_data_enemy, ub_data_value,
+                     characters_find):
     """analyze frame to find ub name
 
     analyze ub name roi and find best match character
@@ -601,6 +641,10 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
 
         if ub_result is FOUND:
             tl = time_min + ":" + time_10sec + time_sec + " " + tmp_character[0]
+            if len(ub_data) != 0 and ub_data[-1] == tl:
+                # same time, same ub ignore
+                return NOT_FOUND, None
+
             ub_data.append(tl)
             ub_data_enemy.append(tl)
             ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
@@ -620,6 +664,10 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
 
         if ub_result is FOUND:
             tl = time_min + ":" + time_10sec + time_sec + " " + tmp_character[0]
+            if len(ub_data) != 0 and ub_data[-1] == tl:
+                # same time, same ub ignore
+                return NOT_FOUND, None
+
             ub_data.append(tl)
             ub_data_enemy.append(tl)
             ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
@@ -904,45 +952,101 @@ def get_analyze_status(ub_data, video_type):
     return status
 
 
-def count_up(time_min, time_sec10, time_sec1, past_time, find_time, ub_result, find_id, time_count, cap_interval):
-    """count time after ub
+def time_check(time_min, time_sec10, time_sec1, past_time):
+    now_time = int(time_min) * 60 + int(time_sec10) * 10 + int(time_sec1)
+    if past_time != now_time:
+        return now_time, False
+    else:
+        return now_time, True
+
+
+def update_count(frame_rate, find_id, cap_interval):
+    """update count after friendly ub
 
 
     Args
-        time_min (string): minute
-        time_sec10 (string): 10sec
-        time_sec1 (string): 1sec
-        past_time (int): 0~90
-        find_time (string): m:ss
-        ub_result (string): FOUND / NOT_FOUND
+        frame_rate (int): movie fps
         find_id (int): find character id
-        time_count (int): count up after ub
-        interval (int): read frame interval
+        cap_interval (int): read frame interval
 
 
     Returns
-        past_time (int): 0~90
-        find_time (string): m:ss
-        time_count (int): count up after ub
-        enemy_result (string): FOUND / NOT_FOUND
+        time_count (int): ub interval
 
     """
-    enemy_result = NOT_FOUND
-    now_time = int(time_min) * 60 + int(time_sec10) * 10 + int(time_sec1)
+    return -1 * (frame_rate / 30) * int(cd.ub_time_table[find_id] / cap_interval)
 
-    if past_time != now_time:
-        past_time = now_time
-        time_count = 0
-    else:
-        time_count += 1
 
+def check_enemy_ub(time_count):
+    """check enemy ub
+
+
+    Args
+        time_count (int): count up after ub
+
+
+    Returns
+        is_enemy_ub (boolean): enemy ub existence
+
+    """
     if time_count > 7:
-        new_time = time_min + ":" + time_sec10 + time_sec1
-        if find_time != new_time:
-            find_time = new_time
-            enemy_result = FOUND
+        return True
+    else:
+        return False
 
-    if ub_result is FOUND:
-        time_count = -1 * int(cd.ub_time_table[find_id] / cap_interval)
 
-    return past_time, find_time, time_count, enemy_result
+def analyze_enemy_ub(time_count, work_frame, find_time, ub_data_enemy):
+    """analyze enemy ub
+
+
+    Args
+        time_count (int): count up after ub
+        work_frame (ndarray): expand frame
+        find_time (string): m:ss
+        ub_data_enemy (list): found ub data with enemy ub
+
+
+    Returns
+
+    """
+    # check enemy ub
+    is_enemy_ub = check_enemy_ub(time_count)
+    if is_enemy_ub:
+        menu_check = analyze_menu_frame(work_frame, MENU_DATA, MENU_ROI)[0]
+        if menu_check:
+            tl = find_time + " " + ENEMY_UB
+            if len(ub_data_enemy) != 0 and ub_data_enemy[-1] != tl:
+                # same time, same ub ignore
+                ub_data_enemy.append(tl)
+
+
+def analyze_speed(frame, roi):
+    """analyze speed
+
+    check speed icon for get speed
+
+    Args
+        frame (ndarray): original frame from movie
+        roi (list): search roi
+
+    Returns
+        ret (boolean): find or not find speed up (x2 / x4) icon inactive
+
+
+    """
+    analyze_frame = frame[roi[1]:roi[3], roi[0]:roi[2]]
+
+    analyze_frame = cv2.cvtColor(analyze_frame, cv2.COLOR_RGB2GRAY)
+    analyze_frame = cv2.threshold(analyze_frame, SPEED_ICON_THRESH, 255, cv2.THRESH_BINARY)[1]
+    analyze_frame = cv2.bitwise_not(analyze_frame)
+
+    speed_num = len(SPEED_DATA)
+
+    for j in range(speed_num):
+        result_temp = cv2.matchTemplate(analyze_frame, SPEED_DATA[j], cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result_temp)
+        if max_val > SPEED_THRESH:
+            # find speed up (x2 / x4) icon active
+            return False
+
+    return True
