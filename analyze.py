@@ -446,6 +446,8 @@ def analyze_movie(movie_path):
     cap_interval = int(frame_rate * n)
     past_time = 90
     time_count = 0
+    find_id = -1
+    find_count = 0
 
     if (frame_count / frame_rate) < 600:  # only check less than 10 min movie
         for i in range(frame_count):  # cycle check movie per frame
@@ -503,9 +505,10 @@ def analyze_movie(movie_path):
 
                     if time_count >= 0:
                         # check friendly ub
-                        ub_result, find_id = analyze_ub_frame(work_frame, ub_roi, time_min, time_sec10, time_sec1,
-                                                              ub_data, ub_data_enemy, ub_data_value,
-                                                              characters_find)
+                        ub_result, find_id, find_count = analyze_ub_frame(work_frame, ub_roi, time_min, time_sec10,
+                                                                          time_sec1,
+                                                                          ub_data, ub_data_enemy, ub_data_value,
+                                                                          characters_find, find_id, find_count)
 
                         if ub_result:
                             # update count
@@ -596,7 +599,7 @@ def expand_frame(frame):
 
 
 def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_data_enemy, ub_data_value,
-                     characters_find):
+                     characters_find, past_id, past_count):
     """analyze frame to find ub name
 
     analyze ub name roi and find best match character
@@ -612,10 +615,13 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
         ub_data_enemy (list): ub name data with enemy ub
         ub_data_value (list): founded ub data
         characters_find (list): founded characters
+        past_id (int): find characters id
+        past_count (int): find one character id time
 
     Returns
         ub_result (string): ub FOUND or NOT_FOUND
         find_id (int): find characters id
+        find_count (int): find one character id time
 
 
     """
@@ -624,6 +630,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
     characters_num = len(CHARACTERS)
     ub_result = NOT_FOUND
     find_id = 0
+    find_count = 0
     tmp_character = [False, 0]
     tmp_value = UB_THRESH
 
@@ -643,7 +650,13 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
             tl = time_min + ":" + time_10sec + time_sec + " " + tmp_character[0]
             if len(ub_data) != 0 and ub_data[-1] == tl:
                 # same time, same ub ignore
-                return NOT_FOUND, None
+                find_count = past_count + 1
+                return NOT_FOUND, find_id, find_count
+
+            if find_id == past_id and past_count < 5:
+                # in 50f time, same ub ignore
+                find_count = past_count + 1
+                return NOT_FOUND, find_id, find_count
 
             ub_data.append(tl)
             ub_data_enemy.append(tl)
@@ -666,13 +679,19 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
             tl = time_min + ":" + time_10sec + time_sec + " " + tmp_character[0]
             if len(ub_data) != 0 and ub_data[-1] == tl:
                 # same time, same ub ignore
-                return NOT_FOUND, None
+                find_count = past_count + 1
+                return NOT_FOUND, find_id, find_count
+
+            if find_id == past_id and past_count < 5:
+                # in 50f time, same ub ignore
+                find_count = past_count + 1
+                return NOT_FOUND, find_id, find_count
 
             ub_data.append(tl)
             ub_data_enemy.append(tl)
             ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
 
-    return ub_result, find_id
+    return ub_result, find_id, find_count
 
 
 def analyze_timer_frame(frame, roi, data_num, time_data):
