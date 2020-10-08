@@ -629,7 +629,7 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
 
     characters_num = len(CHARACTERS)
     ub_result = NOT_FOUND
-    find_id = 0
+    find_id = -1
     find_count = 0
     tmp_character = [False, 0]
     tmp_value = UB_THRESH
@@ -663,6 +663,8 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
             ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
             if tmp_character[1] not in characters_find:
                 characters_find.append(tmp_character[1])
+
+            return FOUND, find_id, find_count
     else:
         for j in range(5):
             # 5 characters search
@@ -691,7 +693,9 @@ def analyze_ub_frame(frame, roi, time_min, time_10sec, time_sec, ub_data, ub_dat
             ub_data_enemy.append(tl)
             ub_data_value.extend([[int(int(time_min) * 60 + int(time_10sec) * 10 + int(time_sec)), tmp_character[1]]])
 
-    return ub_result, find_id, find_count
+            return FOUND, find_id, find_count
+
+    return NOT_FOUND, find_id, find_count
 
 
 def analyze_timer_frame(frame, roi, data_num, time_data):
