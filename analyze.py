@@ -99,7 +99,7 @@ TIMER_THRESH = 0.6
 MENU_THRESH = 0.6
 DAMAGE_THRESH = 0.65
 ICON_THRESH = 0.6
-SPEED_THRESH = 0.6
+SPEED_THRESH = 0.4
 
 FOUND = 1
 NOT_FOUND = 0
@@ -1012,7 +1012,7 @@ def check_enemy_ub(time_count):
         is_enemy_ub (boolean): enemy ub existence
 
     """
-    if time_count > 7:
+    if time_count > 9:
         return True
     else:
         return False
