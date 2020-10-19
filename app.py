@@ -136,7 +136,7 @@ def index():
 
         cache = cm.cache_check(youtube_id)
 
-        if cache is not False:
+        if cache:
             title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
             if past_status % 100 // 10 == 0:
                 debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
@@ -202,7 +202,7 @@ def index():
             youtube_id = request.args.get("v")
             if re.fullmatch(r"^([a-zA-Z0-9_-]{11})$", youtube_id):
                 cache = cm.cache_check(youtube_id)
-                if cache is not False:
+                if cache:
                     title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
                     if past_status % 100 // 10 == 0:
                         debuff_dict, data_txt, data_url, total_damage = get_web_txt(youtube_id, title,
@@ -469,7 +469,7 @@ def rest_analyze():
         # 正常なurlの場合
         cache = cm.cache_check(youtube_id)
 
-        if cache is not False:
+        if cache:
             # キャッシュ有りの場合
             # キャッシュを返信
             title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
@@ -533,7 +533,7 @@ def rest_analyze():
                 continue
             else:  # 解析が完了したら、そのキャッシュJSONを返す
                 cache = cm.queue_cache_check(youtube_id)
-                if cache is not False:
+                if cache:
                     title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
                     rest_result = get_rest_result(title, time_line, time_line_enemy, time_data, total_damage, debuff_value)
 
