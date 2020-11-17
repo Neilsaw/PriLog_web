@@ -175,8 +175,6 @@ def model_init(video_type):
         ICON_DATA = np.load("model/16_9/icon_data_16_9.npy")
         SPEED_DATA = np.load("model/16_9/speed_data_16_9.npy")
 
-    return
-
 
 def roi_init(video_type):
     """init roi and thresh value

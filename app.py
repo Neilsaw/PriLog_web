@@ -209,7 +209,8 @@ def index():
                                                                                     time_line, debuff_value,
                                                                                     total_damage)
 
-                        return render_template("result.html", title=title, timeLine=time_line, timeLineEnemy=time_line_enemy,
+                        return render_template("result.html", title=title, timeLine=time_line,
+                                               timeLineEnemy=time_line_enemy,
                                                timeData=time_data, totalDamage=total_damage, debuffDict=debuff_dict,
                                                data_txt=data_txt, data_url=data_url)
 
@@ -268,7 +269,7 @@ def index():
             else:  # prilog.jp/(YoutubeID)に該当しないリクエスト
                 error = "不正なリクエストです"
                 return render_template("index.html", error=error)
-            
+
         else:
             path = session.get("path")
             session.pop("path", None)
@@ -535,7 +536,8 @@ def rest_analyze():
                 cache = cm.queue_cache_check(youtube_id)
                 if cache:
                     title, time_line, time_line_enemy, time_data, total_damage, debuff_value, past_status = cache
-                    rest_result = get_rest_result(title, time_line, time_line_enemy, time_data, total_damage, debuff_value)
+                    rest_result = get_rest_result(title, time_line, time_line_enemy, time_data, total_damage,
+                                                  debuff_value)
 
                     status = past_status
                     break
