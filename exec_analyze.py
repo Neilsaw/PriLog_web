@@ -17,14 +17,16 @@ def do_analyze():
     if not youtube_id:
         return
 
+    queue_path = ap.queue_dir + str(youtube_id)
+    pending_path = ap.pending_dir + str(youtube_id)
+
     cached = cm.cache_check(youtube_id)
 
     # 5分経過した3xx キャッシュ以外は再解析しない
     if cached:
+        cm.clear_path(queue_path)
+        cm.clear_path(pending_path)
         return
-
-    queue_path = ap.queue_dir + str(youtube_id)
-    pending_path = ap.pending_dir + str(youtube_id)
 
     # youtube動画検索/検証
     path, title, length, thumbnail, url_result = al.search(youtube_id)
