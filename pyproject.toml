@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "prilog_web"
+version = "0.1.0"
+description = ""
+authors = ["Neilsaw <prilog.redive@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Flask = "^1.1.2"
+numpy = "^1.19.4"
+pytube = "^10.0.0"
+opencv-python = "^4.4.0"
+
+[tool.poetry.dev-dependencies]
+Flask = "^1.1.2"
+numpy = "^1.19.4"
+pytube = "^10.0.0"
+opencv-python = "^4.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

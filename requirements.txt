@@ -1,4 +1,0 @@
-Flask == 1.1.2
-numpy == 1.19.2
-pytube == 10.0.0
-opencv == 4.5.0
