@@ -11,12 +11,14 @@ Flask = "^1.1.2"
 pytube = "^10.0.0"
 opencv-python = "^4.4.0"
 numpy = "1.19.3"
+Pillow = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 Flask = "^1.1.2"
 pytube = "^10.0.0"
 opencv-python = "^4.4.0"
 numpy = "1.19.3"
+Pillow = "^8.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
