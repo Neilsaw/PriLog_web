@@ -84,7 +84,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "pytube"
-version = "10.0.0"
+version = "10.4.1"
 description = "Python 3 library for downloading YouTube Videos."
 category = "main"
 optional = false
@@ -260,8 +260,8 @@ pillow = [
     {file = "Pillow-8.0.1.tar.gz", hash = "sha256:11c5c6e9b02c9dac08af04f093eb5a2f84857df70a7d4a6a6ad461aca803fb9e"},
 ]
 pytube = [
-    {file = "pytube-10.0.0-py3-none-any.whl", hash = "sha256:e59ec01f9fb49a60008ce1623c794731fb240aa116399582705a426f7202cb6d"},
-    {file = "pytube-10.0.0.tar.gz", hash = "sha256:85cefc2b6f8b47eb94f9a9d86ad7eccd1b32b147d3e2e307f56f7dab70bc42e9"},
+    {file = "pytube-10.4.1-py3-none-any.whl", hash = "sha256:a93e80476b200d2195cddb24d7707a05fcf9b12a2f50da2fd7daeceebf47452d"},
+    {file = "pytube-10.4.1.tar.gz", hash = "sha256:e3a496b049e03a9f2809c28bf562022b0efc9e926f0ec0dd982a083b5b27e344"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.7.4.3-py2-none-any.whl", hash = "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"},
