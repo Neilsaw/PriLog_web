@@ -15,7 +15,7 @@ Pillow = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 Flask = "^1.1.2"
-pytube = "^10.4.1"
+pytube = "^10.5.1"
 opencv-python = "^4.4.0"
 numpy = "1.19.3"
 Pillow = "^8.0.1"
