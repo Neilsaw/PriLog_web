@@ -26,6 +26,7 @@ config.read("config.ini")
 SERVER_ERROR_STATE = config.get("general", "error_state")
 SERVER_TOKEN_AUTH = config.get("general", "token_auth")
 MULTI_SERVER = config.get("rest", "multi_server")
+DL_INTERVAL = int(config.get("rest", "interval"))
 
 # movie download directory
 stream_dir = "tmp/"
@@ -165,7 +166,7 @@ def index():
             # キューが回ってきたか確認し、来たらダウンロード実行
             while True:
                 if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
-                    if cm.is_pending_download(15):  # check pending download
+                    if cm.is_pending_download(DL_INTERVAL):  # check pending download
                         break
 
                 timeout = cm.watchdog_download(youtube_id, 300)  # 5分間タイムアウト監視
@@ -234,7 +235,7 @@ def index():
                         # キューが回ってきたか確認し、来たらダウンロード実行
                         while True:
                             if not cm.is_path_exists(dl_ongoing_path) and cm.is_path_due(dl_queue_path):
-                                if cm.is_pending_download(15):  # check pending download
+                                if cm.is_pending_download(DL_INTERVAL):  # check pending download
                                     break
 
                             timeout = cm.watchdog_download(youtube_id, 300)  # 5分間タイムアウト監視
@@ -506,7 +507,7 @@ def rest_analyze():
                 rest_queue = cm.is_path_due(queue_path)
                 web_download = cm.is_path_exists(dl_queue_path)
                 if not rest_pending and rest_queue and not web_download:
-                    if cm.is_pending_download(15):  # check pending download
+                    if cm.is_pending_download(DL_INTERVAL):  # check pending download
                         if not MULTI_SERVER:
                             analyzer_path = f'python exec_analyze.py {url}'
                             cm.pending_append(pending_path)
