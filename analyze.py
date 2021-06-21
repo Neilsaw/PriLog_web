@@ -353,6 +353,11 @@ def search(youtube_id):
         cm.clear_path(dl_ongoing_path)
         return None, None, None, None, state.TMP_CANT_GET_HD
 
+    if yt.channel_id is None:
+        # cant get movie by private
+        cm.clear_path(dl_ongoing_path)
+        return None, None, None, None, state.ERR_PRIVATE_DELETED_CONTENT
+
     movie_thumbnail = yt.thumbnail_url
     movie_length = yt.length
     if int(movie_length) > MOVIE_LENGTH_MAX:
